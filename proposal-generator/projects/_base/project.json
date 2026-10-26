@@ -1,0 +1,467 @@
+{
+  "company": {
+    "installed_mwp": 10,
+    "since": "November 2022",
+    "industrial_mwp": 10.26
+  },
+  "financial": {
+    "pln_tariff_rp_kwh": 1066.85,
+    "tariff_note": "",
+    "peak_sun_hours": 4.5,
+    "operating_days": 365,
+    "performance_ratio": 0.8,
+    "degradation_first_year_pct": 1,
+    "degradation_pct": 0.4,
+    "tariff_escalation_pct": 2,
+    "om_pct_of_capex": 1,
+    "inverter_replacement_years": [12],
+    "battery_replacement_years": [10, 20],
+    "years": 25,
+    "grid_emission_factor_t_mwh": 0.87,
+    "sensitivity_escalation_pct": [
+      0,
+      2,
+      3,
+      5
+    ],
+    "discount_rate_pct": 10
+  },
+  "terms": [
+    "Price validity: 14 days.",
+    "Franco {kota}.",
+    "Price is based on the design proposed by HME. Any design change will change the price.",
+    "Maximum cable distance from inverter to the interconnection point is 20 meters.",
+    "Price excludes structural reinforcement if the existing building is found not strong enough.",
+    "Size and price are subject to change after structural analysis.",
+    "HME reserves the right to substitute equipment brand and model with one of equivalent or better performance and quality (Tier-1).",
+    "HME assumes storage space is available on the client's site for warehousing."
+  ],
+  "warranty": [
+    {
+      "item": "PV module",
+      "value": "12 years",
+      "detail": "Manufacturer product warranty, plus linear power output warranty per datasheet."
+    },
+    {
+      "item": "Inverter",
+      "value": "5 years",
+      "detail": "Manufacturer product warranty."
+    },
+    {
+      "item": "Mounting structure",
+      "value": "10 years",
+      "detail": "Product warranty for the mounting structure."
+    },
+    {
+      "item": "Installation",
+      "value": "12 months",
+      "detail": "HME warrants the installation against defects. Extendable upon request."
+    }
+  ],
+  "schedule": [
+    {
+      "task": "EPC agreement",
+      "start": 0,
+      "end": 0.5
+    },
+    {
+      "task": "Detailed engineering design",
+      "start": 0.25,
+      "end": 1
+    },
+    {
+      "task": "Procurement",
+      "start": 0.75,
+      "end": 2
+    },
+    {
+      "task": "Construction",
+      "start": 1.5,
+      "end": 3
+    },
+    {
+      "task": "Testing & commissioning",
+      "start": 2.75,
+      "end": 3.25
+    },
+    {
+      "task": "SLO & operation permit",
+      "start": 3,
+      "end": 3.5
+    }
+  ],
+  "scope": {
+    "services": [
+      [
+        "1",
+        "Site survey",
+        true,
+        false
+      ],
+      [
+        "2",
+        "Project management",
+        true,
+        false
+      ],
+      [
+        "2.1",
+        "Permits required for installation",
+        true,
+        false
+      ],
+      [
+        "2.2",
+        "Planning & project coordination",
+        true,
+        true
+      ],
+      [
+        "2.3",
+        "Project progress tracking & report",
+        true,
+        false
+      ],
+      [
+        "2.4",
+        "Site supervision",
+        true,
+        false
+      ],
+      [
+        "2.5",
+        "Implementation of HSE rules",
+        true,
+        false
+      ],
+      [
+        "2.6",
+        "QA/QC",
+        true,
+        false
+      ],
+      [
+        "3",
+        "Detailed engineering design",
+        true,
+        false
+      ],
+      [
+        "3.1",
+        "Engineering design & calculation",
+        true,
+        false
+      ],
+      [
+        "3.2",
+        "Shop drawing",
+        true,
+        false
+      ],
+      [
+        "3.3",
+        "As-built drawing",
+        true,
+        false
+      ],
+      [
+        "4",
+        "Procurement & supply",
+        true,
+        false
+      ],
+      [
+        "5",
+        "Construction of the plant",
+        true,
+        false
+      ],
+      [
+        "6",
+        "Commissioning",
+        true,
+        false
+      ],
+      [
+        "7",
+        "SLO & PV system operation permit",
+        true,
+        false
+      ],
+      [
+        "8",
+        "Additional scope of work",
+        true,
+        true
+      ]
+    ],
+    "supply": [
+      "Solar panel",
+      "Inverter",
+      "Cable tray",
+      "DC cable",
+      "Smart logger",
+      "Weather station",
+      "Mounting structure",
+      "Safety line",
+      "AC cable",
+      "Conduit and accessories",
+      "Grounding structure",
+      "Grounding cable",
+      "Walkway (HDG)",
+      "Water cleaning system",
+      "Inverter shelter",
+      "Communication cable",
+      "Switchgear",
+      "Safety equipment",
+      "Access ladder",
+      "Fire extinguisher"
+    ]
+  },
+  "id": {
+    "price_items": [
+      "EPC PLTS On-Grid Rooftop komersial",
+      "Material PLTS on-grid kelas industri",
+      "Jasa instalasi"
+    ],
+    "terms": [
+      "Harga berlaku 14 hari.",
+      "Franco {kota}.",
+      "Harga berdasarkan desain yang diusulkan HME; perubahan desain akan mengubah harga.",
+      "Jarak kabel maksimum dari inverter ke titik interkoneksi 20 meter.",
+      "Harga belum termasuk perkuatan struktur bila bangunan eksisting dinilai kurang kuat.",
+      "Ukuran dan harga dapat berubah setelah analisis struktur.",
+      "HME berhak mengganti merek dan model peralatan dengan yang setara atau lebih baik (Tier-1).",
+      "Klien menyediakan ruang penyimpanan material di lokasi."
+    ],
+    "warranty": [
+      {
+        "item": "Modul surya",
+        "value": "12 tahun",
+        "detail": "Garansi produk pabrikan, ditambah garansi daya linier sesuai datasheet."
+      },
+      {
+        "item": "Inverter",
+        "value": "5 tahun",
+        "detail": "Garansi produk pabrikan."
+      },
+      {
+        "item": "Struktur mounting",
+        "value": "10 tahun",
+        "detail": "Garansi produk struktur mounting."
+      },
+      {
+        "item": "Instalasi",
+        "value": "12 bulan",
+        "detail": "HME menjamin instalasi bebas cacat. Dapat diperpanjang atas permintaan."
+      }
+    ],
+    "schedule": [
+      {
+        "task": "Perjanjian EPC",
+        "start": 0,
+        "end": 0.5
+      },
+      {
+        "task": "Desain engineering detail",
+        "start": 0.25,
+        "end": 1
+      },
+      {
+        "task": "Pengadaan",
+        "start": 0.75,
+        "end": 2
+      },
+      {
+        "task": "Konstruksi",
+        "start": 1.5,
+        "end": 3
+      },
+      {
+        "task": "Pengujian & commissioning",
+        "start": 2.75,
+        "end": 3.25
+      },
+      {
+        "task": "SLO & izin operasi",
+        "start": 3,
+        "end": 3.5
+      }
+    ],
+    "scope": {
+      "services": [
+        [
+          "1",
+          "Survei lokasi",
+          true,
+          false
+        ],
+        [
+          "2",
+          "Manajemen proyek",
+          true,
+          false
+        ],
+        [
+          "2.1",
+          "Perizinan untuk instalasi",
+          true,
+          false
+        ],
+        [
+          "2.2",
+          "Perencanaan & koordinasi proyek",
+          true,
+          true
+        ],
+        [
+          "2.3",
+          "Pelacakan & laporan progres",
+          true,
+          false
+        ],
+        [
+          "2.4",
+          "Pengawasan lapangan",
+          true,
+          false
+        ],
+        [
+          "2.5",
+          "Penerapan aturan K3",
+          true,
+          false
+        ],
+        [
+          "2.6",
+          "QA/QC",
+          true,
+          false
+        ],
+        [
+          "3",
+          "Desain engineering detail",
+          true,
+          false
+        ],
+        [
+          "3.1",
+          "Desain & perhitungan engineering",
+          true,
+          false
+        ],
+        [
+          "3.2",
+          "Shop drawing",
+          true,
+          false
+        ],
+        [
+          "3.3",
+          "As-built drawing",
+          true,
+          false
+        ],
+        [
+          "4",
+          "Pengadaan & suplai",
+          true,
+          false
+        ],
+        [
+          "5",
+          "Konstruksi pembangkit",
+          true,
+          false
+        ],
+        [
+          "6",
+          "Commissioning",
+          true,
+          false
+        ],
+        [
+          "7",
+          "SLO & izin operasi PLTS",
+          true,
+          false
+        ],
+        [
+          "8",
+          "Pekerjaan tambahan",
+          true,
+          true
+        ]
+      ],
+      "supply": [
+        "Panel surya",
+        "Inverter",
+        "Cable tray",
+        "Kabel DC",
+        "Smart logger",
+        "Weather station",
+        "Struktur mounting",
+        "Safety line",
+        "Kabel AC",
+        "Conduit & aksesori",
+        "Struktur grounding",
+        "Kabel grounding",
+        "Walkway (HDG)",
+        "Sistem pembersih air",
+        "Shelter inverter",
+        "Kabel komunikasi",
+        "Switchgear",
+        "Peralatan K3",
+        "Tangga akses",
+        "APAR"
+      ]
+    },
+    "tariff_note": "",
+    "quality": [
+      [
+        "Modul surya",
+        "IEC 61215 · IEC 61730 · UL 61215 · UL 61730",
+        "Pabrikan bersertifikat ISO 9001, ISO 14001 dan ISO 45001, sesuai datasheet."
+      ],
+      [
+        "Inverter",
+        "IEC 62109-1/-2 · IEC 61727 · IEC 62116",
+        "Standar keselamatan dan koneksi ke jaringan, sesuai datasheet."
+      ],
+      [
+        "Perizinan",
+        "SLO dan NIDI diurus HME",
+        "Termasuk dalam lingkup pekerjaan dan harga penawaran."
+      ],
+      [
+        "Pemantauan",
+        "Alarm gangguan real-time",
+        "Dikirim ke tim HME dan tim Anda melalui sistem monitoring."
+      ]
+    ],
+    "production_guarantee": null,
+    "payment_terms": [
+      [
+        "Uang muka",
+        "30%",
+        "Saat kontrak ditandatangani"
+      ],
+      [
+        "Material di lokasi",
+        "45%",
+        "Material tiba di lokasi"
+      ],
+      [
+        "Pembayaran progres",
+        "20%",
+        "Sesuai progres pekerjaan"
+      ],
+      [
+        "Setelah instalasi",
+        "5%",
+        "Instalasi selesai"
+      ]
+    ]
+  },
+  "_comment": "Fixed parts of every HME proposal. assemble.py merges per-project inputs on top. Do not put client data here."
+}

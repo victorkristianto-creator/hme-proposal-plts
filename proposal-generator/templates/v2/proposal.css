@@ -1,0 +1,336 @@
+/* HME proposal v2 · A4 portrait · Bahasa Indonesia
+   Tokens taken 1:1 from Company Profile 2026 (adedian.github.io/company-profile) */
+@font-face { font-family: "Bricolage"; src: url("../../assets/fonts/bricolage-wdth.woff2") format("woff2"); font-weight: 200 800; font-stretch: 75% 100%; }
+@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree.woff2") format("woff2"); font-weight: 300 900; }
+
+:root {
+  --bg: #F3F7FB; --surface: #FFFFFF; --soft: #E7F0F7;
+  --ink: #0B2135; --muted: #4A6176; --line: #D3E0EB;
+  --navy: #104674; --navy-deep: #0A3055; --navy-ink: #071C30;
+  --amber: #F59A1B; --sun: #FDB813; --accent-ink: #A45300;
+  --on-navy: #FFFFFF; --on-navy-muted: #B9CDE0;
+  --night: linear-gradient(180deg, #071C30 0%, #0A3055 45%, #104674 100%);
+  --f-display: "Bricolage", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  /* spacing scale (mm) */
+  --s1: 1.5mm; --s2: 3mm; --s3: 5mm; --s4: 8mm; --s5: 12mm; --s6: 18mm;
+  --margin-x: 18mm;
+}
+
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: var(--f-body); color: var(--ink); font-size: 9.6pt; line-height: 1.5; background: #fff; font-variant-numeric: proportional-nums; }
+::selection { background: var(--sun); color: var(--navy-ink); }
+
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; break-after: page; background: #fff; }
+.page:last-child { break-after: auto; }
+
+.display { font-family: var(--f-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.02; text-wrap: balance; }
+.sun { color: var(--sun); }
+.amber-ink { color: var(--accent-ink); }
+
+/* ------------------------------------------------ cover */
+.cover { background: var(--night); color: var(--on-navy); }
+.cover .art { position: absolute; inset: 0; width: 210mm; height: 297mm; }
+.cover .brand { position: absolute; left: var(--margin-x); top: 16mm; display: flex; align-items: center; gap: 3.2mm; }
+.cover .brand img { width: 13mm; height: auto; }
+.cover .brand b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 12pt; letter-spacing: -0.01em; line-height: 1.1; }
+.cover .brand span { display: block; font-size: 8pt; color: var(--on-navy-muted); }
+
+.cover .title { position: absolute; left: var(--margin-x); right: 60mm; top: 42mm; }
+.cover h1 { font-size: 40pt; line-height: 1.04; }
+.cover h1 .sun { display: block; }
+.cover .sub { margin-top: 4.5mm; font-size: 11pt; color: var(--on-navy-muted); letter-spacing: .01em; }
+
+.cover .specs { position: absolute; left: var(--margin-x); width: 52mm; top: 112mm; }
+.cover .specs div { padding: 2.6mm 0; border-bottom: .25mm solid rgba(185, 205, 224, .22); }
+.cover .specs div:first-child { padding-top: 0; }
+.cover .specs dt { font-size: 7.6pt; color: var(--on-navy-muted); }
+.cover .specs dd { font-family: var(--f-display); font-weight: 700; font-size: 11.5pt; letter-spacing: -0.01em; line-height: 1.2; margin-top: .8mm; }
+.cover .specs .cap dd { font-size: 30pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: var(--on-navy); }
+.cover .specs .cap small { font-size: 13pt; font-weight: 700; color: var(--sun); letter-spacing: 0; }
+.cover .client-block { position: absolute; left: var(--margin-x); width: 84mm; bottom: 46mm; }
+.cover .client { font-family: var(--f-display); font-weight: 700; font-size: 17pt; letter-spacing: -0.01em; line-height: 1.15; text-wrap: balance; }
+.cover .loc { font-size: 9.6pt; color: var(--on-navy-muted); margin-top: 1.2mm; }
+.cover .verdict { margin-top: 5mm; width: 106mm; font-size: 10.4pt; line-height: 1.5; color: var(--on-navy); max-width: none; }
+.cover .verdict::before { content: ""; display: block; width: 14mm; height: .7mm; background: var(--amber); margin-bottom: 3.6mm; }
+.cover .verdict b { color: var(--sun); font-weight: 700; white-space: nowrap; }
+
+.cover .meta { position: absolute; left: 0; right: 0; bottom: 0; height: 34mm; background: var(--navy-ink); padding: 0 var(--margin-x); display: flex; justify-content: space-between; align-items: center; }
+.cover .qinfo { width: auto; border-collapse: collapse; font-size: 9.6pt; line-height: 1.55; }
+.cover .qinfo td { padding: 0; vertical-align: baseline; }
+.cover .qinfo td:first-child { color: var(--on-navy-muted); padding-right: 5mm; white-space: nowrap; }
+.cover .qinfo td:nth-child(2) { color: var(--on-navy-muted); padding-right: 2mm; }
+.cover .qinfo td:last-child { font-weight: 600; color: var(--on-navy); }
+.cover .reach { text-align: right; align-self: flex-end; padding-bottom: 7mm; }
+.cover .reach b { display: block; font-weight: 600; font-size: 9pt; color: var(--sun); }
+.cover .reach span { display: block; font-size: 7.6pt; color: var(--on-navy-muted); margin-top: .6mm; }
+
+/* ------------------------------------------------ inner page shell */
+.inner { padding: 0 var(--margin-x); }
+.runhead { position: absolute; left: var(--margin-x); right: var(--margin-x); top: 11mm; display: flex; justify-content: space-between; align-items: center; font-size: 7.6pt; color: var(--muted); padding-bottom: 2.4mm; border-bottom: 0.25mm solid var(--line); }
+.runhead .mark { display: flex; align-items: center; gap: 2mm; color: var(--navy-deep); font-weight: 600; }
+.runhead img { width: 5.4mm; }
+.pagefoot { position: absolute; left: var(--margin-x); right: var(--margin-x); bottom: 10mm; display: flex; justify-content: space-between; font-size: 7.4pt; color: var(--muted); }
+.pagefoot .pg { font-family: var(--f-display); font-weight: 800; color: var(--navy-deep); font-size: 9pt; }
+.body { position: absolute; left: var(--margin-x); right: var(--margin-x); top: 24mm; bottom: 20mm; }
+
+h2.head { font-size: 25pt; color: var(--navy-deep); margin-top: 4mm; }
+h3 { font-family: var(--f-display); font-weight: 700; font-size: 12pt; letter-spacing: -0.01em; color: var(--navy-deep); margin: 0 0 2.4mm; }
+p { margin: 0 0 2.4mm; max-width: 158mm; }
+.lead { font-size: 10.8pt; line-height: 1.55; margin-top: 5mm; }
+.note { font-size: 7.8pt; color: var(--muted); line-height: 1.45; }
+
+/* ------------------------------------------------ decision sheet */
+.sheet { margin-top: 8mm; border-top: 0.6mm solid var(--navy-deep); }
+.sheet .row { display: grid; grid-template-columns: 52mm 1fr; align-items: baseline; gap: 6mm; padding: 2.6mm 0 2.4mm; border-bottom: 0.25mm solid var(--line); }
+.sheet .k { font-size: 9pt; color: var(--muted); }
+.sheet .v { font-family: var(--f-display); font-weight: 700; font-size: 15pt; letter-spacing: -0.01em; color: var(--navy-deep); line-height: 1.15; }
+.sheet .v small { font-family: var(--f-body); font-weight: 500; font-size: 8.6pt; letter-spacing: 0; color: var(--muted); margin-left: 1.6mm; }
+.sheet .row.money .v { color: var(--accent-ink); }
+.sheet .row { padding-left: 2.5mm; padding-right: 2.5mm; }
+.sheet .row.key { background: var(--bg); }
+.sheet .row.key .v { font-size: 19pt; }
+
+/* ------------------------------------------------ chart */
+.chart-block { margin-top: 8mm; }
+.chart { width: 100%; height: auto; display: block; font-family: var(--f-body); }
+.chart .grid { stroke: var(--line); stroke-width: .6; stroke-dasharray: 2 3; }
+.chart .zero { stroke: var(--ink); stroke-width: 1.2; }
+.chart .ax { font-size: 10px; fill: var(--muted); }
+.chart .a-neg { fill: var(--navy); fill-opacity: .14; }
+.chart .a-pos { fill: var(--amber); fill-opacity: .22; }
+.chart .ln { fill: none; stroke: var(--navy-deep); stroke-width: 2.6; stroke-linejoin: round; }
+.chart .be { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart .be-dot { fill: #fff; stroke: var(--navy-deep); stroke-width: 2.4; }
+.chart .start-dot { fill: var(--navy); stroke: #fff; stroke-width: 1.5; }
+.chart .end-dot { fill: var(--amber); stroke: #fff; stroke-width: 1.5; }
+.chart .lbl { font-size: 11.5px; font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 3.5px; stroke-linejoin: round; }
+.chart .lbl.neg { fill: var(--navy); }
+.chart .lbl.pos { fill: var(--accent-ink); }
+.chart .lbl.base { fill: var(--navy-deep); }
+.chart .a-range { fill: var(--sun); fill-opacity: .28; }
+.chart .ln-alt { fill: none; stroke: var(--navy); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.chart .alt-dot { fill: #fff; stroke: var(--navy); stroke-width: 1.5; }
+.chart .lbl.alt { fill: var(--muted); font-weight: 600; }
+
+/* ------------------------------------------------ shared inner blocks */
+.block { margin-top: 7mm; }
+h3.sect { margin-top: 7mm; }
+.muted { color: var(--muted); }
+.two { display: grid; grid-template-columns: 1.15fr 1fr; gap: 9mm; align-items: start; }
+.chart .ln-load { fill: none; stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 5 4; }
+.chart .ln-grid { fill: none; stroke: var(--navy-deep); stroke-width: 2.4; stroke-linejoin: round; }
+.chart .ln-solar { fill: none; stroke: var(--amber); stroke-width: 2.2; stroke-linejoin: round; }
+.chart .a-solar { fill: var(--sun); fill-opacity: .42; }
+.chart .a-saving { fill: var(--amber); fill-opacity: .2; }
+.chart .ln-without { fill: none; stroke: var(--navy); stroke-width: 1.6; stroke-dasharray: 6 4; }
+.chart .ln-with { fill: none; stroke: var(--navy-deep); stroke-width: 2.6; }
+.chart .lbl.on-solar { fill: var(--accent-ink); }
+.chart .lbl.on-saving { fill: var(--accent-ink); }
+.chart .lbl.grid-l, .chart .lbl.with-l { fill: var(--navy-deep); }
+.chart .lbl.load-l { fill: var(--muted); font-weight: 600; }
+.chart .pie-pln, .chart .pie-key-pln { fill: var(--navy-deep); }
+.chart .pie-saving, .chart .pie-key-saving { fill: var(--amber); }
+.chart .pie-pln, .chart .pie-saving { stroke: #fff; stroke-width: 2.5; stroke-linejoin: round; }
+.chart .pie-center { font-family: var(--f-display); font-weight: 800; font-size: 30px; letter-spacing: -0.02em; fill: var(--accent-ink); }
+.chart .pie-key-none { fill: none; stroke: var(--navy); stroke-width: 1.4; stroke-dasharray: 3 2; }
+.chart .pie-pct { font-family: var(--f-display); font-weight: 800; font-size: 22px; fill: #fff; }
+.chart .pie-pct.dark { fill: var(--navy-ink); font-size: 17px; }
+.chart .pie-lbl { font-size: 11px; fill: var(--muted); }
+.chart .pie-val { font-family: var(--f-display); font-weight: 700; font-size: 21px; fill: var(--navy-deep); }
+.chart .pie-val.saving { fill: var(--accent-ink); }
+.chart .pie-sub { font-size: 10px; fill: var(--muted); }
+.chart .pie-center.sm { font-size: 26px; }
+.chart .pie-val.sm { font-size: 17px; }
+.pies { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; margin-top: 2mm; }
+.pies .pie-title { font-size: 8.4pt; font-weight: 600; color: var(--navy-deep); margin: 0 0 1.5mm; }
+.pies-note { margin-top: 2mm; }
+.penghematan .block { margin-top: 4mm; }
+.chart .task { font-size: 11px; fill: var(--ink); }
+.chart .mon { font-weight: 600; fill: var(--navy-deep); }
+.chart .bar { fill: var(--amber); }
+.chart .row { stroke: var(--line); stroke-width: .5; }
+
+table { width: 100%; border-collapse: collapse; }
+table.kv td { padding: 1.7mm 0; border-bottom: .25mm solid var(--line); vertical-align: top; font-size: 8.8pt; }
+table.kv td:first-child { color: var(--muted); width: 46%; padding-right: 4mm; }
+table.kv td:last-child { font-weight: 600; }
+table.kv .muted { font-weight: 400; font-size: 7.8pt; }
+table.data { font-size: 8.4pt; }
+table.data th { text-align: left; font-weight: 700; color: var(--navy-deep); font-size: 7.8pt; padding: 1.6mm 2mm; border-bottom: .5mm solid var(--navy-deep); }
+table.data td { padding: 1.35mm 2mm; border-bottom: .2mm solid var(--line); }
+table.data .num { text-align: right; } table.data .c { text-align: center; }
+table.data tr.hl td { background: #FFF1D9; font-weight: 700; }
+table.data tr.total td { font-weight: 700; border-top: .5mm solid var(--navy-deep); border-bottom: 0; }
+table.data .neg { color: var(--navy); } table.data .pos { color: var(--accent-ink); }
+
+/* ------------------------------------------------ tentang */
+.facts { margin-top: 5mm; border-top: .6mm solid var(--navy-deep); }
+.facts div { display: grid; grid-template-columns: 27mm 1fr; gap: 3mm; padding: 2.2mm 0; border-bottom: .25mm solid var(--line); align-items: baseline; }
+.facts dt { font-size: 8.4pt; color: var(--muted); }
+.facts dd { font-family: var(--f-display); font-weight: 700; font-size: 10.5pt; color: var(--navy-deep); line-height: 1.2; }
+.honey { width: 100%; display: block; margin-top: 1mm; }
+.projlist { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin-top: 2.5mm; font-size: 7.8pt; color: var(--muted); }
+.projlist b { display: block; font-family: var(--f-display); font-size: 12pt; color: var(--navy-deep); }
+.logos { display: grid; border-top: .25mm solid var(--line); border-left: .25mm solid var(--line); }
+.logos div { border-right: .25mm solid var(--line); border-bottom: .25mm solid var(--line); display: flex; align-items: center; justify-content: center; }
+.logos img { max-width: 78%; max-height: 72%; object-fit: contain; }
+.logos.clients { grid-template-columns: repeat(5, 1fr); grid-auto-rows: 15mm; }
+.logos.brands { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 13mm; }
+.logos.brands img { max-height: 46%; max-width: 72%; }
+.logos.brands img.sq { max-height: 74%; }
+.logos-block h3.sect { margin-top: 5mm; }
+
+/* ------------------------------------------------ sistem */
+.layout { margin-top: 6mm; }
+.layout img { width: 100%; height: 100mm; object-fit: cover; border-radius: 3mm; display: block; }
+.layout figcaption { font-size: 7.8pt; color: var(--muted); margin-top: 1.8mm; }
+.compact-sheet { margin-top: 5mm; }
+.compact-sheet .row { grid-template-columns: 34mm 1fr 26mm; padding: 2mm 2.5mm; }
+.compact-sheet .v { font-size: 12pt; }
+.blogo { max-width: 26mm; max-height: 7mm; justify-self: end; align-self: center; object-fit: contain; }
+.two.mon { margin-top: 7mm; grid-template-columns: 92mm 1fr; gap: 7mm; align-items: center; }
+.two.mon img { width: 100%; border-radius: 2.5mm; display: block; box-shadow: 0 18px 40px -22px rgba(10, 48, 85, .38); }
+
+/* ------------------------------------------------ penghematan */
+.calc { display: grid; grid-template-columns: repeat(3, 1fr); border-top: .6mm solid var(--navy-deep); }
+.calc div { padding: 2.6mm 4mm 2.6mm 0; border-bottom: .25mm solid var(--line); }
+.calc div + div { padding-left: 4mm; border-left: .25mm solid var(--line); }
+.calc span { display: block; font-size: 8pt; color: var(--muted); }
+.calc b { display: block; font-family: var(--f-display); font-size: 15pt; color: var(--navy-deep); margin: .8mm 0; letter-spacing: -0.01em; }
+.calc b.amber-ink { color: var(--accent-ink); }
+.calc small { display: block; font-size: 7.6pt; color: var(--muted); line-height: 1.4; }
+.penghematan .two { margin-top: 1mm; grid-template-columns: 1fr 1fr; gap: 8mm; }
+
+/* ------------------------------------------------ proyeksi */
+table.proj { margin-top: 6mm; font-size: 8.2pt; }
+table.proj td { padding: 1.05mm 2mm; }
+
+/* ------------------------------------------------ harga */
+table.price { margin-top: 6mm; font-size: 9.4pt; border-collapse: separate; border-spacing: 0; }
+table.price th { text-align: left; font-size: 8pt; color: var(--muted); font-weight: 600; padding: 0 0 2mm; border-bottom: .6mm solid var(--navy-deep); }
+table.price td { padding: 2.4mm 0; border-bottom: .25mm solid var(--line); vertical-align: top; }
+table.price .num { text-align: right; white-space: nowrap; }
+table.price small { display: block; font-size: 8pt; color: var(--muted); }
+table.price tr.sub td { font-weight: 700; }
+table.price tr.grand td + td { box-shadow: -0.8mm 0 0 var(--navy-deep); }
+table.price tr.grand td { background: var(--navy-deep); color: #fff; font-family: var(--f-display); font-weight: 700; font-size: 14pt; padding: 3mm 4mm; border: 0; }
+.scheme { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 6mm; }
+.scheme div { padding: 3.4mm 4mm; border: .3mm solid var(--line); border-radius: 3mm; }
+.scheme div.on { border-color: var(--amber); background: #FFF6E8; }
+.scheme b { display: block; font-family: var(--f-display); font-size: 11pt; color: var(--navy-deep); margin-bottom: 1mm; }
+.scheme p { font-size: 8.4pt; margin: 0; }
+ol.terms { padding-left: 5mm; font-size: 8.6pt; columns: 2; column-gap: 8mm; }
+ol.terms li { margin-bottom: 1.4mm; break-inside: avoid; padding-left: 1mm; }
+ol.terms li::marker { color: var(--accent-ink); font-weight: 700; }
+.sign { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+.sign span { display: block; font-size: 8pt; color: var(--muted); }
+.sign b { display: block; font-size: 9.4pt; color: var(--navy-deep); }
+.sign i { display: block; height: 20mm; border-bottom: .3mm solid var(--ink); }
+.sign small { display: block; font-size: 7.6pt; color: var(--muted); margin-top: 1mm; }
+
+/* ------------------------------------------------ lingkup */
+.two.scope { margin-top: 6mm; grid-template-columns: 1.35fr 1fr; gap: 7mm; }
+.scope .no { display: inline-block; width: 8mm; color: var(--muted); }
+.scope tr.mainrow td { font-weight: 600; }
+.scope tr.subrow td:first-child { padding-left: 4mm; }
+.tick { width: 4.2mm; height: 4.2mm; fill: none; stroke: var(--accent-ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+
+/* ------------------------------------------------ boq */
+table.boq { margin-top: 5mm; font-size: 7.8pt; table-layout: fixed; }  /* fixed columns: build.py predicts the wrapped rows from these widths */
+table.boq td { padding: .8mm 2mm; }
+table.boq tr.secrow td { font-family: var(--f-display); font-weight: 700; color: var(--navy-deep); font-size: 9pt; padding-top: 2.4mm; border-bottom: .4mm solid var(--navy-deep); }
+.boq ~ .note { margin-top: 3mm; }
+
+/* ------------------------------------------------ datasheet */
+.ds-title { font-family: var(--f-display); font-weight: 700; font-size: 12pt; color: var(--navy-deep); margin-top: 3mm; }
+.ds-slot { position: absolute; border: .25mm solid var(--line); background: #fff; }
+
+/* ------------------------------------------------ closing */
+.closing { background: var(--navy-ink); color: var(--on-navy); }
+.closing .art { position: absolute; inset: 0; width: 210mm; height: 297mm; }
+.close-body { position: absolute; left: var(--margin-x); right: var(--margin-x); top: 112mm; }
+.closing h2 { font-size: 52pt; color: var(--on-navy); }
+.close-lead { font-size: 12pt; line-height: 1.5; color: var(--on-navy-muted); margin-top: 5mm; max-width: 130mm; }
+.contacts { display: grid; grid-template-columns: 1fr 1fr; margin-top: 11mm; border-top: .5mm solid var(--amber); }
+.contacts div { padding: 3mm 4mm 3mm 0; border-bottom: .25mm solid rgba(185, 205, 224, .22); }
+.contacts div.wide { grid-column: 1 / -1; }
+.contacts dt { font-size: 7.8pt; color: var(--on-navy-muted); }
+.contacts dd { font-size: 11pt; font-weight: 600; margin-top: .6mm; }
+.close-foot { position: absolute; left: var(--margin-x); bottom: 16mm; display: flex; align-items: center; gap: 3.2mm; }
+.close-foot img { width: 13mm; }
+.close-foot b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 12pt; }
+.close-foot span { display: block; font-size: 8pt; color: var(--on-navy-muted); }
+
+/* numbers never split from their units */
+.sheet .v, .calc b, .facts dd { hyphens: none; }
+
+/* ------------------------------------------------ v2 additions: payment terms, quality, esg */
+.terms-pay { display: grid; grid-template-columns: repeat(4, 1fr); border-top: .6mm solid var(--navy-deep); }
+.terms-pay div { padding: 2.2mm 3mm 2.2mm 0; border-bottom: .25mm solid var(--line); }
+.terms-pay div + div { padding-left: 3mm; border-left: .25mm solid var(--line); }
+.terms-pay span { display: block; font-size: 7.8pt; color: var(--muted); }
+.terms-pay b { display: block; font-family: var(--f-display); font-size: 15pt; color: var(--navy-deep); margin: .6mm 0 .2mm; }
+.terms-pay small { display: block; font-size: 7.4pt; color: var(--muted); line-height: 1.35; }
+.harga .scheme { margin-top: 5mm; }
+.harga h3.sect { margin-top: 6mm; }
+.sheet.quality { margin-top: 0; }
+.sheet.quality .v { font-size: 11pt; }
+.sheet.quality .row { padding-top: 2mm; padding-bottom: 2mm; }
+.two.esg { margin-top: 0; grid-template-columns: 1fr 1fr; gap: 8mm; }
+.two.esg p { font-size: 8.6pt; line-height: 1.5; }
+
+.penghematan p.side { font-size: 8.6pt; line-height: 1.5; }
+.penghematan .two h3.sect { margin-top: 6mm; }
+
+/* ------------------------------------------------ detail pass */
+table.data, table.price, table.kv, .chart, .cover .qinfo { font-variant-numeric: tabular-nums; }
+p, .lead, .note, li { text-wrap: pretty; }
+h2, h3 { text-wrap: balance; }
+.scope .none { color: var(--line); }
+.projlist + .note { margin-top: 2mm; }
+.sheet .v small, .calc small, .terms-pay small { font-variant-numeric: proportional-nums; }
+
+/* ------------------------------------------------ tagihan (load profile from the PLN bill) */
+.tagihan .bill { margin-top: 4mm; }
+table.bill-hist { margin-top: 5mm; font-size: 8.2pt; }
+.tagihan .bill .row { grid-template-columns: 44mm 1fr; }
+.tagihan .block { margin-top: 6mm; }
+.chart .band-solar { fill: var(--sun); fill-opacity: .14; }
+.chart .band-wbp { fill: var(--navy); fill-opacity: .08; }
+.two.bill-split { margin-top: 5mm; grid-template-columns: 1fr 1fr; gap: 8mm; }
+.split { display: grid; grid-template-columns: 13mm 1fr; align-items: center; gap: 2mm; margin-bottom: 2mm; font-size: 7.8pt; }
+.split span { color: var(--muted); }
+.split i { display: flex; height: 7mm; border-radius: 1.5mm; overflow: hidden; font-style: normal; background: var(--navy-deep); }
+.split b, .split em { display: flex; align-items: center; padding: 0 2mm; font-weight: 600; font-style: normal; white-space: nowrap; }
+.split b { background: var(--soft); color: var(--navy-deep); }
+.split em { color: #fff; flex: 1; justify-content: flex-end; }
+ol.implic { padding-left: 4.5mm; font-size: 8.6pt; line-height: 1.5; }
+ol.implic li { margin-bottom: 1.6mm; padding-left: 1mm; }
+ol.implic li::marker { color: var(--accent-ink); font-weight: 700; }
+.tagihan .bill-meta { margin-top: 2.4mm; }
+.tagihan .two.bill-split { align-items: start; }
+.tagihan .bill-split .sheet { margin-top: 0; }
+.tagihan .bill-split .sheet .row { grid-template-columns: 1fr auto; }
+.layout.pending div { height: 35mm; border: .4mm dashed var(--line); border-radius: 3mm; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 10pt; color: var(--muted); }
+
+/* ------------------------------------------------ proyeksi: replacement-year cost */
+table.data td.cost { color: var(--accent-ink); font-weight: 700; }
+
+/* ------------------------------------------------ sistem without a layout drawing (residential): house photo in a hexagon */
+.layout.house { display: grid; grid-template-columns: 78mm 1fr; gap: 8mm; align-items: center; }
+.layout.house svg { width: 100%; height: auto; display: block; }
+.layout.house figcaption { font-size: 8.8pt; color: var(--muted); line-height: 1.5; margin-top: 0; }
+.layout.house figcaption b { display: block; font-family: var(--f-display); font-weight: 700; font-size: 12pt; color: var(--navy-deep); margin-bottom: 1.6mm; letter-spacing: -0.01em; }
+
+/* penghematan: assumptions grew (PR, O&M, replacements), so the page spacing is a little tighter */
+.penghematan table.kv td { padding: 1.35mm 0; }
+.penghematan h3.sect { margin-top: 5mm; }
+.penghematan .two h3.sect { margin-top: 5mm; }
+.penghematan .note.tax { margin-top: 4mm; max-width: none; }
+.penghematan .note.tax b { color: var(--navy-deep); }
+
+/* garansi: the explanatory small text is its own line under the value, not a ragged tail that wraps under the number */
+.garansi .sheet .v small { display: block; margin: .9mm 0 0; line-height: 1.4; font-size: 8.2pt; }

@@ -1,0 +1,416 @@
+{%- set s = p.system -%}
+{%- set f = p.financial -%}
+{%- set co = p.get('company', {}) -%}
+{%- set has_scr = fin.scr < 0.995 -%}
+{%- set titles = {
+  'intro': ('01 · Introduction', 'Introduction'),
+  'summary': ('02 · Project', 'Project <em>Summary</em>'),
+  'engineering': ('03 · Design & Engineering', 'Designed for <em>Your Site</em>'),
+  'ongrid': ('04 · On-Grid Solution', 'No Switching, <em>No Flicker</em>'),
+  'monitoring': ('05 · Monitoring', 'Real-Time <em>Monitoring</em>'),
+  'energy': ('06 · Energy & Bill Impact', 'Your PLN Bill <em>With Solar</em>'),
+  'roi': ('07 · Financial Analysis', 'Return on <em>Investment</em>'),
+  'calc': ('07 · Financial Analysis', 'How Savings Are <em>Calculated</em>'),
+  'projection': ('07 · Financial Analysis', '25-Year <em>Projection</em>'),
+  'quotation': ('08 · Investment', '<em>Quotation</em>'),
+  'scope': ('09 · Scope of Work', 'What HME <em>Delivers</em>'),
+  'boq': ('10 · Bill of Quantity', 'Bill of <em>Quantity</em>'),
+  'warranty': ('11 · Warranty & Schedule', 'Warranty & <em>Timeline</em>'),
+  'datasheet': ('Appendix · Datasheet', ''),
+} -%}
+{%- set ICONS = {
+  'panel': 'M3 6h18l-2 12H5z M4.3 10h15.4 M3.7 14h16.6 M9.5 6l-1 12 M14.5 6l1 12',
+  'inverter': 'M5 3h14v18H5z M8 8h8 M8 12.5c1.3-2 2.7 2 4 0s2.7 2 4 0 M9 17h6',
+  'monitor': 'M3 4h18v12H3z M8 20h8 M12 16v4 M6 12l3-3 3 2 4-4 2 2',
+  'design': 'M4 20l3.5-1L19 7.5 16.5 5 5 16.5z M14.5 7l2.5 2.5 M4 4h5 M4 4v5',
+  'structure': 'M3 20h18 M5 20l3-12h8l3 12 M8 8l4 12 4-12 M6.5 14h11',
+  'star': 'M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z',
+  'shield': 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z M8.5 12l2.5 2.5 4.5-5',
+  'bolt': 'M13 2L4 14h7l-1 8 9-12h-7z',
+  'coin': 'M12 3a9 9 0 1 0 .01 0z M15 9h-4a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4H9 M12 7v2 M12 17v2',
+  'leaf': 'M5 19C5 10 11 5 20 4c0 9-5 15-14 15z M5 19l8-8',
+  'clock': 'M12 3a9 9 0 1 0 .01 0z M12 7v5l3 2',
+  'phone': 'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z',
+  'mail': 'M3 5h18v14H3z M3 6l9 7 9-7',
+  'globe': 'M12 3a9 9 0 1 0 .01 0z M3 12h18 M12 3c3 3 3 15 0 18 M12 3c-3 3-3 15 0 18',
+  'pin': 'M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z M12 7.5a2.5 2.5 0 1 0 .01 0z',
+  'wrench': 'M14.5 4.5a4.5 4.5 0 0 0 5 5L10 19l-3-3z M6.5 15.5L4 18l2 2 2.5-2.5',
+  'tower': 'M12 2l-5 20 M12 2l5 20 M8.5 9h7 M7.5 15h9 M10 5h4',
+  'sun': 'M12 8a4 4 0 1 0 .01 0z M12 2v2 M12 20v2 M4.9 4.9l1.4 1.4 M17.7 17.7l1.4 1.4 M2 12h2 M20 12h2 M4.9 19.1l1.4-1.4 M17.7 6.3l1.4-1.4',
+  'check': 'M5 12.5l4.5 4.5L19 7.5',
+  'cloud': 'M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6-1A4.5 4.5 0 0 1 17 18z',
+  'bell': 'M6 16V11a6 6 0 0 1 12 0v5l2 2H4z M10 20a2 2 0 0 0 4 0',
+  'chart': 'M4 20V4 M4 20h16 M8 16v-4 M12 16V8 M16 16v-6',
+  'doc': 'M6 3h9l4 4v14H6z M14 3v5h5 M9 13h7 M9 17h7',
+} -%}
+{%- macro icon(name) -%}<svg viewBox="0 0 24 24"><path d="{{ ICONS[name] }}"/></svg>{%- endmacro -%}
+{%- macro hexpts(cx, cy, w) -%}{%- set h = w * 0.866 -%}{{ cx - w/2 }},{{ cy }} {{ cx - w/4 }},{{ cy - h/2 }} {{ cx + w/4 }},{{ cy - h/2 }} {{ cx + w/2 }},{{ cy }} {{ cx + w/4 }},{{ cy + h/2 }} {{ cx - w/4 }},{{ cy + h/2 }}{%- endmacro -%}
+{%- macro hexphoto(cx, cy, w, img, layers=True) -%}
+  {%- if layers %}
+  <svg class="deco" viewBox="0 0 297 210" preserveAspectRatio="none">
+    <polygon points="{{ hexpts(cx, cy, w + 26) }}" fill="#0A3055" stroke="#0A3055" stroke-width="5" stroke-linejoin="round"/>
+    <polygon points="{{ hexpts(cx, cy, w + 14) }}" fill="#3D6E9C" stroke="#3D6E9C" stroke-width="5" stroke-linejoin="round"/>
+    <polygon points="{{ hexpts(cx, cy, w + 6) }}" fill="#fff" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+  </svg>
+  {%- endif %}
+  <div class="hex" style="left:{{ cx - w/2 }}mm;top:{{ cy - w*0.433 }}mm;width:{{ w }}mm;height:{{ w*0.866 }}mm;background-image:url('{{ root }}/assets/img/{{ img }}')"></div>
+{%- endmacro -%}
+{%- macro deco_inner() -%}
+  <svg class="deco" viewBox="0 0 297 210" preserveAspectRatio="none">
+    <polygon points="236,0 297,0 297,46" fill="#0A3055"/>
+    <polygon points="257,0 271,0 297,26 297,40" fill="#3D6E9C"/>
+    <polygon points="280,0 285,0 297,12 297,17" fill="#F59A1B"/>
+    <polygon points="0,184 0,210 40,210" fill="#0A3055"/>
+    <polygon points="0,195 0,200 10,210 15,210" fill="#F59A1B"/>
+  </svg>
+  <div class="dots" style="left:6mm;top:6mm"></div>
+{%- endmacro -%}
+{%- macro pageno(kind) -%}{% for k, d in pages %}{% if k == kind %}{{ '%02d' % loop.index }}{% endif %}{% endfor %}{%- endmacro -%}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ p.meta.number }} · {{ p.client.name }}</title>
+<link rel="stylesheet" href="{{ root }}/templates/{{ fmt }}/proposal.css">
+</head>
+<body>
+{% for kind, d in pages %}
+{% set n = loop.index %}
+
+{# ================================================================ COVER #}
+{% if kind == 'cover' %}
+<section class="page cover">
+  <svg class="deco" viewBox="0 0 297 210" preserveAspectRatio="none">
+    <polygon points="250,0 297,0 297,58" fill="#0A3055"/>
+    <polygon points="128,210 186,210 157,168" fill="#3D6E9C"/>
+    <polygon points="268,210 297,210 297,170" fill="#F59A1B"/>
+  </svg>
+  {{ hexphoto(222, 105, 118, 'photo-rooftop.png') }}
+  <div class="dots" style="left:6mm;top:6mm"></div>
+  <div class="dots" style="left:283mm;top:196mm"></div>
+  <div class="brand"><img src="{{ root }}/assets/img/hme-logo.png" alt=""><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
+  <div class="title">
+    <div class="eyebrow">Proposal · {{ p.meta.number }}</div>
+    <h1 class="big">Solar PV<br>System <em>Proposal</em></h1>
+    <div class="sub"><b>{{ s.capacity_kwp|num }} kWp</b> {{ s.type }} {{ s.mounting }} Solar Power Plant</div>
+    <p class="desc">Engineering, procurement and construction of a solar PV system for {{ p.client.name }}, {{ p.client.location }}.</p>
+  </div>
+  <div class="meta">
+    <div><span>Presented to</span><b>{{ p.client.name }}</b></div>
+    <div><span>Presented by</span><b>{{ p.meta.prepared_by }} · HME</b></div>
+    <div><span>Date</span><b>{{ p.meta.date }}</b></div>
+    <div><span>Revision</span><b>{{ p.meta.revision }}</b></div>
+  </div>
+</section>
+
+{# ================================================================ CONTACT #}
+{% elif kind == 'contact' %}
+<section class="page cover">
+  <svg class="deco" viewBox="0 0 297 210" preserveAspectRatio="none">
+    <polygon points="250,0 297,0 297,58" fill="#0A3055"/>
+    <polygon points="0,184 0,210 40,210" fill="#0A3055"/>
+    <polygon points="268,210 297,210 297,170" fill="#F59A1B"/>
+  </svg>
+  {{ hexphoto(222, 105, 118, 'photo-floating.png') }}
+  <div class="dots" style="left:6mm;top:6mm"></div>
+  <div class="brand"><img src="{{ root }}/assets/img/hme-logo.png" alt=""><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
+  <div class="title" style="top:44mm">
+    <div class="eyebrow">Thank you</div>
+    <h1 class="big">Contact <em>Us</em></h1>
+    <p class="desc">We look forward to powering {{ p.client.name }} with clean, low-cost solar energy. For questions or a site visit, contact {{ p.meta.prepared_by }}.</p>
+    <div class="contact mt" style="width:112mm">
+      <div class="ribbon"><div class="hx">{{ icon('phone') }}</div><div class="rb"><b>+62 31 743 7168</b></div></div>
+      <div class="ribbon"><div class="hx">{{ icon('mail') }}</div><div class="rb"><b>admin@hexamultienergi.com</b></div></div>
+      <div class="ribbon"><div class="hx">{{ icon('globe') }}</div><div class="rb"><b>www.hexamultienergi.com</b></div></div>
+      <div class="ribbon"><div class="hx">{{ icon('pin') }}</div><div class="rb" style="background:var(--navy)"><b>Citraland, Surabaya</b></div></div>
+    </div>
+  </div>
+</section>
+
+{# ================================================================ INNER #}
+{% else %}
+<section class="page inner {{ kind }}">
+  {% if kind == 'intro' %}
+    <svg class="deco" viewBox="0 0 297 210" preserveAspectRatio="none">
+      <polygon points="0,0 70,0 0,62" fill="#0A3055"/>
+      <polygon points="268,210 297,210 297,170" fill="#F59A1B"/>
+      <polygon points="0,150 0,210 52,210" fill="#3D6E9C"/>
+    </svg>
+    {{ hexphoto(64, 108, 100, 'photo-ground.png') }}
+    <div class="dots" style="left:283mm;top:6mm"></div>
+  {% else %}
+    {{ deco_inner() }}
+  {% endif %}
+  <header class="ttl" {% if kind == 'intro' %}style="left:134mm"{% endif %}>
+    <div class="eyebrow">{{ titles[kind][0] }}</div>
+    <h1>{% if kind == 'datasheet' %}{{ d.title }}{% elif kind == 'boq' and d.part > 0 %}Bill of <em>Quantity</em> (cont.){% else %}{{ titles[kind][1]|safe }}{% endif %}</h1>
+  </header>
+  <main class="pc" {% if kind == 'intro' %}style="left:134mm"{% endif %}>
+
+{% if kind == 'intro' %}
+    <p class="lead">PT Hexa Multi Energi (“HME”) is pleased to propose the engineering, procurement and construction of a <span class="hl">{{ s.capacity_kwp|num }} kWp {{ s.type|lower }} {{ s.mounting|lower }} solar PV system</span> for {{ p.client.name }}, to lower its electricity cost and its dependence on rising utility tariffs.</p>
+    <div class="hl-list mt">
+      <div class="hl-item"><div class="nb">01</div><div><b>{{ s.capacity_kwp|num }} kWp solar power plant</b><span>{{ s.panel.qty }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp modules, {{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }} inverters</span></div></div>
+      {% if fin.load %}
+      <div class="hl-item"><div class="nb">02</div><div><b>{{ (fin.load.solar_share*100)|num }}% of your electricity from solar</b><span>PLN bill from Rp {{ fin.load.monthly_bill|short }} to Rp {{ fin.load.bill_after|short }} per month</span></div></div>
+      {% else %}
+      <div class="hl-item"><div class="nb">02</div><div><b>{{ (fin.y1_energy/1000)|num }} MWh clean electricity per year</b><span>Saving Rp {{ fin.y1_saving|short }} in the first year</span></div></div>
+      {% endif %}
+      <div class="hl-item"><div class="nb">03</div><div><b>Payback in {{ fin.payback|num(1) }} years</b><span>Rp {{ fin.net|short }} net gain over {{ f.years }} years · {{ fin.roi|num }}% return</span></div></div>
+      <div class="hl-item"><div class="nb">04</div><div><b>{{ fin.co2_y1|num }} t CO₂ avoided every year</b><span>{{ fin.co2_total|num }} t over the system's {{ f.years }}-year life</span></div></div>
+    </div>
+
+{% elif kind == 'summary' %}
+    <div class="cols" style="grid-template-columns: 1fr 1.25fr">
+      <div>
+        <table class="kv">
+          <tr><td>Customer</td><td>{{ p.client.name }}</td></tr>
+          <tr><td>Location</td><td>{{ p.client.location }}</td></tr>
+          <tr><td>Market segment</td><td>{{ p.client.segment }}</td></tr>
+          <tr><td>System type</td><td>{{ s.type }} · {{ s.mounting }}</td></tr>
+          <tr><td>PV capacity</td><td>{{ s.capacity_kwp|num }} kWp / {{ s.capacity_kva|num }} kVA</td></tr>
+          <tr><td>DC/AC ratio</td><td>{{ (s.capacity_kwp / s.capacity_kva)|num(2) }}</td></tr>
+          {% if s.battery %}<tr><td>Battery</td><td>{{ s.battery }}</td></tr>{% endif %}
+          <tr><td>Effective sun hours</td><td>{{ f.peak_sun_hours|num(1) }} h/day</td></tr>
+          <tr><td>Specific yield</td><td>{{ fin.specific_yield|num }} kWh/kWp/year</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="trio" style="margin-top:3mm">
+          <div><div class="ic lg ring">{{ icon('panel') }}</div><b>Solar Modules</b><div class="r">{{ s.panel.qty }}×</div><span>{{ s.panel.brand }} {{ s.panel.model }}<br>{{ s.panel.wp }} Wp · Tier-1</span></div>
+          <div><div class="ic lg ring">{{ icon('inverter') }}</div><b>Inverters</b><div class="r">{{ s.inverter.qty }}×</div><span>{{ s.inverter.brand }} {{ s.inverter.model }}<br>{{ s.inverter.kva }} kVA string inverter</span></div>
+          <div><div class="ic lg ring">{{ icon('monitor') }}</div><b>Monitoring</b><div class="r">24/7</div><span>{{ s.monitoring }}</span></div>
+        </div>
+        <div class="grid g3" style="margin-top:9mm;gap:2.5mm">
+          <div class="tile"><div class="v">{{ (fin.y1_energy/1000)|num }}<small>MWh</small></div><div class="l">Production, year 1</div></div>
+          <div class="tile"><div class="v">{{ (fin.total_energy/1000)|num }}<small>MWh</small></div><div class="l">Production, {{ f.years }} years</div></div>
+          <div class="tile am"><div class="v">{{ fin.co2_total|num }}<small>t CO₂</small></div><div class="l">Avoided over {{ f.years }} years</div></div>
+        </div>
+      </div>
+    </div>
+
+{% elif kind == 'engineering' %}
+    <div class="cols" style="grid-template-columns: 1.55fr 1fr">
+      <div>
+        <img class="layout-img" src="{{ pdir }}/{{ p.images.layout }}" alt="Layout">
+        <p class="small muted mt2">{{ p.images.layout_caption }} {{ s.panel.qty }} modules · {{ s.capacity_kwp|num }} kWp DC · {{ s.inverter.qty }} × {{ s.inverter.kva }} kVA. Final layout is confirmed after site survey and detailed engineering.</p>
+      </div>
+      <div>
+        {% if co.installed_mwp or co.experience_years %}<p>With {% if co.installed_mwp %}<span class="hl">over {{ co.installed_mwp }} MWp</span> of PV installed{% endif %}{% if co.installed_mwp and co.experience_years %} and {% endif %}{% if co.experience_years %}<span class="hl">{{ co.experience_years }}+ years</span> of PV experience{% endif %}, HME designs every system around the client's site.</p>{% endif %}
+        <div class="grid" style="gap:5mm">
+          <div class="ribbon"><div class="hx lg">{{ icon('design') }}</div><div class="rb"><b>Design Excellence</b><span>Layout, strings and cable routes tailored to the roof, shading and load, for reliable output over {{ f.years }}+ years.</span></div></div>
+          <div class="ribbon"><div class="hx lg">{{ icon('structure') }}</div><div class="rb"><b>Structural Integrity</b><span>Roof structure is checked by simulation and site assessment before installation.</span></div></div>
+          <div class="ribbon"><div class="hx lg">{{ icon('star') }}</div><div class="rb"><b>Tier-1 Components Only</b><span>{{ s.panel.brand }} modules and {{ s.inverter.brand }} inverters, with a proven global track record.</span></div></div>
+        </div>
+      </div>
+    </div>
+
+{% elif kind == 'ongrid' %}
+    <p style="width:200mm">{{ s.inverter.brand }} smart inverters synchronise with the existing PLN supply. As solar rises, power drawn from PLN falls by the same amount. When clouds pass, PLN fills the gap instantly.</p>
+    <div class="grid g2 mt2" style="gap:8mm">
+      <div>{{ chart_ongrid[0]|safe }}</div>
+      <div>{{ chart_ongrid[1]|safe }}</div>
+    </div>
+    <div class="legend"><span><i class="ln" style="background:{{ C.amber }}"></i>Solar supply</span><span><i class="ln" style="background:{{ C.grid }}"></i>Power from PLN</span><span>Illustration based on this project's load and solar size.</span></div>
+    <div class="grid g3 mt" style="gap:6mm">
+      <div class="hl-item"><div class="ic am">{{ icon('bolt') }}</div><div><b style="font-size:10pt">No switching</b><span>Solar and PLN run in parallel. No transfer switch, no downtime.</span></div></div>
+      <div class="hl-item"><div class="ic am">{{ icon('sun') }}</div><div><b style="font-size:10pt">Flicker-free</b><span>Voltage stays stable when solar output changes.</span></div></div>
+      <div class="hl-item"><div class="ic am">{{ icon('tower') }}</div><div><b style="font-size:10pt">Automatic backup</b><span>PLN covers any shortfall on cloudy days and at night.</span></div></div>
+    </div>
+
+{% elif kind == 'monitoring' %}
+    <div class="cols" style="grid-template-columns: 84mm 1fr; align-items:center">
+      <div class="navyp" style="display:flex;justify-content:center;padding:7mm 0;height:100%;align-items:center">
+        <div class="phone">
+          <div class="ph-top"><b>{{ p.client.short_name }}</b><span>{{ s.capacity_kwp|num }} kWp · Today</span></div>
+          <div class="ph-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#E7F0F7" stroke-width="3.2"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="{{ C.amber }}" stroke-width="3.2" stroke-dasharray="{{ mon.share|round(1) }} 100" transform="rotate(-90 18 18)" stroke-linecap="round"/></svg><div><b>{{ mon.share|num }}%</b><span>from solar</span></div></div>
+          <div class="ph-grid">
+            <div><span>Solar yield</span><b>{{ (mon.yield_kwh/1000)|num(2) }} MWh</b></div>
+            <div><span>Consumption</span><b>{{ (mon.cons_kwh/1000)|num(2) }} MWh</b></div>
+            <div><span>From PLN</span><b>{{ ((mon.cons_kwh - mon.used_kwh)/1000)|num(2) }} MWh</b></div>
+            <div><span>CO₂ avoided</span><b>{{ (mon.yield_kwh/1000*f.grid_emission_factor_t_mwh)|num(2) }} t</b></div>
+          </div>
+          <div class="ph-spark">{{ chart_spark|safe }}</div>
+        </div>
+      </div>
+      <div>
+        <p class="lead">Energy yield, consumption, carbon reduction and alarms are tracked in real time, on the web and on the {{ s.inverter.brand }} mobile app.</p>
+        <ul class="checks mt">
+          <li><div class="ic">{{ icon('chart') }}</div><div><b>Solar vs. consumption, live</b><span>See how much of your load solar is covering, minute by minute.</span></div></li>
+          <li><div class="ic">{{ icon('doc') }}</div><div><b>Daily, monthly and lifetime reports</b><span>Yield, savings and CO₂ avoided, ready to export.</span></div></li>
+          <li><div class="ic">{{ icon('bell') }}</div><div><b>Instant fault alarms</b><span>Sent to HME and your team, so issues are fixed fast.</span></div></li>
+          <li><div class="ic">{{ icon('sun') }}</div><div><b>Weather station</b><span>Irradiance and temperature data to verify performance.</span></div></li>
+        </ul>
+        <p class="small muted">Illustrative screen with this project's typical-day figures.</p>
+      </div>
+    </div>
+
+{% elif kind == 'energy' %}
+    {% set L = fin.load %}
+    <div class="cols" style="grid-template-columns: 82mm 1fr; gap:8mm">
+      <div>
+        <div class="navyp">
+          <div class="cap">Supplied by solar</div>
+          <div class="big-stat">{{ (L.solar_share*100)|num }}<small>%</small></div>
+          <p>Around <b>{{ (L.used_month/1000)|num }} MWh</b> of your <b>{{ (L.monthly_kwh/1000)|num }} MWh</b> monthly consumption{% if has_scr %}; {{ (L.scr*100)|num }}% of solar output is used on site{% endif %}.</p>
+        </div>
+        <h2 class="mt">Based on your data</h2>
+        <table class="kv compact">
+          <tr><td>{% if L.bill_given %}PLN bill{% else %}Consumption{% endif %}</td><td>{% if L.bill_given %}{{ L.monthly_bill|rp }}/month{% else %}{{ L.monthly_kwh|num }} kWh/month{% endif %}</td></tr>
+          <tr><td>Tariff</td><td>Rp {{ f.pln_tariff_rp_kwh|num(2) }}/kWh</td></tr>
+          <tr><td>Operating hours</td><td>{% if L.work_hours[0] == 0 and L.work_hours[1] == 24 %}24 h{% else %}{{ '%02d:00' % L.work_hours[0] }}–{{ '%02d:00' % L.work_hours[1] }}{% endif %} · {{ days_label }}</td></tr>
+          {% if not (L.work_hours[0] == 0 and L.work_hours[1] == 24 and L.workdays|length == 7) %}<tr><td>Off-hours load</td><td>{{ L.base_pct|num }}% of operating load</td></tr>{% endif %}
+          <tr><td>Load · solar peak</td><td>{{ L.load_kw|num }} kW · {{ L.pv_peak_kw|num }} kW</td></tr>
+        </table>
+      </div>
+      <div>
+        <h2>Monthly PLN bill</h2>
+        {{ chart_bill|safe }}
+        {% if chart_days %}
+        <h2 class="mt">Working day vs. non-working day</h2>
+        <div class="grid {{ 'g2' if chart_days|length > 1 else '' }}" style="gap:6mm">{% for c in chart_days %}<div>{{ c|safe }}</div>{% endfor %}</div>
+        <div class="legend"><span><i class="ln" style="background:{{ C.amber }}"></i>Solar supply</span><span><i class="ln" style="background:{{ C.grid }}"></i>Power from PLN</span><span><i class="ln dash" style="border-color:{{ C.muted }}"></i>Factory load</span><span><i class="ln dash" style="border-color:{{ C.amber }}"></i>Solar not used (no export credit)</span></div>
+        {% else %}
+        <div class="note mt">Your load ({{ L.load_kw|num }} kW) stays above peak solar output ({{ L.pv_peak_kw|num }} kW) all day, so <b>every kWh of solar is used on site</b> and directly replaces power from PLN.</div>
+        {% endif %}
+        <p class="small muted mt2">Estimate: consumption spread evenly over operating hours, typical clear-day solar profile.</p>
+      </div>
+    </div>
+
+{% elif kind == 'roi' %}
+    <div class="cols" style="grid-template-columns: 92mm 1fr; gap:8mm">
+      <div>
+        <div class="navyp">
+          <div class="cap">Payback period</div>
+          <div class="big-stat">{{ fin.payback|num(1) }}<small>years</small></div>
+          <p>After that, <b>100% of the solar electricity is saving</b> for the remaining {{ (f.years - fin.payback)|num(1) }} years.</p>
+        </div>
+        <div class="grid g2 mt" style="gap:2.5mm">
+          <div class="tile"><div class="v">{{ (fin.capex/1e9)|num(2) }}<small>B</small></div><div class="l">Investment (Rp, excl. VAT)</div></div>
+          <div class="tile"><div class="v">{{ (fin.monthly_saving/1e6)|num(1) }}<small>M/mo</small></div><div class="l">Saving per month, year 1 (Rp)</div></div>
+          <div class="tile"><div class="v">{{ (fin.net/1e9)|num(2) }}<small>B</small></div><div class="l">Net gain after {{ f.years }} years (Rp)</div></div>
+          <div class="tile am"><div class="v">{{ fin.roi|num }}<small>%</small></div><div class="l">Return on investment</div></div>
+        </div>
+      </div>
+      <div>
+        <h2>Cumulative cash position</h2>
+        <p class="small muted" style="margin-bottom:1mm">Investment minus all savings to date, at the end of each year. Bars cross zero at break-even.</p>
+        {{ chart_cum|safe }}
+        <div class="legend"><span><i style="background:{{ C.navy }}"></i>Investment not yet recovered</span><span><i style="background:{{ C.amber }}"></i>Net profit</span><span><i style="border:1.5px dashed {{ C.ink }};background:none"></i>Break-even point</span></div>
+      </div>
+    </div>
+
+{% elif kind == 'calc' %}
+    <div class="trio">
+      <div><div class="ic lg ring">{{ icon('sun') }}</div><b>01 · Produce</b><span>{{ s.capacity_kwp|num }} kWp × {{ f.peak_sun_hours|num(1) }} h × {{ f.operating_days }} days</span><div class="r">{{ fin.y1_energy|num }} kWh/yr</div>{% if has_scr %}<span>{{ (fin.scr*100)|num }}% used on site = {{ fin.y1_used|num }} kWh</span>{% endif %}</div>
+      <div><div class="ic lg ring">{{ icon('coin') }}</div><b>02 · Save</b><span>{{ fin.y1_used|num }} kWh × Rp {{ f.pln_tariff_rp_kwh|num(2) }}/kWh</span><div class="r">Rp {{ fin.y1_saving|short }}/yr</div><span>≈ Rp {{ (fin.monthly_saving/1e6)|num(1) }} million per month</span></div>
+      <div><div class="ic lg ring">{{ icon('clock') }}</div><b>03 · Recover</b><span>Rp {{ fin.capex|short }} ÷ yearly saving, incl. {{ f.degradation_pct|num(1) }}%/yr degradation</span><div class="r">{{ fin.payback|num(1) }} years</div><span>Solar costs Rp {{ fin.lcoe|num }}/kWh vs. Rp {{ f.pln_tariff_rp_kwh|num }} from PLN</span></div>
+    </div>
+    <div class="cols mt" style="grid-template-columns: 1.2fr 1fr; height:auto; margin-top:9mm">
+      <div>
+        <h2>Assumptions</h2>
+        <table class="kv compact">
+          <tr><td>Investment (excl. VAT)</td><td>{{ fin.capex|rp }} · Rp {{ fin.price_per_wp|num }}/Wp</td></tr>
+          <tr><td>PLN tariff</td><td>Rp {{ f.pln_tariff_rp_kwh|num(2) }}/kWh{% if f.tariff_note %} ({{ f.tariff_note }}){% endif %}</td></tr>
+          <tr><td>Tariff increase</td><td>{{ f.tariff_escalation_pct|num(1) }}% per year</td></tr>
+          <tr><td>Degradation</td><td>{{ f.degradation_first_year_pct|num(1) }}% year 1, then {{ f.degradation_pct|num(1) }}%/year</td></tr>
+          <tr><td>Solar used on site</td><td>{{ (fin.scr*100)|num }}% · surplus export not credited</td></tr>
+          <tr><td>O&amp;M cost</td><td>{% if f.om_pct_of_capex %}{{ f.om_pct_of_capex|num(1) }}% of investment/yr{% else %}Not included{% endif %}</td></tr>
+        </table>
+      </div>
+      <div>
+        <h2>If PLN tariffs rise</h2>
+        <table>
+          <tr><th>Tariff increase</th><th class="num">Payback</th><th class="num">Net gain, {{ f.years }} yrs</th></tr>
+          {% for r in fin.sens %}
+          <tr{% if r.current %} class="be"{% endif %}><td>{{ r.esc }}% per year{% if r.current %} · base case{% endif %}</td><td class="num">{{ r.payback|num(1) }} yrs</td><td class="num">Rp {{ r.net|short }}</td></tr>
+          {% endfor %}
+        </table>
+        <p class="small muted mt2">Any tariff increase shortens the payback further.</p>
+      </div>
+    </div>
+
+{% elif kind == 'projection' %}
+    {% set half = ((fin.rows|length) + 1) // 2 %}
+    <div class="cols" style="grid-template-columns: 1fr 1fr; gap:6mm; height:auto">
+      {% for part in [fin.rows[:half], fin.rows[half:]] %}
+      <table class="compact">
+        <tr><th class="c">Year</th><th class="num">Production (kWh)</th>{% if has_scr %}<th class="num">Used (kWh)</th>{% endif %}<th class="num">Saving (Rp)</th><th class="num">Cumulative (Rp)</th></tr>
+        {% if loop.first %}<tr><td class="c">0</td><td></td>{% if has_scr %}<td></td>{% endif %}<td class="num muted">Investment</td><td class="num neg">−{{ fin.capex|num }}</td></tr>{% endif %}
+        {% for r in part %}
+        <tr{% if r.prev < 0 <= r.cum %} class="be"{% endif %}><td class="c">{{ r.year }}</td><td class="num">{{ r.energy|num }}</td>{% if has_scr %}<td class="num">{{ r.used|num }}</td>{% endif %}<td class="num">{{ r.saving|num }}</td><td class="num {{ 'neg' if r.cum < 0 else 'pos' }}">{{ '−' if r.cum < 0 }}{{ (r.cum|abs)|num }}</td></tr>
+        {% endfor %}
+        {% if loop.last %}<tr class="sec"><td class="c">Total</td><td class="num">{{ fin.total_energy|num }}</td>{% if has_scr %}<td class="num">{{ fin.total_used|num }}</td>{% endif %}<td class="num">{{ fin.total_saving|num }}</td><td class="num">{{ fin.net|num }}</td></tr>{% endif %}
+      </table>
+      {% endfor %}
+    </div>
+    <p class="small muted mt2">Highlighted: break-even year. Tariff Rp {{ f.pln_tariff_rp_kwh|num(2) }}/kWh{% if f.tariff_escalation_pct %}, +{{ f.tariff_escalation_pct|num(1) }}%/yr{% endif %}; degradation {{ f.degradation_pct|num(1) }}%/yr. Saving = {% if has_scr %}energy used on site{% else %}production{% endif %} × tariff.</p>
+
+{% elif kind == 'quotation' %}
+    <div class="cols" style="grid-template-columns: 1.1fr 1fr">
+      <div>
+        <table class="price">
+          <tr><th>Description</th><th class="num">Price (Rp)</th></tr>
+          {% set it = p.price["items"] %}<tr><td><b>{{ it[0] }}</b>{% for x in it[1:] %}<small>Includes {{ x|lower }}</small>{% endfor %}</td><td class="num">{{ fin.capex|num }}</td></tr>
+          <tr class="total"><td>Total (excl. VAT)</td><td class="num">{{ fin.capex|num }}</td></tr>
+          <tr><td>VAT {{ p.price.vat_pct }}%</td><td class="num">{{ fin.vat|num }}</td></tr>
+          <tr class="grand"><td>Grand total</td><td class="num">{{ fin.grand|num }}</td></tr>
+        </table>
+        <p class="small muted mt2">Lump-sum EPC price for the complete system in the Bill of Quantity · Rp {{ fin.price_per_wp|num }}/Wp (excl. VAT).</p>
+        <div class="sign mt">
+          <div><span>Approved by</span><b>{{ p.client.name }}</b></div>
+          <div><span>Proposed by</span><b>PT Hexa Multi Energi</b></div>
+        </div>
+      </div>
+      <div>
+        <h2>Terms and conditions</h2>
+        <ul class="terms">{% for t in p.terms %}<li>{{ t }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+
+{% elif kind == 'scope' %}
+    <div class="cols" style="grid-template-columns: 1.25fr 1fr; gap:7mm; height:auto">
+      <table class="compact">
+        <tr><th>Documentation &amp; services</th><th class="c">HME</th><th class="c">Client</th></tr>
+        {% for no, item, hme, cl in p.scope.services %}
+        <tr{% if '.' not in no %} style="font-weight:600"{% endif %}><td><span class="{{ 'muted' if '.' in no }}" style="display:inline-block;width:8mm;{% if '.' in no %}padding-left:2mm{% endif %}">{{ no }}</span>{{ item }}</td><td class="c">{% if hme %}<i class="tick"></i>{% endif %}</td><td class="c">{% if cl %}<i class="tick"></i>{% endif %}</td></tr>
+        {% endfor %}
+      </table>
+      <table class="compact">
+        <tr><th>Products of supply</th><th class="c">HME</th></tr>
+        {% for item in p.scope.supply %}<tr><td><span class="muted" style="display:inline-block;width:7mm">{{ loop.index }}</span>{{ item }}</td><td class="c"><i class="tick"></i></td></tr>{% endfor %}
+      </table>
+    </div>
+
+{% elif kind == 'boq' %}
+    <table class="compact">
+      <tr><th style="width:9mm">No</th><th style="width:85mm">Item</th><th class="num" style="width:22mm">Qty</th><th style="width:14mm">Unit</th><th>Specification</th></tr>
+      {% for sec in d.sections %}
+      <tr class="sec"><td colspan="5">{{ sec.section }}</td></tr>
+      {% for no, item, qty, unit, spec in sec["items"] %}
+      <tr><td class="muted">{{ no }}</td><td>{{ item }}</td><td class="num">{{ qty|num }}</td><td>{{ unit }}</td><td class="muted">{{ spec }}</td></tr>
+      {% endfor %}
+      {% endfor %}
+    </table>
+    {% if loop.nextitem and loop.nextitem[0] != 'boq' %}<p class="small muted mt2">All items are included in the lump-sum price. A detailed price breakdown is available on request.</p>{% endif %}
+
+{% elif kind == 'warranty' %}
+    <div class="grid g4" style="gap:6mm">
+      {% set wicons = ['panel', 'inverter', 'structure', 'wrench'] %}
+      {% for w in p.warranty %}<div class="wh"><div class="hx lg">{{ icon(wicons[loop.index0 % 4]) }}</div><div class="eyebrow">{{ w.item }}</div><div class="v">{{ w.value }}</div><div class="d">{{ w.detail }}</div></div>{% endfor %}
+    </div>
+    <h2 class="mt" style="margin-top:8mm">Preliminary schedule</h2>
+    {{ chart_sched|safe }}
+    <p class="small muted mt2">Indicative timeline from signing of the EPC agreement. After commissioning, HME provides operator training, handover documents and monitoring access.</p>
+
+{% elif kind == 'datasheet' %}
+    {% for sl in d.slots %}<div class="ds-slot" style="left:{{ sl[0] - 16 }}mm;top:{{ sl[1] - 36 }}mm;width:{{ sl[2] }}mm;height:{{ sl[3] }}mm"></div>{% endfor %}
+{% endif %}
+
+  </main>
+  <footer class="pf"><span><b>PT Hexa Multi Energi</b> · {{ p.meta.number }}</span><span class="pg">{{ '%02d' % n }}</span></footer>
+</section>
+{% endif %}
+{% endfor %}
+</body>
+</html>

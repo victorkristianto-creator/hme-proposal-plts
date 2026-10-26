@@ -1,0 +1,267 @@
+/* HME proposal · PRINT · A4 portrait · palette from HME-Color-Palette.pdf */
+@font-face { font-family: "Bricolage"; src: url("../../assets/fonts/bricolage-wdth.woff2") format("woff2"); font-weight: 200 800; font-stretch: 75% 100%; }
+@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree.woff2") format("woff2"); font-weight: 300 900; }
+
+:root {
+  --navy: #104674; --navy-deep: #0A3055; --navy-ink: #071C30; --navy-mid: #3D6E9C;
+  --amber: #F59A1B; --sun: #FDB813; --amber-ink: #9C5507;
+  --ink: #0B2135; --muted: #4A6176; --line: #D3E0EB; --soft: #E7F0F7; --bg: #F3F7FB;
+  --grid: #FF7A6B;
+  --solar: linear-gradient(90deg, var(--amber), var(--sun));
+  --night: linear-gradient(150deg, #071C30 0%, #0A3055 55%, #104674 100%);
+  --cond: "Bricolage", "Arial Narrow", sans-serif;
+  --body: "Figtree", "Segoe UI", sans-serif;
+  --hex: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  --hexmask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 86.6' preserveAspectRatio='none'%3E%3Cpath d='M34.00,0.00 L66.00,0.00 Q75,0 79.50,7.79 L95.50,35.51 Q100,43.3 95.50,51.09 L79.50,78.81 Q75,86.6 66.00,86.60 L34.00,86.60 Q25,86.6 20.50,78.81 L4.50,51.09 Q0,43.3 4.50,35.51 L20.50,7.79 Q25,0 34.00,0.00 Z'/%3E%3C/svg%3E");
+}
+
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: var(--body); color: var(--ink); font-size: 9.4pt; line-height: 1.5; background: #fff; }
+
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; page-break-after: always; break-after: page; background: #fff; }
+.page:last-child { page-break-after: auto; break-after: auto; }
+.deco { position: absolute; inset: 0; width: 210mm; height: 297mm; pointer-events: none; }
+
+/* condensed display type, as in the reference */
+.cd, h1, h2, .bar { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; letter-spacing: .01em; }
+
+/* ------------------------------------------------ page shell */
+.bar { position: absolute; left: 50%; transform: translateX(-50%); top: 24mm; min-width: 120mm; padding: 2.4mm 14mm; background: var(--amber); color: var(--navy-deep); font-size: 17pt; line-height: 1.1; text-align: center; white-space: nowrap; }
+.bar .sn { position: absolute; left: -9mm; top: 50%; transform: translateY(-50%); width: 15mm; height: 13mm; -webkit-mask: var(--hexmask) center / 100% 100% no-repeat; mask: var(--hexmask) center / 100% 100% no-repeat; background: var(--navy-deep); color: var(--sun); font-size: 12pt; display: flex; align-items: center; justify-content: center; }
+.pc { position: absolute; left: 18mm; right: 18mm; top: 46mm; bottom: 24mm; }
+.pf { position: absolute; left: 0; right: 0; bottom: 9mm; display: flex; justify-content: center; align-items: center; gap: 3mm; font-size: 7pt; color: var(--muted); }
+.pf b { color: var(--navy-deep); }
+.pf .pg { width: 8.5mm; height: 7.4mm; -webkit-mask: var(--hexmask) center / 100% 100% no-repeat; mask: var(--hexmask) center / 100% 100% no-repeat; background: var(--amber); color: var(--navy-deep); font-weight: 800; font-size: 7.4pt; display: inline-flex; align-items: center; justify-content: center; }
+
+h2 { font-size: 13pt; color: var(--navy-deep); margin: 0 0 2.4mm; line-height: 1.1; }
+h2::after { content: ""; display: block; width: 10mm; height: .9mm; background: var(--amber); margin-top: 1.2mm; }
+h2.c { text-align: center; } h2.c::after { margin-left: auto; margin-right: auto; }
+p { margin: 0 0 2.4mm; }
+.lead { font-size: 10.6pt; line-height: 1.6; }
+.center { text-align: center; }
+.muted { color: var(--muted); } .small { font-size: 7.8pt; }
+.hl { color: var(--navy); font-weight: 700; }
+.mt { margin-top: 6mm; } .mt2 { margin-top: 2.5mm; } .mt3 { margin-top: 9mm; }
+.grid { display: grid; gap: 4mm; }
+.g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ------------------------------------------------ hexagon badges */
+.hx { width: 16mm; height: 14mm; -webkit-mask: var(--hexmask) center / 100% 100% no-repeat; mask: var(--hexmask) center / 100% 100% no-repeat; background: var(--navy-deep); display: flex; align-items: center; justify-content: center; flex: none; }
+.hx svg { width: 7mm; height: 7mm; fill: none; stroke: var(--sun); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hx.lg { width: 22mm; height: 19mm; } .hx.lg svg { width: 9.5mm; height: 9.5mm; }
+.hx.am { background: var(--amber); } .hx.am svg { stroke: var(--navy-deep); }
+.hn { width: 12mm; height: 10.4mm; -webkit-mask: var(--hexmask) center / 100% 100% no-repeat; mask: var(--hexmask) center / 100% 100% no-repeat; background: var(--navy-deep); color: var(--sun); font-family: var(--cond); font-stretch: 75%; font-weight: 800; font-size: 11pt; display: flex; align-items: center; justify-content: center; flex: none; }
+.hexphoto { position: absolute; -webkit-mask: var(--hexmask) center / 100% 100% no-repeat; mask: var(--hexmask) center / 100% 100% no-repeat; background-size: cover; background-position: center; }
+
+/* ------------------------------------------------ blocks */
+.feat { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.feat .hx { margin-bottom: 3mm; }
+.feat b { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 11.5pt; color: var(--navy-deep); line-height: 1.1; }
+.feat span { font-size: 8.2pt; color: var(--muted); line-height: 1.45; margin-top: 1mm; }
+.feat .r { font-family: var(--cond); font-stretch: 75%; font-weight: 800; font-size: 16pt; color: var(--amber-ink); margin-top: 1mm; }
+.toc { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm 8mm; }
+.toc div { display: flex; align-items: center; gap: 3.5mm; }
+.toc b { display: block; font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 11pt; color: var(--navy-deep); line-height: 1.1; }
+.toc span { font-size: 7.8pt; color: var(--muted); }
+.tile { background: var(--navy-deep); color: #fff; padding: 3.4mm 4mm; }
+.tile.am { background: var(--amber); color: var(--navy-deep); }
+.tile.mid { background: var(--navy); }
+.tile .v { font-family: var(--cond); font-stretch: 75%; font-weight: 800; font-size: 19pt; line-height: 1.05; }
+.tile .v small { font-size: 10pt; font-weight: 600; margin-left: .6mm; }
+.tile .l { font-size: 7.4pt; opacity: .85; margin-top: .6mm; line-height: 1.3; }
+.navyp { background: var(--navy-deep); color: #fff; padding: 5mm 6mm; position: relative; overflow: hidden; }
+.navyp::after { content: ""; position: absolute; right: -8mm; top: -6mm; width: 30mm; height: 26mm; -webkit-mask: var(--hexmask) center / 100% 100% no-repeat; mask: var(--hexmask) center / 100% 100% no-repeat; background: var(--amber); opacity: .9; }
+.navyp p { color: #DCE7F1; margin: 0; } .navyp p b { color: #fff; }
+.hero { display: grid; grid-template-columns: 56mm 1fr; gap: 6mm; align-items: center; }
+.big { font-family: var(--cond); font-stretch: 75%; font-weight: 800; font-size: 50pt; line-height: .95; color: var(--sun); }
+.big small { font-size: 16pt; color: #fff; margin-left: 1mm; }
+.cap { font-size: 7.2pt; letter-spacing: .14em; text-transform: uppercase; color: #9BB2C6; font-weight: 700; margin-bottom: 1.5mm; }
+.note { border-left: 1mm solid var(--amber); background: #FFF8EC; padding: 2.6mm 3.5mm; font-size: 8.2pt; }
+.legend { display: flex; flex-wrap: wrap; gap: 4.5mm; font-size: 7.6pt; color: var(--muted); margin-top: 1.5mm; }
+.legend i { display: inline-block; width: 3mm; height: 3mm; margin-right: 1.4mm; vertical-align: -0.4mm; }
+.legend i.ln { width: 5mm; height: .7mm; vertical-align: .7mm; }
+.legend i.ln.dash { background: none !important; height: 0; border-top: .35mm dashed; }
+.layout-img { width: 100%; display: block; border: 1.2mm solid var(--amber); }
+.checks { list-style: none; }
+.checks li { display: flex; gap: 3mm; align-items: flex-start; padding: 1.3mm 0; color: #fff; font-size: 8.8pt; }
+.checks li .hx { width: 7.5mm; height: 6.5mm; } .checks li .hx svg { width: 3.8mm; height: 3.8mm; }
+.terms { list-style: none; counter-reset: n; }
+.terms li { counter-increment: n; position: relative; padding: 1.5mm 0 1.5mm 9mm; border-bottom: 0.25mm solid var(--line); font-size: 8.6pt; }
+.terms li::before { content: counter(n, decimal-leading-zero); position: absolute; left: 0; top: 1.5mm; font-family: var(--cond); font-stretch: 75%; font-weight: 800; color: var(--amber-ink); font-size: 10pt; }
+.sign { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+.sign div { border: 0.3mm solid var(--line); border-top: 1.2mm solid var(--amber); padding: 3.5mm; height: 32mm; display: flex; flex-direction: column; justify-content: space-between; }
+.sign span { font-size: 7pt; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+.sign b { border-top: 0.3mm solid var(--ink); padding-top: 1.4mm; font-size: 8.4pt; }
+
+/* ------------------------------------------------ tables */
+table { width: 100%; border-collapse: collapse; font-size: 8.4pt; }
+th { text-align: left; font-weight: 700; font-size: 7.2pt; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--navy-deep); padding: 1.9mm 2.4mm; }
+td { padding: 1.45mm 2.4mm; border-bottom: 0.25mm solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background: #FBFCFE; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.c, th.c { text-align: center; }
+tr.sec td { background: #FFF1DC !important; font-weight: 700; color: var(--navy-deep); font-size: 7.8pt; letter-spacing: .03em; text-transform: uppercase; }
+table.compact td { padding: 1.05mm 2.4mm; line-height: 1.33; font-size: 8.1pt; }
+.kv td:first-child { color: var(--muted); width: 44%; }
+.kv td:last-child { font-weight: 600; }
+.kv tr:nth-child(even) td { background: transparent; }
+tr.be td { background: #FFF3DD !important; font-weight: 700; }
+td.neg { color: #B23A2B; } td.pos { color: #17734F; }
+.tick { display: inline-block; width: 3.6mm; height: 3.6mm; border-radius: 50%; background: var(--amber); position: relative; vertical-align: middle; }
+.tick::after { content: ""; position: absolute; left: 1.2mm; top: .6mm; width: .9mm; height: 1.7mm; border: solid var(--ink); border-width: 0 .45mm .45mm 0; transform: rotate(45deg); }
+.price td { font-size: 9.4pt; padding: 2.4mm 3mm; }
+.price td small { display: block; color: var(--muted); font-size: 7.8pt; margin-top: .5mm; }
+.price tr.total td { font-weight: 700; background: var(--soft) !important; }
+.price tr.grand td { font-weight: 800; font-size: 11pt; background: var(--amber) !important; color: var(--navy-deep); border: 0; }
+
+/* ------------------------------------------------ charts */
+.chart { width: 100%; height: auto; display: block; font-family: var(--body); }
+.chart .ax { font-size: 9.5px; fill: var(--muted); }
+.chart .ax2 { font-size: 10.5px; fill: var(--ink); font-weight: 600; }
+.chart .val { font-size: 10.5px; fill: var(--ink); font-weight: 700; }
+.chart .pill { font-size: 10.5px; fill: #fff; font-weight: 700; }
+.chart .barlbl { font-size: 10.5px; fill: var(--ink); font-weight: 700; }
+.chart .mon { font-size: 10px; fill: #fff; font-weight: 700; }
+.chart .pilltxt { font-size: 10px; font-weight: 700; }
+.chart .lbl { font-size: 9.5px; font-weight: 700; }
+
+/* ------------------------------------------------ cover & back cover */
+.cover .brand { position: absolute; left: 18mm; top: 34mm; display: flex; align-items: center; gap: 3mm; }
+.cover .brand img { width: 12mm; }
+.cover .brand b { font-weight: 800; font-size: 10.5pt; color: var(--navy-deep); display: block; line-height: 1.1; }
+.cover .brand span { font-size: 7.6pt; color: var(--muted); }
+.cover .title { position: absolute; left: 18mm; top: 56mm; width: 150mm; }
+.cover h1 { font-size: 44pt; line-height: .95; color: var(--navy-deep); }
+.cover h1 em { font-style: normal; color: var(--amber); display: block; }
+.cover .subbar { display: inline-block; margin-top: 5mm; background: var(--amber); color: var(--navy-deep); padding: 2.2mm 6mm; font-weight: 700; font-size: 10.5pt; }
+.cover .for { margin-top: 7mm; font-size: 8pt; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
+.cover .client { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 17pt; color: var(--navy-deep); line-height: 1.1; }
+.cover .loc { font-size: 9pt; color: var(--muted); }
+.cover .meta { position: absolute; left: 18mm; bottom: 30mm; display: grid; grid-template-columns: 46mm 26mm; gap: 3mm 3mm; }
+.cover .meta span { display: block; font-size: 6.8pt; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-weight: 700; }
+.cover .meta b { font-size: 8.8pt; color: var(--navy-deep); }
+.contact-list { display: grid; gap: 4mm; width: 120mm; margin: 0 auto; }
+.contact-list div { display: flex; align-items: center; gap: 4mm; }
+.contact-list b { font-size: 11pt; color: var(--navy-deep); }
+
+/* phone mockup */
+.phone { width: 56mm; background: #fff; color: var(--ink); border-radius: 6mm; border: 2mm solid #0B1724; padding: 4.5mm 3.5mm 3.5mm; box-shadow: 0 2mm 6mm rgba(0,0,0,.35); }
+.ph-top b { display: block; font-size: 8pt; } .ph-top span { font-size: 6.6pt; color: var(--muted); }
+.ph-ring { position: relative; width: 22mm; height: 22mm; margin: 2.5mm auto; }
+.ph-ring svg { width: 100%; height: 100%; }
+.ph-ring div { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ph-ring b { font-family: var(--cond); font-stretch: 75%; font-size: 14pt; color: var(--navy); line-height: 1; } .ph-ring span { font-size: 6.2pt; color: var(--muted); }
+.ph-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm; }
+.ph-grid div { background: var(--bg); border-radius: 1.4mm; padding: 1.4mm 1.8mm; }
+.ph-grid span { display: block; font-size: 5.8pt; color: var(--muted); } .ph-grid b { font-size: 7.6pt; color: var(--navy); }
+.ph-spark { margin-top: 2mm; background: var(--bg); border-radius: 1.4mm; padding: 1.4mm; }
+.ds-slot { position: absolute; border: 0.3mm solid var(--soft); }
+.chart .dn-big { font-family: "Bricolage", "Bricolage Grotesque", sans-serif; font-size: 34px; font-weight: 800; fill: var(--amber-ink); }
+.chart .dn-sub { font-size: 11px; fill: var(--muted); }
+.chart .dn-lbl { font-size: 12px; font-weight: 600; fill: var(--muted); }
+.chart .dn-val { font-family: "Bricolage", "Bricolage Grotesque", sans-serif; font-size: 24px; font-weight: 800; }
+.chart .dn-sm { font-size: 10.5px; fill: var(--muted); }
+
+/* ---- density pass: larger type to use the page (print) */
+body { font-size: 10pt; }
+.lead { font-size: 11.4pt; }
+h2 { font-size: 15pt; }
+table { font-size: 9pt; }
+th { font-size: 7.6pt; padding: 2.2mm 2.6mm; }
+td { padding: 1.8mm 2.6mm; }
+.kv td { font-size: 9.8pt; padding: 2.3mm 2.6mm; }
+.small { font-size: 8.2pt; } .legend { font-size: 8pt; } .note { font-size: 9.2pt; padding: 3.2mm 4.2mm; }
+.boq table.compact td { padding: 1.05mm 2.4mm; font-size: 8.1pt; }
+.boq th { font-size: 7.2pt; padding: 1.9mm 2.4mm; }
+.feat b { font-size: 13pt; } .feat span { font-size: 9pt; } .feat .r { font-size: 20pt; }
+.hx.lg { width: 26mm; height: 22.5mm; } .hx.lg svg { width: 11mm; height: 11mm; }
+.tile .v { font-size: 23pt; } .tile .l { font-size: 8.2pt; } .tile { padding: 4.4mm 4.6mm; }
+.toc { gap: 6.5mm 8mm; } .toc b { font-size: 13pt; } .toc span { font-size: 8.6pt; } .hn { width: 14mm; height: 12.2mm; font-size: 12.5pt; }
+.scope table td { padding: 2.25mm 2.6mm; font-size: 9.2pt; }
+.terms li { font-size: 9.4pt; padding: 2mm 0 2mm 9mm; } .terms li::before { top: 2mm; }
+.price td { font-size: 10.2pt; padding: 3mm 3.2mm; }
+.summary .kv td { padding: 3.1mm 2.6mm; font-size: 10.4pt; }
+.warranty .feat span { font-size: 8.8pt; }
+.intro .pc, .summary .pc, .engineering .pc, .warranty .pc, .scope .pc { display: flex; flex-direction: column; justify-content: space-evenly; }
+.intro .mt3, .summary .mt3, .warranty .mt3 { margin-top: 0; }
+.toc b { font-size: 12pt; white-space: nowrap; } .toc span { white-space: nowrap; }
+
+/* honeycomb: connected hexagons with text inside (flat-top, zigzag) */
+.honey { position: relative; height: 90mm; width: 174mm; }
+.honey-bg { position: absolute; inset: 0; width: 174mm; height: 90mm; }
+.hc { position: absolute; width: 68mm; height: 58.9mm; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4mm 12mm; }
+.hc.am { color: var(--navy-deep); }
+.hc svg { width: 9mm; height: 9mm; fill: none; stroke: var(--sun); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 1.8mm; }
+.hc.am svg { stroke: var(--navy-deep); }
+.hc b { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 13pt; line-height: 1.05; }
+.hc span { font-size: 8.2pt; line-height: 1.35; margin-top: 1.4mm; opacity: .9; }
+.chart .tick { font-size: 8.5px; }
+
+/* back cover honeycomb */
+.backcover { background: #fff; }
+.hcell { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 9mm; color: #fff; }
+.hcell.logo { color: var(--navy-deep); }
+.hcell.logo img { width: 17mm; margin-bottom: 1.5mm; }
+.hcell.logo b { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 11pt; line-height: 1.1; }
+.hcell.logo span { font-size: 7pt; color: var(--muted); }
+.hcell.thanks { color: var(--navy-deep); padding: 0 11mm; }
+.hcell.thanks .big { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 22pt; line-height: 1; }
+.hcell.thanks span { font-size: 7.8pt; line-height: 1.35; margin-top: 1.5mm; }
+.hcell .ci { display: flex; align-items: center; gap: 2mm; width: 100%; justify-content: flex-start; padding: 1.1mm 0; font-size: 8.2pt; font-weight: 600; }
+.hcell .ci svg { width: 4.6mm; height: 4.6mm; flex: none; fill: none; stroke: var(--sun); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.hcell.thanks b, .hcell.thanks span { color: var(--navy-deep) !important; }
+
+/* a11y pass (ui-ux-pro-max audit) */
+.chart .ax { font-size: 11.5px; } .chart .tick { font-size: 10.5px; }
+.ph-grid span { font-size: 6.8pt; } .ph-grid b { font-size: 8pt; } .ph-top span, .ph-ring span { font-size: 6.8pt; }
+.cover .meta span { font-size: 7.4pt; }
+.pf { font-size: 7.6pt; }
+.chart .dn-pct { font-size: 12px; font-weight: 800; }
+.honey { width: 174mm; }
+.honey-bg { width: 174mm; }
+.hc .hv { font-family: var(--cond); font-stretch: 75%; font-weight: 800; font-size: 15pt; line-height: 1.05; margin-top: .8mm; color: var(--sun); }
+.hc.am .hv { color: var(--navy-deep); }
+.roi-honey .hc b { font-size: 11.5pt; } .roi-honey .hc span { font-size: 7.6pt; } .roi-honey .hc svg { width: 7mm; height: 7mm; margin-bottom: 1mm; }
+.warr-honey .hc b { font-size: 10.5pt; } .warr-honey .hc span { font-size: 7.2pt; line-height: 1.3; } .warr-honey .hc svg { width: 7mm; height: 7mm; margin-bottom: 1mm; } .warr-honey .hc .hv { font-size: 14pt; }
+/* terms panel */
+.quotation .terms { background: var(--bg); border-left: 1.2mm solid var(--amber); padding: 1.5mm 5mm; }
+.quotation .terms li { border-bottom-color: #DCE6EF; }
+.quotation .terms li:last-child { border-bottom: 0; }
+.chart .minor { font-size: 8.5px; fill: #7F93A6; }
+/* back cover: big centre cells */
+.hcell.thanks .big { font-size: 30pt; }
+.hcell.thanks span { font-size: 9.6pt; max-width: 52mm; }
+.hcell.contact1, .hcell.contact2 { padding: 0 17mm; }
+.hcell .ci { font-size: 10.5pt; padding: 1.6mm 0; gap: 3mm; }
+.hcell .ci svg { width: 6mm; height: 6mm; }
+.hcell.logo img { width: 16mm; } .hcell.logo b { font-size: 9.5pt; } .hcell.logo span { font-size: 6.6pt; }
+/* TOC as a connected hexagon chain */
+.tocchain { position: relative; width: 174mm; }
+.chart .tocno, .tocchain .tocno { font-family: "Bricolage", sans-serif; font-stretch: 75%; font-weight: 800; font-size: 5.2px; }
+.tocrow { position: absolute; left: 34mm; right: 0; height: 6.4mm; display: flex; align-items: center; gap: 3mm; }
+.tocrow b { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 12.5pt; color: var(--navy-deep); white-space: nowrap; }
+.tocrow i { flex: 1; border-bottom: .35mm dotted #B7C6D4; transform: translateY(1mm); }
+.tocrow span { font-family: var(--cond); font-stretch: 75%; font-weight: 800; font-size: 12pt; color: var(--amber-ink); }
+.og-honey .hc b { font-size: 10.5pt; } .og-honey .hc span { font-size: 7.4pt; line-height: 1.3; } .og-honey .hc svg { width: 6.5mm; height: 6.5mm; margin-bottom: 1mm; }
+.sum-honey .hc b { font-size: 12pt; } .sum-honey .hc .hv { font-size: 20pt; } .sum-honey .hc span { font-size: 8pt; line-height: 1.3; } .sum-honey .hc svg { width: 8mm; height: 8mm; margin-bottom: 1mm; }
+/* TOC v3: two columns of vertically stacked hexagons, each attached to a label bar */
+.toc2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 7mm; }
+.tcol { display: flex; flex-direction: column; }
+.trow { position: relative; height: 12.99mm; display: flex; align-items: center; }
+.thex { position: absolute; left: 0; top: 0; width: 15mm; height: 12.99mm; z-index: 2; }
+.thex .tno { font-family: "Bricolage", sans-serif; font-stretch: 75%; font-weight: 800; font-size: 5.2px; }
+.tbar { margin-left: 10mm; flex: 1; height: 9mm; display: flex; align-items: center; justify-content: space-between; padding: 0 3.5mm 0 8mm;
+  background: var(--bg); border-radius: 0 4.5mm 4.5mm 0; border-left: 0; }
+.trow.am .tbar { background: #FFF4E3; }
+.tbar b { font-family: var(--cond); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 11.5pt; color: var(--navy-deep); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbar span { font-family: var(--cond); font-stretch: 75%; font-weight: 800; font-size: 11.5pt; color: var(--amber-ink); margin-left: 2mm; }
+/* cover v2: big photo hexagon bleeding off the right/bottom edge */
+.cover .title { top: 50mm; width: 120mm; }
+.cover .meta { grid-template-columns: 50mm; gap: 2.6mm; bottom: 24mm; }
+/* cover meta on the navy corner panel */
+.cover .meta { bottom: auto; top: 239mm; grid-template-columns: 50mm; gap: 2.2mm; }
+.cover .meta span { color: #9BB2C6; }
+.cover .meta b { color: #fff; }
+.cover .meta div:first-child b { color: var(--sun); }

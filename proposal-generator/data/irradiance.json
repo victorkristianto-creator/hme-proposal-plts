@@ -1,0 +1,205 @@
+{
+  "Surabaya": {
+    "ghi_kwh_m2_day": 5.36,
+    "lat": -7.2575,
+    "lon": 112.7521,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Sidoarjo": {
+    "ghi_kwh_m2_day": 5.53,
+    "lat": -7.4478,
+    "lon": 112.7183,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Gresik": {
+    "ghi_kwh_m2_day": 5.36,
+    "lat": -7.1539,
+    "lon": 112.6561,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Pasuruan": {
+    "ghi_kwh_m2_day": 5.74,
+    "lat": -7.6453,
+    "lon": 112.9075,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Mojokerto": {
+    "ghi_kwh_m2_day": 5.35,
+    "lat": -7.4722,
+    "lon": 112.4339,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Malang": {
+    "ghi_kwh_m2_day": 5.12,
+    "lat": -7.9666,
+    "lon": 112.6326,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Kediri": {
+    "ghi_kwh_m2_day": 5.31,
+    "lat": -7.848,
+    "lon": 112.0178,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Tulungagung": {
+    "ghi_kwh_m2_day": 5.11,
+    "lat": -8.0652,
+    "lon": 111.9025,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.58
+  },
+  "Blitar": {
+    "ghi_kwh_m2_day": 5.08,
+    "lat": -8.0954,
+    "lon": 112.1609,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.61
+  },
+  "Jombang": {
+    "ghi_kwh_m2_day": 5.26,
+    "lat": -7.547,
+    "lon": 112.233,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Probolinggo": {
+    "ghi_kwh_m2_day": 5.75,
+    "lat": -7.7543,
+    "lon": 113.2159,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.54
+  },
+  "Lamongan": {
+    "ghi_kwh_m2_day": 5.36,
+    "lat": -7.1167,
+    "lon": 112.4167,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Tuban": {
+    "ghi_kwh_m2_day": 5.35,
+    "lat": -6.8976,
+    "lon": 112.0647,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.37
+  },
+  "Jember": {
+    "ghi_kwh_m2_day": 5.17,
+    "lat": -8.1845,
+    "lon": 113.6681,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.66
+  },
+  "Banyuwangi": {
+    "ghi_kwh_m2_day": 5.55,
+    "lat": -8.2192,
+    "lon": 114.3691,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.48
+  },
+  "Madiun": {
+    "ghi_kwh_m2_day": 5.36,
+    "lat": -7.6298,
+    "lon": 111.5239,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.34
+  },
+  "Jakarta": {
+    "ghi_kwh_m2_day": 4.52,
+    "lat": -6.2088,
+    "lon": 106.8456,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 4.83
+  },
+  "Bekasi": {
+    "ghi_kwh_m2_day": 4.65,
+    "lat": -6.2383,
+    "lon": 106.9756,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 4.83
+  },
+  "Cikarang": {
+    "ghi_kwh_m2_day": 4.87,
+    "lat": -6.3,
+    "lon": 107.15,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.01
+  },
+  "Karawang": {
+    "ghi_kwh_m2_day": 5.02,
+    "lat": -6.3015,
+    "lon": 107.3376,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.01
+  },
+  "Tangerang": {
+    "ghi_kwh_m2_day": 4.56,
+    "lat": -6.1783,
+    "lon": 106.6319,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 4.83
+  },
+  "Bogor": {
+    "ghi_kwh_m2_day": 4.59,
+    "lat": -6.5971,
+    "lon": 106.806,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 4.83
+  },
+  "Bandung": {
+    "ghi_kwh_m2_day": 4.86,
+    "lat": -6.9175,
+    "lon": 107.6191,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.01
+  },
+  "Semarang": {
+    "ghi_kwh_m2_day": 5.31,
+    "lat": -6.9667,
+    "lon": 110.4167,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.17
+  },
+  "Surakarta": {
+    "ghi_kwh_m2_day": 5.28,
+    "lat": -7.5755,
+    "lon": 110.8243,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.16
+  },
+  "Yogyakarta": {
+    "ghi_kwh_m2_day": 4.93,
+    "lat": -7.7956,
+    "lon": 110.3695,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.16
+  },
+  "Denpasar": {
+    "ghi_kwh_m2_day": 5.56,
+    "lat": -8.6705,
+    "lon": 115.2126,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.56
+  },
+  "Sukoharjo": {
+    "ghi_kwh_m2_day": 5.25,
+    "lat": -7.6819,
+    "lon": 110.8573,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.16
+  },
+  "Batu": {
+    "ghi_kwh_m2_day": 5.09,
+    "lat": -7.8671,
+    "lon": 112.5239,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
+    "nasa_power_cross_check_kwh_m2_day": 5.26
+  }
+}

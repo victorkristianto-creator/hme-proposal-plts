@@ -1,0 +1,72 @@
+{
+  "meta": {"number": "001/Q.PLTS/HME/X/2026", "date": "22 October 2026", "date_id": "22 Oktober 2026",
+           "revision": "01", "prepared_by": "Tim Sales HME", "language": "id"},
+  "client": {"name": "Rumah Contoh", "short_name": "Rumah Contoh", "location": "Surabaya, East Java",
+             "location_id": "Surabaya, Jawa Timur", "city": "Surabaya", "segment": "Residential"},
+  "system": {
+    "type": "Hybrid", "mounting": "Rooftop", "capacity_kwp": 4.32, "capacity_kva": 3.6,
+    "panel": {"qty": 6, "brand": "Trina Solar", "model": "TSM-NEG21C.20", "wp": 720},
+    "inverter": {"qty": 1, "brand": "Deye", "model": "SUN-3.6K-OG01LP1-EU-AM2", "kva": 3.6},
+    "battery": "Deye SE-G 5,12 kWh", "battery_kwh": 5.12,
+    "monitoring": "Deye WiFi dongle + aplikasi"
+  },
+  "price": {"total": 79274282, "vat_pct": 11,
+            "items": ["EPC Residential Hybrid Solar PV System, Rooftop", "Hybrid material + battery", "Installation service"]},
+  "load": {"monthly_kwh": 700, "monthly_bill_rp": 1112419, "work_hours": [0, 24], "saturday": true, "sunday": true, "base_load_pct": 100},
+  "financial": {"pln_tariff_rp_kwh": 1589.17, "tariff_note": "R1 Rp 1.444,70/kWh + PBJT 10%", "escalation_range_pct": [2, 5]},
+  "datasheets": [
+    {"title": "Modul Surya · Trina Solar TSM-NEG21C.20 720 Wp", "file": "../../../datasheet/Trina/Vertex N_NEG21C.20_EN_2024_APAC_A_web.pdf"},
+    {"title": "Inverter Hybrid · Deye SUN-3.6K-OG01LP1-EU-AM2", "file": "../../../datasheet/deye/sun-3.6-6k-og01lp1-eu-am2.pdf"},
+    {"title": "Baterai · Deye SE-G 5,12 kWh", "file": "../../../datasheet/deye/SE-G5.1-Pro-SE-G5.3.pdf"}
+  ],
+  "id": {
+    "price_items": ["EPC PLTS Hybrid rumah tinggal", "Material PLTS hybrid + baterai", "Jasa instalasi"],
+    "warranty": [
+      {"item": "Modul surya", "value": "12 tahun", "detail": "Garansi produk pabrikan, ditambah garansi daya linier 25 tahun."},
+      {"item": "Inverter", "value": "5 tahun", "detail": "Garansi produk pabrikan Deye."},
+      {"item": "Baterai", "value": "Pabrikan", "detail": "Garansi produk sesuai ketentuan pabrikan Deye (lihat datasheet)."},
+      {"item": "Instalasi", "value": "12 bulan", "detail": "HME menjamin instalasi bebas cacat. Dapat diperpanjang atas permintaan."}
+    ],
+    "schedule": [
+      {"task": "Perjanjian & uang muka", "start": 0, "end": 0.25},
+      {"task": "Pengadaan material", "start": 0.25, "end": 1.5},
+      {"task": "Instalasi", "start": 1.5, "end": 1.75},
+      {"task": "Pengujian & serah terima", "start": 1.75, "end": 2}
+    ]
+  },
+  "boq": [
+    {"section": "Material Utama", "items": [
+      ["Modul surya", 6, "pcs", "Trina Solar 720 Wp"],
+      ["Inverter hybrid", 1, "pcs", "Deye SUN-3.6K-OG01LP1-EU-AM2"],
+      ["Baterai", 1, "pcs", "Deye SE-G 5,12 kWh"]]},
+    {"section": "Monitoring & Proteksi", "items": [
+      ["Monitoring", 1, "pcs", "WiFi dongle"],
+      ["Zero export", 1, "ls", "DDSU666 termasuk CT"],
+      ["ATS", 1, "ls", ""]]},
+    {"section": "Mounting", "items": [
+      ["Mounting", 4320, "Wp", "Tile hook"],
+      ["Perbaikan & flashing", 1, "ls", ""]]},
+    {"section": "Kabel", "items": [
+      ["Kabel DC", 60, "m", "Solar cable 4 mm²"],
+      ["Kabel grounding DC", 25, "m", "NYA 1×4 mm²"],
+      ["Kabel AC inverter", 10, "m", "NYY 4×4 mm²"],
+      ["Kabel grounding AC inverter", 10, "m", "NYA 1×4 mm²"],
+      ["Kabel AC ke titik interkoneksi", 20, "m", "NYY 4×4 mm²"],
+      ["Kabel grounding AC", 20, "m", "NYA 1×4 mm²"],
+      ["Kabel komunikasi zero export", 20, "m", "Belden RS485 AWG18 1 pair shielded"],
+      ["Kabel baterai", 6, "m", "NYAF 1×70 mm²"],
+      ["Aksesori kabel", 1, "ls", "Terminal, skun, conduit, DIN rail, dll."]]},
+    {"section": "Panel AC", "items": [
+      ["Box panel AC", 1, "pcs", "Hager 12 group"],
+      ["Breaker utama", 1, "pcs", "Schneider iC60N A9F74232"],
+      ["Breaker AC", 1, "pcs", "Schneider iC60N A9F74106"],
+      ["SPD AC", 1, "pcs", "Schneider A9L15688"],
+      ["MCB AC", 1, "pcs", "MCB 1 fasa 6 A EZ9F54106"],
+      ["Aksesori panel", 1, "ls", "Mur baut, DIN rail, clamp, relay, terminal, dll."],
+      ["Conduit", 1, "ls", ""]]},
+    {"section": "Jasa", "items": [
+      ["Jasa instalasi", 1, "ls", "5 hari kerja"],
+      ["Alat bantu & scaffolding", 1, "ls", ""],
+      ["Akomodasi tenaga kerja", 1, "ls", ""]]}
+  ]
+}

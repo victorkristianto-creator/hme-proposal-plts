@@ -1,0 +1,541 @@
+{
+ "meta": {
+  "number": "002/Q.PLTS/HME/X/2026",
+  "date": "22 October 2026",
+  "date_id": "22 Oktober 2026",
+  "revision": "01",
+  "prepared_by": "Tim Sales HME",
+  "language": "id"
+ },
+ "client": {
+  "name": "PT Contoh Tekstil Indonesia",
+  "short_name": "Contoh Tekstil",
+  "location": "Pasuruan, East Java",
+  "location_id": "Pasuruan, Jawa Timur",
+  "city": "Pasuruan",
+  "segment": "Industrial"
+ },
+ "system": {
+  "type": "On-Grid",
+  "mounting": "Rooftop",
+  "capacity_kwp": 1209.6,
+  "capacity_kva": 975,
+  "panel": {
+   "qty": 1680,
+   "brand": "Trina Solar",
+   "model": "TSM-NEG21C.20",
+   "wp": 720
+  },
+  "inverter": {
+   "qty": 7,
+   "brand": "SolaX",
+   "model": "X3-FTH-150K-P",
+   "kva": 150,
+   "mix": [
+    {
+     "qty": 4,
+     "model": "X3-FORTH X3-FTH-150K-P",
+     "kva": 150
+    },
+    {
+     "qty": 3,
+     "model": "X3-FORTH X3-FTH-125K",
+     "kva": 125
+    }
+   ]
+  },
+  "battery": null,
+  "monitoring": "SolaX EMS 1000 Pro + sensor iradiasi"
+ },
+ "price": {
+  "total": 9387698952,
+  "vat_pct": 11,
+  "items": [
+   "EPC Industrial On-Grid Solar PV System, Rooftop",
+   "On-grid industrial material",
+   "Installation service"
+  ]
+ },
+ "pln_bills": [
+  {
+   "period": "Maret 2026",
+   "days": 31,
+   "tariff_class": "I3",
+   "power_va": 2180000,
+   "meter_factor": 4000,
+   "stand": {
+    "lwbp": [
+     5594.035,
+     5805.233
+    ],
+    "wbp": [
+     1135.117,
+     1177.158
+    ]
+   },
+   "lwbp_kwh": 844792,
+   "wbp_kwh": 168164,
+   "kvarh": 0,
+   "lwbp_rp_kwh": 1035.78,
+   "wbp_rp_kwh": 1553.67,
+   "ttl_rp": 1136290020,
+   "ppj_rp": 34088701,
+   "total_rp": 1170378721
+  },
+  {
+   "period": "April 2026",
+   "days": 30,
+   "tariff_class": "I3",
+   "power_va": 2180000,
+   "meter_factor": 4000,
+   "stand": {
+    "lwbp": [
+     5805.233,
+     6036.169
+    ],
+    "wbp": [
+     1177.158,
+     1224.032
+    ]
+   },
+   "lwbp_kwh": 923744,
+   "wbp_kwh": 187496,
+   "kvarh": 0,
+   "lwbp_rp_kwh": 1035.78,
+   "wbp_rp_kwh": 1553.67,
+   "ttl_rp": 1248102470,
+   "ppj_rp": 37443074,
+   "total_rp": 1285545544
+  },
+  {
+   "period": "Mei 2026",
+   "days": 31,
+   "tariff_class": "I3",
+   "power_va": 2180000,
+   "meter_factor": 4000,
+   "stand": {
+    "lwbp": [
+     6036.169,
+     6273.109
+    ],
+    "wbp": [
+     1224.032,
+     1271.866
+    ]
+   },
+   "lwbp_kwh": 947760,
+   "wbp_kwh": 191336,
+   "kvarh": 0,
+   "lwbp_rp_kwh": 1035.78,
+   "wbp_rp_kwh": 1553.67,
+   "ttl_rp": 1278943856,
+   "ppj_rp": 38368316,
+   "total_rp": 1317312172
+  }
+ ],
+ "financial": {
+  "escalation_range_pct": [
+   2,
+   5
+  ]
+ },
+ "datasheets": [
+  {
+   "title": "Modul Surya · Trina Solar Vertex N TSM-NEG21C.20 720 Wp",
+   "file": "../../../datasheet/Trina/Vertex N_NEG21C.20_EN_2024_APAC_A_web.pdf"
+  },
+  {
+   "title": "Inverter · SolaX X3-FORTH",
+   "file": "../../../datasheet/solax/solax-x3-forth-datasheet-en.pdf"
+  }
+ ],
+ "id": {
+  "price_items": [
+   "EPC PLTS On-Grid Rooftop industri",
+   "Material PLTS on-grid kelas industri",
+   "Jasa instalasi"
+  ]
+ },
+ "boq": [
+  {
+   "section": "Material Utama",
+   "items": [
+    [
+     "Modul surya",
+     1680,
+     "pcs",
+     "Trina Solar Vertex N 720 Wp"
+    ],
+    [
+     "Inverter on-grid",
+     4,
+     "pcs",
+     "SolaX X3-FORTH X3-FTH-150K-P"
+    ],
+    [
+     "Inverter on-grid",
+     3,
+     "pcs",
+     "SolaX X3-FORTH X3-FTH-125K"
+    ]
+   ]
+  },
+  {
+   "section": "Monitoring",
+   "items": [
+    [
+     "EMS / data logger",
+     1,
+     "pcs",
+     "SolaX EMS 1000 Pro Box, 8 port"
+    ],
+    [
+     "Sensor suhu modul & iradiasi",
+     1,
+     "set",
+     "Seven Sensor 3S-2IS"
+    ],
+    [
+     "Panel sensor",
+     1,
+     "ls",
+     "Panel kontrol sensor"
+    ],
+    [
+     "UPS",
+     1,
+     "set",
+     "APC Smart-UPS 700 VA"
+    ],
+    [
+     "Router",
+     1,
+     "pcs",
+     "Teltonika RUT200"
+    ]
+   ]
+  },
+  {
+   "section": "Mounting & Penetrasi Atap",
+   "items": [
+    [
+     "Mounting",
+     1209600,
+     "Wp",
+     "L-feet"
+    ],
+    [
+     "Sealant",
+     81,
+     "pcs",
+     "Dextone waterproof"
+    ],
+    [
+     "Perbaikan & flashing",
+     1,
+     "ls",
+     ""
+    ]
+   ]
+  },
+  {
+   "section": "Kabel DC",
+   "items": [
+    [
+     "Kabel DC",
+     51900,
+     "m",
+     "Solar cable 6 mm²"
+    ],
+    [
+     "Kabel grounding",
+     1000,
+     "m",
+     "NYA 1×6 mm²"
+    ],
+    [
+     "Kabel grounding",
+     150,
+     "m",
+     "NYA 1×25 mm²"
+    ]
+   ]
+  },
+  {
+   "section": "Kabel AC",
+   "items": [
+    [
+     "Kabel AC inverter 150 kW",
+     286,
+     "m",
+     "NA2XY 1×185 mm² (RSTN)"
+    ],
+    [
+     "Kabel grounding inverter 150 kW",
+     107,
+     "m",
+     "NAYA 1×95 mm²"
+    ],
+    [
+     "Kabel AC inverter 125 kW",
+     232,
+     "m",
+     "NA2XY 1×150 mm² (RSTN)"
+    ],
+    [
+     "Kabel grounding inverter 125 kW",
+     93,
+     "m",
+     "NAYA 1×95 mm²"
+    ],
+    [
+     "Kabel AC ke titik interkoneksi",
+     309,
+     "m",
+     "NA2XY 1×300 mm² (RST)"
+    ],
+    [
+     "Kabel AC ke titik interkoneksi (netral)",
+     62,
+     "m",
+     "NA2XY 1×300 mm² (N)"
+    ],
+    [
+     "Kabel grounding AC",
+     200,
+     "m",
+     "NAYA 1×150 mm²"
+    ],
+    [
+     "Aksesori kabel",
+     1,
+     "ls",
+     "Terminal, skun, RS485, conduit, DIN rail, stopper, dll."
+    ]
+   ]
+  },
+  {
+   "section": "Kabel Komunikasi",
+   "items": [
+    [
+     "Kabel komunikasi RS485",
+     1,
+     "roll",
+     "Belden AWG18 1 pair shielded 9841"
+    ],
+    [
+     "Kabel LAN",
+     1,
+     "roll",
+     "Belden CAT6 7814A, RJ45"
+    ],
+    [
+     "Kabel daya sensor",
+     2,
+     "roll",
+     "NYYHY 3×2,5 mm²"
+    ],
+    [
+     "Kabel sensing genset",
+     1,
+     "roll",
+     "NYYHY 3×2,5 mm²"
+    ]
+   ]
+  },
+  {
+   "section": "Panel Combiner AC/DC",
+   "items": [
+    [
+     "Box panel AC",
+     1,
+     "ls",
+     "Panel berdiri 160×120×200 cm, 2 pintu, 2 mm, IP65"
+    ],
+    [
+     "Breaker utama (50 kA)",
+     1,
+     "pcs",
+     "MVS20 2000 A MVS20N3MF2A"
+    ],
+    [
+     "Breaker inverter 150 kW",
+     4,
+     "pcs",
+     "EasyPact CVS400F TM400D 400 A 36 kA"
+    ],
+    [
+     "Breaker inverter 125 kW",
+     3,
+     "pcs",
+     "EasyPact CVS250F TM250D 250 A 36 kA"
+    ],
+    [
+     "Motorized + relay buka/tutup",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Power meter",
+     1,
+     "pcs",
+     "Schneider PM5350"
+    ],
+    [
+     "Current transformer",
+     3,
+     "pcs",
+     "CT 2000/5 A solid core, kelas 0,5s"
+    ],
+    [
+     "Pilot lamp",
+     17,
+     "pcs",
+     "XB4BVM3"
+    ],
+    [
+     "MCCB AC",
+     1,
+     "pcs",
+     "EZC100B 40 A"
+    ],
+    [
+     "SPD 3P+N",
+     1,
+     "pcs",
+     "PRD40 A9L40600"
+    ],
+    [
+     "Busbar",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Zero export",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Konektor QC4",
+     87,
+     "pair",
+     ""
+    ],
+    [
+     "Prewiring & komponen",
+     1,
+     "ls",
+     "Skun, gland stainless, terminal DIN rail, busbar, box sensor, box combiner DC, dll."
+    ]
+   ]
+  },
+  {
+   "section": "Conduit, Tray & Walkway",
+   "items": [
+    [
+     "Conduit",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Cable tray",
+     1,
+     "ls",
+     "HDG min. 1,2 mm"
+    ],
+    [
+     "Walkway",
+     1,
+     "ls",
+     "HDG 2,4 × 0,4 m, 198 pcs"
+    ],
+    [
+     "Safety lifeline",
+     1,
+     "ls",
+     "Wire rope sling berlapis PVC 8–10 mm, 515 m"
+    ],
+    [
+     "Tangga akses",
+     1,
+     "ls",
+     "Tinggi 4 m, finishing cat"
+    ],
+    [
+     "Sistem grounding",
+     1,
+     "set",
+     ""
+    ],
+    [
+     "Shelter inverter",
+     1,
+     "ls",
+     ""
+    ]
+   ]
+  },
+  {
+   "section": "Peralatan Keselamatan",
+   "items": [
+    [
+     "APAR",
+     2,
+     "pcs",
+     "3 kg (shelter inverter)"
+    ],
+    [
+     "Safety suit kit",
+     1,
+     "ls",
+     ""
+    ]
+   ]
+  },
+  {
+   "section": "Jasa, Pengiriman & Perizinan",
+   "items": [
+    [
+     "Jasa instalasi",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Alat berat & scaffolding",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Engineering, pelatihan & commissioning",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Akomodasi tenaga kerja",
+     1,
+     "ls",
+     ""
+    ],
+    [
+     "Pengiriman",
+     1,
+     "ls",
+     "Sampai lokasi, Pasuruan"
+    ],
+    [
+     "SLO dan NIDI",
+     1,
+     "ls",
+     "IUPTLS, NIDI, SLO, transportasi dan akomodasi"
+    ]
+   ]
+  }
+ ]
+}
