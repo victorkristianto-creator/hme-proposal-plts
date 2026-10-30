@@ -6,13 +6,46 @@
 {%- set loc = p.client.location_id or p.client.location -%}
 {%- set T = fin.txt -%}
 {%- set plan = fin.plan -%}
+{#- developer offer (BOS): client = the developer, site = where the plant is built, modules and inverters come from the developer -#}
+{%- set bos = p.client.segment == 'Developer' -%}
+{%- set site = p.get('site') or {} -%}
+{%- set dev = p.client.short_name -%}
 {%- set titles = {
-  'tagihan': 'Profil Beban dan Energi', 'ringkasan': 'Ringkasan Eksekutif', 'tentang': 'Profil Perusahaan', 'sistem': 'Spesifikasi Sistem', 'energi': 'Analisis Profil Energi',
+  'tagihan': 'Profil Beban dan Energi', 'ringkasan': 'Ringkasan Eksekutif', 'bos': 'Ringkasan Penawaran', 'tentang': 'Profil Perusahaan', 'sistem': 'Spesifikasi Sistem', 'energi': 'Analisis Profil Energi',
   'penghematan': 'Analisis Penghematan', 'proyeksi': 'Proyeksi Arus Kas', 'harga': 'Penawaran Harga', 'lingkup': 'Lingkup Pekerjaan',
   'boq': 'Daftar Material', 'garansi': 'Garansi dan Jadwal', 'datasheet': 'Lampiran Datasheet',
 } -%}
 {%- macro tick() -%}<svg class="tick" viewBox="0 0 16 16" aria-label="ya"><path d="M3.5 8.4l3 3 6-6.8"/></svg>{%- endmacro -%}
 {%- macro hexclip(id, cx, cy, w, r=4) -%}<clipPath id="{{ id }}"><path d="{{ hexp(cx, cy, w, r) }}"/></clipPath>{%- endmacro -%}
+{#- photo in an HME-orange frame over HME-blue hexagons (cover and closing; light, print-friendly) -#}
+{%- macro glasshex(id, img, cx, cy, w, back_dx=-6, back_dy=-5, deco=(-0.32, 0.42, 0.55), low=(-9, 13)) -%}
+  {%- set h = w * 0.866 -%}
+  <defs>
+    {{ hexclip(id ~ '-clip', cx, cy, w, 7) }}
+    {#- back hexagon: HME blue, strongest at the top-right and bottom-left corners -#}
+    <linearGradient id="{{ id }}-back" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#104674" stop-opacity="1"/><stop offset=".5" stop-color="#104674" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#0A3055" stop-opacity=".95"/></linearGradient>
+    {#- frame: HME orange, a little lighter at the bottom -#}
+    <linearGradient id="{{ id }}-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F59A1B" stop-opacity="1"/><stop offset="1" stop-color="#F59A1B" stop-opacity=".82"/></linearGradient>
+    <linearGradient id="{{ id }}-rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FDB813" stop-opacity="1"/><stop offset=".5" stop-color="#F59A1B" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#FDB813" stop-opacity="1"/></linearGradient>
+    <filter id="{{ id }}-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="{{ id }}-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="3" flood-color="#104674" flood-opacity=".25"/></filter>
+  </defs>
+  {#- faint hexagon outlines spreading into the page -#}
+  <path d="{{ hexp(cx + w * deco[0], cy + w * deco[1], w * deco[2], 6) }}" fill="#E7F0F7" fill-opacity=".45" stroke="#B9CDE0" stroke-opacity=".5" stroke-width=".3"/>
+  <path d="{{ hexp(cx - w * 0.05, cy - w * 0.62, w * 0.42, 5) }}" fill="none" stroke="#B9CDE0" stroke-opacity=".55" stroke-width=".3"/>
+  <path d="{{ hexp(cx + back_dx, cy + back_dy, w + 30, 12) }}" fill="#104674" opacity=".22" filter="url(#{{ id }}-glow)"/>
+  {#- two offset blue hexagons: one peeks out top-right, the other bottom-left -#}
+  <path d="{{ hexp(cx + back_dx + low[0], cy + back_dy + low[1], w + 18, 10) }}" fill="url(#{{ id }}-back)" opacity=".75"/>
+  <path d="{{ hexp(cx + back_dx + 8, cy + back_dy - 9, w + 20, 10) }}" fill="url(#{{ id }}-back)"/>
+  <path d="{{ hexp(cx, cy, w + 12, 9) }}" fill="url(#{{ id }}-glass)" stroke="url(#{{ id }}-rim)" stroke-width=".9" filter="url(#{{ id }}-shadow)"/>
+  <image href="{{ img }}" x="{{ cx - w/2 }}" y="{{ cy - h/2 }}" width="{{ w }}" height="{{ h }}" preserveAspectRatio="xMidYMid slice" clip-path="url(#{{ id }}-clip)"/>
+  <path d="{{ hexp(cx, cy, w, 7) }}" fill="none" stroke="#FFFFFF" stroke-opacity=".9" stroke-width=".5"/>
+{%- endmacro -%}
 <!doctype html>
 <html lang="id">
 <head>
@@ -28,27 +61,26 @@
 {% if kind == 'cover' %}
 <section class="page cover">
   {#- hexagon photo sits high on the right so the client block can own the lower-left corner -#}
-  {%- set hw = 172 -%}{%- set hcx = 178 -%}{%- set hcy = 167 -%}{%- set hh = hw * 0.866 -%}
   <svg class="art" viewBox="0 0 210 297" aria-hidden="true">
-    <defs>{{ hexclip('cv-hex', hcx, hcy, hw, 6) }}</defs>
-    <path d="{{ hexp(hcx - 14, hcy - 10, hw + 8, 6) }}" fill="none" stroke="#F59A1B" stroke-width=".7" stroke-opacity=".8"/>
-    <image href="{{ photo('res-1.webp' if p.client.segment == 'Residential' else 'hero-roof.webp', 1800) }}" x="{{ hcx - hw/2 }}" y="{{ hcy - hh/2 }}" width="{{ hw }}" height="{{ hh }}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cv-hex)"/>
+    {{ glasshex('cv', photo('res-1.webp' if p.client.segment == 'Residential' else 'hero-roof.webp', 1800), 178, 167, 160, back_dx=-2, deco=(-0.12, 0.5, 0.42), low=(-1, 10)) }}
   </svg>
   <div class="brand"><img src="{{ photo('hme-logo.webp', 400) }}" alt="Logo HME"><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
   <div class="title">
-    <h1 class="display">Penawaran PLTS<span class="sun">{{ s.type }} {{ s.mounting }}</span></h1>
-    <p class="sub">Pembangkit Listrik Tenaga Surya</p>
+    <h1 class="display">Penawaran {{ 'BOS PLTS' if bos else 'PLTS' }}<span class="sun">{{ s.type }} {{ s.mounting }}</span></h1>
+    <p class="sub">{{ 'Material Balance of System dan Instalasi' if bos else 'Pembangkit Listrik Tenaga Surya' }}</p>
   </div>
   <dl class="specs">
     <div class="cap"><dt>Kapasitas</dt><dd>{{ s.capacity_kwp|kwp }} <small>kWp</small></dd></div>
-    <div><dt>Modul surya</dt><dd>{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp</dd></div>
-    <div><dt>Inverter</dt><dd>{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ m.kva|kwp }}{% if not loop.last %} + {% endif %}{% endfor %} kVA {{ s.inverter.brand }}{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.kva|kwp }} kVA{% endif %}</dd></div>
+    <div><dt>Modul surya{% if bos %} · disuplai {{ dev }}{% endif %}</dt><dd>{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp</dd></div>
+    <div><dt>Inverter{% if bos %} · disuplai {{ dev }}{% endif %}</dt><dd>{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ m.kva|kwp }}{% if not loop.last %} + {% endif %}{% endfor %} kVA {{ s.inverter.brand }}{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.kva|kwp }} kVA{% endif %}</dd></div>
     {% if s.battery %}<div><dt>Baterai</dt><dd>{{ s.battery }}</dd></div>{% endif %}
   </dl>
   <div class="client-block">
     <div class="client">{{ p.client.name }}</div>
-    <div class="loc">{{ loc }}</div>
-    <p class="verdict">Perkiraan hemat <b>Rp&nbsp;{{ fin.monthly_saving|short }} per bulan</b> sejak tahun pertama{% if fin.payback is not none %}, dengan investasi kembali dalam <b>{{ fin.payback|payback }}</b>.{% else %}, namun investasi belum kembali dalam {{ f.years }} tahun.{% endif %}</p>
+    {% if bos %}<div class="loc">Site {{ site.name }}, {{ loc }}</div>
+    <p class="verdict"><b>Material BOS, instalasi, commissioning, dan perizinan</b> oleh HME. Modul surya dan inverter disuplai {{ dev }}.</p>
+    {% else %}<div class="loc">{{ loc }}</div>
+    <p class="verdict">Perkiraan hemat <b>Rp&nbsp;{{ fin.monthly_saving|short }} per bulan</b> sejak tahun pertama{% if fin.payback is not none %}, dengan investasi kembali dalam <b>{{ fin.payback|payback }}</b>.{% else %}, namun investasi belum kembali dalam {{ f.years }} tahun.{% endif %}</p>{% endif %}
   </div>
   <div class="meta">
     <table class="qinfo">
@@ -64,11 +96,8 @@
 {# ================================================================ CLOSING #}
 {% elif kind == 'penutup' %}
 <section class="page closing">
-  {%- set hw = 120 -%}{%- set hcx = 150 -%}{%- set hcy = 52 -%}{%- set hh = hw * 0.866 -%}
   <svg class="art" viewBox="0 0 210 297" aria-hidden="true">
-    <defs>{{ hexclip('cl-hex', hcx, hcy, hw, 5) }}</defs>
-    <path d="{{ hexp(hcx + 14, hcy - 10, hw + 6, 5) }}" fill="none" stroke="#F59A1B" stroke-width=".7" stroke-opacity=".8"/>
-    <image href="{{ photo('team-install-tulungagung.webp', 1800) }}" x="{{ hcx - hw/2 }}" y="{{ hcy - hh/2 }}" width="{{ hw }}" height="{{ hh }}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cl-hex)"/>
+    {{ glasshex('cl', photo('team-install-tulungagung.webp', 1800), 156, 48, 112, 6, -5, deco=(-0.6, 0.14, 0.38)) }}
   </svg>
   <div class="close-body">
     <h2 class="display">Terima Kasih</h2>
@@ -147,6 +176,33 @@
       <p class="note">Asumsi: {{ T.line }}.</p>
     </div>
 
+{# ---------------------------------------------------------------- bos (developer offer: replaces the executive summary) #}
+{% elif kind == 'bos' %}
+    <h2 class="display head">Ringkasan Penawaran</h2>
+    <p class="lead">PT Hexa Multi Energi menawarkan pekerjaan BOS (balance of system) PLTS {{ s.type }} {{ s.mounting|lower }} berkapasitas <b>{{ s.capacity_kwp|kwp }}&nbsp;kWp</b> untuk {{ p.client.name }}, di site {{ site.name }}, {{ loc }}. HME menyuplai seluruh material di luar modul surya dan inverter, memasang sistem secara lengkap, lalu menyelesaikan commissioning dan perizinannya.</p>
+    <div class="sheet">
+      <div class="row"><div class="k">Developer</div><div class="v">{{ p.client.name }}</div></div>
+      <div class="row"><div class="k">Site</div><div class="v">{{ site.name }}<small>{{ loc }}</small></div></div>
+      <div class="row"><div class="k">Sistem</div><div class="v">{{ s.capacity_kwp|kwp }} kWp · {{ s.capacity_kva|kwp }} kVA<small>{{ s.type }} {{ s.mounting|lower }}</small></div></div>
+      <div class="row"><div class="k">Nilai penawaran BOS</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%</small></div></div>
+      <div class="row key"><div class="k">Harga per Wp</div><div class="v">Rp&nbsp;{{ fin.price_per_wp|num }}/Wp<small>di luar modul surya dan inverter, belum PPN</small></div></div>
+      <div class="row"><div class="k">Jadwal pelaksanaan</div><div class="v">± {{ ((ID.schedule or p.schedule)|map(attribute='end')|max)|num(1) }} bulan<small>sejak kontrak ditandatangani</small></div></div>
+    </div>
+    <div class="two bos-split">
+      <div>
+        <h3 class="sect">Termasuk Penawaran</h3>
+        <ul class="bos-list">{% for x in ID.included %}<li>{{ x }}</li>{% endfor %}</ul>
+      </div>
+      <div>
+        <h3 class="sect">Tidak Termasuk</h3>
+        <ul class="bos-list out">
+          <li>{{ s.panel.qty|num }} modul surya {{ s.panel.brand }} {{ s.panel.wp }} Wp{% if s.panel.spare %} dan {{ s.panel.spare|num }} modul cadangan{% endif %}, disuplai {{ dev }}</li>
+          <li>{{ s.inverter.qty }} inverter {{ s.inverter.brand }} {% if s.inverter.get("mix") %}({% for m in s.inverter.mix %}{{ m.qty }} × {{ m.kva|kwp }}{% if not loop.last %} + {% endif %}{% endfor %} kVA){% else %}{{ s.inverter.kva|kwp }} kVA{% endif %}, disuplai {{ dev }}</li>
+          {% for x in ID.excluded %}<li>{{ x }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+
 {# ---------------------------------------------------------------- tentang #}
 {% elif kind == 'tentang' %}
     <h2 class="display head">Profil Perusahaan</h2>
@@ -199,10 +255,11 @@
     {% else %}<figure class="layout pending"><div>Layout atap menyusul setelah survei lokasi</div></figure>{% endif %}
     <div class="sheet compact-sheet">
       {%- set pl_ = brand_logo(s.panel.brand) -%}{%- set il_ = brand_logo(s.inverter.brand) -%}
-      <div class="row"><div class="k">Modul surya</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.model }}<small>{{ s.panel.wp }} Wp · Tier-1</small></div>{% if pl_ %}<img class="blogo" src="{{ photo(pl_, 320, 92, true) }}" alt="{{ s.panel.brand }}">{% endif %}</div>
-      <div class="row"><div class="k">Inverter</div><div class="v">{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ s.inverter.brand }} {{ m.model }}{% if not loop.last %}<br>{% endif %}{% endfor %}<small>total {{ s.capacity_kva|kwp }} kVA</small>{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kVA{% if s.inverter.qty > 1 %} · total {{ s.capacity_kva|kwp }} kVA{% endif %}</small>{% endif %}</div>{% if il_ %}<img class="blogo" src="{{ photo(il_, 320, 92, true) }}" alt="{{ s.inverter.brand }}">{% endif %}</div>
+      <div class="row"><div class="k">Modul surya{% if bos %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.model }}<small>{{ s.panel.wp }} Wp{% if not bos %} · Tier-1{% endif %}</small></div>{% if pl_ %}<img class="blogo" src="{{ photo(pl_, 320, 92, true) }}" alt="{{ s.panel.brand }}">{% endif %}</div>
+      <div class="row"><div class="k">Inverter{% if bos %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ s.inverter.brand }} {{ m.model }}{% if not loop.last %}<br>{% endif %}{% endfor %}<small>total {{ s.capacity_kva|kwp }} kVA</small>{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kVA{% if s.inverter.qty > 1 %} · total {{ s.capacity_kva|kwp }} kVA{% endif %}</small>{% endif %}</div>{% if il_ %}<img class="blogo" src="{{ photo(il_, 320, 92, true) }}" alt="{{ s.inverter.brand }}">{% endif %}</div>
       <div class="row"><div class="k">Monitoring</div><div class="v">{{ s.monitoring }}</div></div>
-      <div class="row"><div class="k">Rasio DC/AC</div><div class="v">{{ (s.capacity_kwp / s.capacity_kva)|num(2) }}<small>{{ fin.specific_yield|num }} kWh/kWp per tahun</small></div></div>
+      {% if bos %}{% for k, v, note in ID.bos_specs or [] %}<div class="row"><div class="k">{{ k }}</div><div class="v">{{ v }}{% if note %}<small>{{ note }}</small>{% endif %}</div></div>{% endfor %}
+      {% else %}<div class="row"><div class="k">Rasio DC/AC</div><div class="v">{{ (s.capacity_kwp / s.capacity_kva)|num(2) }}<small>{{ fin.specific_yield|num }} kWh/kWp per tahun</small></div></div>{% endif %}
       {% if s.battery %}<div class="row"><div class="k">Baterai</div><div class="v">{{ s.battery }}</div></div>{% endif %}
     </div>
     <div class="two mon">
@@ -308,7 +365,8 @@
       <tr><td>PPN {{ p.price.vat_pct }}%</td><td class="num">{{ fin.vat|num }}</td></tr>
       <tr class="grand"><td>Total termasuk PPN</td><td class="num">{{ fin.grand|num }}</td></tr>
     </table>
-    <p class="note">Harga lump-sum EPC untuk sistem lengkap sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN).</p>
+    {% if bos %}<p class="note">Harga lump-sum sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN). <b>Tidak termasuk modul surya dan inverter</b>, yang disuplai {{ dev }}.</p>
+    {% else %}<p class="note">Harga lump-sum EPC untuk sistem lengkap sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN).</p>{% endif %}
     {% if ID.payment_terms %}
     <h3 class="sect">Termin Pembayaran</h3>
     <div class="terms-pay">{% for step, pct, when in ID.payment_terms %}<div><span>{{ loop.index }} · {{ step }}</span><b>{{ pct }}</b><small>{{ when }}</small></div>{% endfor %}</div>
@@ -324,24 +382,29 @@
 {# ---------------------------------------------------------------- lingkup #}
 {% elif kind == 'lingkup' %}
     <h2 class="display head">Lingkup Pekerjaan</h2>
-    <p class="lead">HME menangani pekerjaan engineering, pengadaan, dan konstruksi secara penuh. Klien terlibat pada koordinasi proyek dan pekerjaan tambahan bila ada.</p>
+    {% if bos %}<p class="lead">HME menangani engineering, pengadaan material BOS, dan konstruksi. {{ dev }} menyuplai modul surya dan inverter, serta bersama HME menangani survei, koordinasi proyek, perizinan pemasangan, K3, dan QA/QC.</p>
+    {% else %}<p class="lead">HME menangani pekerjaan engineering, pengadaan, dan konstruksi secara penuh. Klien terlibat pada koordinasi proyek dan pekerjaan tambahan bila ada.</p>{% endif %}
     {% set sc = ID.scope or p.scope %}
     <div class="two scope">
       <table class="data">
-        <tr><th>Jasa &amp; dokumentasi</th><th class="c">HME</th><th class="c">Klien</th></tr>
+        <tr><th>Jasa &amp; dokumentasi</th><th class="c">HME</th><th class="c">{{ dev if bos else 'Klien' }}</th></tr>
         {% for no, item, hme, cl in sc.services %}
         <tr class="{{ 'subrow' if '.' in no else 'mainrow' }}"><td><span class="no">{{ no }}</span>{{ item }}</td><td class="c">{% if hme %}{{ tick() }}{% endif %}</td><td class="c">{% if cl %}{{ tick() }}{% else %}<span class="none">–</span>{% endif %}</td></tr>
         {% endfor %}
       </table>
-      <table class="data">
+      {% if bos %}<table class="data">
+        <tr><th>Suplai material</th><th class="c">HME</th><th class="c">{{ dev }}</th></tr>
+        {% for item, hme, cl in sc.supply %}<tr><td><span class="no">{{ loop.index }}</span>{{ item }}</td><td class="c">{% if hme %}{{ tick() }}{% else %}<span class="none">–</span>{% endif %}</td><td class="c">{% if cl %}{{ tick() }}{% else %}<span class="none">–</span>{% endif %}</td></tr>{% endfor %}
+      </table>
+      {% else %}<table class="data">
         <tr><th>Material yang disuplai HME</th></tr>
         {% for item in sc.supply %}<tr><td><span class="no">{{ loop.index }}</span>{{ item }}</td></tr>{% endfor %}
-      </table>
+      </table>{% endif %}
     </div>
 
 {# ---------------------------------------------------------------- boq #}
 {% elif kind == 'boq' %}
-    {% if d.part == 0 %}<h2 class="display head">Daftar Material (Bill of Quantity)</h2>{% endif %}
+    {% if d.part == 0 %}<h2 class="display head">Daftar Material{{ ' BOS' if bos }} (Bill of Quantity)</h2>{% endif %}
     <table class="data boq">
       <colgroup><col style="width:9mm"><col style="width:48mm"><col style="width:16mm"><col style="width:15mm"><col></colgroup>
       <tr><th>No</th><th>Item</th><th class="num">Qty</th><th>Satuan</th><th>Spesifikasi</th></tr>
@@ -352,7 +415,7 @@
       {% endfor %}
       {% endfor %}
     </table>
-    {% if loop.nextitem and loop.nextitem[0] != 'boq' %}<p class="note">Semua item termasuk dalam harga lump-sum. Rincian harga per item tersedia atas permintaan.</p>{% endif %}
+    {% if loop.nextitem and loop.nextitem[0] != 'boq' %}<p class="note">Semua item termasuk dalam harga lump-sum.{% if bos %} Modul surya dan inverter disuplai {{ dev }} dan tidak termasuk daftar ini.{% endif %} Rincian harga per item tersedia atas permintaan.</p>{% endif %}
 
 {# ---------------------------------------------------------------- garansi #}
 {% elif kind == 'garansi' %}
@@ -372,7 +435,7 @@
     <div class="block">
       <h3>Jadwal Pelaksanaan Awal</h3>
       {{ chart_sched2|safe }}
-      <p class="note">Dihitung sejak penandatanganan perjanjian EPC; jadwal final disepakati saat kick-off. Setelah commissioning, HME memberikan pelatihan operator, dokumen serah terima (as-built drawing, laporan uji, manual), dan akses monitoring.</p>
+      <p class="note">{% if bos %}Dihitung sejak penandatanganan kontrak, dengan modul surya dan inverter dari {{ dev }} tiba di lokasi sebelum konstruksi dimulai; jadwal final disepakati saat kick-off.{% else %}Dihitung sejak penandatanganan perjanjian EPC; jadwal final disepakati saat kick-off.{% endif %} Setelah commissioning, HME memberikan pelatihan operator, dokumen serah terima (as-built drawing, laporan uji, manual), dan akses monitoring.</p>
     </div>
 
 {# ---------------------------------------------------------------- datasheet #}
@@ -382,7 +445,7 @@
 {% endif %}
 
   </main>
-  <footer class="pagefoot"><span>{{ p.meta.number }} · {{ p.client.short_name }}</span><span class="pg">{{ '%02d' % n }}</span></footer>
+  <footer class="pagefoot"><span>{{ p.meta.number }} · {{ p.client.short_name }}{% if bos %} · {{ site.short_name }}{% endif %}</span><span class="pg">{{ '%02d' % n }}</span></footer>
 </section>
 {% endif %}
 {% endfor %}

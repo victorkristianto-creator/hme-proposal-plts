@@ -19,6 +19,8 @@ REQUIRED = [
     "system.inverter.qty", "system.inverter.brand", "system.inverter.model", "system.inverter.kva",
     "system.monitoring", "price.total",
 ]
+# BOS offer to a developer: the model of a module the developer buys may still be open, and the site is required
+REQUIRED_DEV = [k for k in REQUIRED if k != "system.panel.model"] + ["site.name", "site.short_name"]
 
 
 def merge(base, extra):
@@ -101,27 +103,32 @@ def main(gen_dir, pid, inputs_path):
     gen = Path(gen_dir)
     base = json.loads((gen / "projects/_base/project.json").read_text(encoding="utf-8"))
     base.pop("_comment", None)
+    dev_base = base.pop("developer", {})
     inp = json.loads(Path(inputs_path).read_text(encoding="utf-8"))
-    p = merge(base, inp)
+    is_dev = get(inp, "client.segment") == "Developer"
+    p = merge(merge(base, dev_base) if is_dev else base, inp)
     pdir = gen / "projects" / pid
     missing, warn, derived = [], [], {}
 
-    missing += [k for k in REQUIRED if get(p, k) is None]
+    missing += [k for k in (REQUIRED_DEV if is_dev else REQUIRED) if get(p, k) is None]
     if not p.get("boq"):
         missing.append("boq")
     bills = p.get("pln_bills") or []
-    if not bills and not get(p, "load.monthly_bill_rp") and not get(p, "load.monthly_kwh"):
-        missing.append("pln_bills ATAU load.monthly_bill_rp (tagihan bulanan)")
-    if not bills and p.get("load") and not get(p, "load.work_hours"):
-        missing.append("load.work_hours (jam operasi) — wajib bila tanpa rincian rekening")
+    if not is_dev:
+        if not bills and not get(p, "load.monthly_bill_rp") and not get(p, "load.monthly_kwh"):
+            missing.append("pln_bills ATAU load.monthly_bill_rp (tagihan bulanan)")
+        if not bills and p.get("load") and not get(p, "load.work_hours"):
+            missing.append("load.work_hours (jam operasi) — wajib bila tanpa rincian rekening")
 
     city = get(p, "client.city") or "{kota}"
     residential_defaults(p, inp, derived)
-    fill_irradiance(gen, p, inp, city, warn, derived)
-    check_prices(p, warn)
+    if not is_dev:  # no yield or savings in a BOS offer, so no irradiance and no replacement prices
+        fill_irradiance(gen, p, inp, city, warn, derived)
+        check_prices(p, warn)
+    short = get(p, "client.short_name") or "{developer}"
     for key in ("terms",):
         p[key] = [t.replace("{kota}", city) for t in p.get(key, [])]
-    p.setdefault("id", {})["terms"] = [t.replace("{kota}", city) for t in p["id"].get("terms", [])]
+    p.setdefault("id", {})["terms"] = [t.replace("{kota}", city).replace("{developer}", short) for t in p["id"].get("terms", [])]
 
     if bills:
         check_bills(bills, warn)

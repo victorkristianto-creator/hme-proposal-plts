@@ -98,8 +98,9 @@ py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/check_pdf.py proposal-gen
 
 `build.py` otomatis menjalankan `check_pdf.py` setelah PDF jadi (matikan dengan `--no-check`) dan mencetak peringatan validasi (`! …`: termin ≠ 100%, jumlah inverter/modul tidak cocok kapasitas, `{kota}` tersisa, harga inverter/baterai kosong, payback di luar 2–15 tahun, layout tidak ditemukan). **Baca dan selesaikan semua peringatan** sebelum melapor.
 
-Lalu **lihat** PNG halaman yang berisi data proyek (cover, ringkasan, profil beban, spesifikasi, penghematan, harga, BOQ) dengan Read. Periksa:
+Lalu **lihat** PNG halaman yang berisi data proyek (cover, ringkasan, profil beban, spesifikasi, penghematan, harga, BOQ, Terima Kasih) dengan Read. Periksa:
 - urutan halaman sesuai TEMPLATE.md; tidak ada `OVERFLOW?`;
+- cover dan Terima Kasih memakai desain standar (latar terang, judul navy + kuning, bingkai foto oranye HME, heksagon biru HME di belakang; lihat "Desain Cover dan Terima Kasih" di TEMPLATE.md) dan tidak ada teks yang tertimpa bentuk biru, terutama nama klien panjang atau angka hemat panjang. Desain ini tetap: jangan ubah warna atau bentuknya per proyek; perubahan desain dilakukan di `GEN/templates/v2` agar berlaku untuk semua proposal;
 - nama klien, lokasi, kWp, jumlah modul/inverter sama dengan BOQ;
 - total harga = BOQ, PPN 11%, grand total cocok;
 - tabel rekening = angka di foto; tidak ada data pribadi;

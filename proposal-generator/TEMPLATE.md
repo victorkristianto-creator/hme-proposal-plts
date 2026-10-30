@@ -1,7 +1,7 @@
 # Template Penawaran PLTS — standar v2
 
-Ditetapkan 22 Oktober 2026. Contoh input: `projects/contoh-industri` (dengan tagihan PLN) dan
-`projects/contoh-rumah` (rumah tinggal, tanpa tagihan per blok). Template lama (`print`, `slides`, `slides_v1`, `portrait`) hanya arsip.
+Ditetapkan 22 Oktober 2026. Contoh input: `projects/contoh-industri` (dengan tagihan PLN),
+`projects/contoh-rumah` (rumah tinggal, tanpa tagihan per blok), dan `projects/contoh-developer` (BOS ke developer). Template lama (`print`, `slides`, `slides_v1`, `portrait`) hanya arsip.
 
 ```
 py build.py projects/<id>              # = v2, lalu otomatis check_pdf.py (PNG di output/.check + tanda OVERFLOW?)
@@ -17,7 +17,7 @@ dan `performance_ratio` dipakai tetapi iradiasi masih default 4,5. Selesaikan se
 
 | # | Halaman | Muncul jika | Sumber data |
 |---|---|---|---|
-| 1 | Cover | selalu | `meta`, `client`, `system`, `images` |
+| 1 | Cover | selalu | `meta`, `client`, `system`; foto tetap (`hero-roof.webp`, Residential `res-1.webp`) |
 | 2 | Profil Perusahaan | selalu | tetap (company profile HME), `company` |
 | 3 | Ringkasan Eksekutif | selalu | hasil hitung `finance()` |
 | 4 | Profil Beban dan Energi | ada `pln_bills` | tagihan PLN + simulasi surya |
@@ -31,6 +31,23 @@ dan `performance_ratio` dipakai tetapi iradiasi masih default 4,5. Selesaikan se
 | … | Garansi dan Jadwal | selalu | `warranty`, `id.schedule` |
 | … | Lampiran Datasheet | per file di `datasheets` | PDF di `datasheet/` (root repo) |
 | akhir | Terima Kasih | selalu | tetap |
+
+## Desain Cover dan Terima Kasih (standar sejak 30 Oktober 2026)
+
+Dibuat hemat tinta saat dicetak: tidak ada latar navy satu halaman, warna hanya di sekitar foto. Berlaku untuk semua proposal, termasuk Residential.
+Satu sumber: macro `glasshex` di `templates/v2/proposal.html.j2` dan blok `.cover, .closing` di `proposal.css`. Ubah di sana, jangan per proyek.
+
+| Elemen | Standar |
+|---|---|
+| Latar | Putih, semburat krem tipis di kanan atas dan biru muda di kiri bawah |
+| Judul | Baris 1 "Penawaran PLTS" navy; baris 2 (tipe + mounting) kuning `--sun` #FDB813 |
+| Bingkai foto | Heksagon oranye HME `--amber` #F59A1B, pinggir kuning |
+| Di belakang foto | Dua heksagon biru HME (#104674 ke #0A3055) bergeser ke kanan atas dan kiri bawah, dengan glow tipis |
+| Hiasan latar | Heksagon garis tipis samar (#B9CDE0); tidak boleh di belakang teks |
+| Aksen teks | `kWp` oranye `--amber`; angka hemat, balik modal, dan website `--accent-ink` |
+| Bawah cover | Nomor, tanggal, revisi, penyusun, kontak di atas garis tipis, tanpa strip gelap |
+
+Teks tidak boleh tertimpa bentuk biru: `.cover .verdict` dibatasi 102 mm, dan `client-block` tumbuh ke atas bila teksnya panjang.
 
 ## Input per proyek → `projects/<id>/project.json`
 
@@ -110,3 +127,25 @@ Asumsi biaya rumah (default `assemble.py` untuk proyek baru bila input tidak men
 `battery_replacement_years` [15] (± 6.000 siklus ≈ 16 tahun pada 1 siklus/hari; O&M rumah lebih ringan dari pabrik). Segmen lain tetap memakai
 default `_base` (O&M 1%, baterai tahun 10 dan 20). Isi `financial.om_pct_of_capex` / `battery_replacement_years` di inputs.json untuk menimpa.
 Contoh: `projects/contoh-rumah`.
+
+## Versi Developer (BOS)
+
+Otomatis bila `client.segment = "Developer"`: developer menyuplai modul surya dan inverter, HME menyuplai material lain dan memasang semuanya.
+Agent: `/buat-proposal-developer`. Contoh: `projects/contoh-developer`.
+
+Halaman: Cover · Profil Perusahaan · Ringkasan Penawaran · Spesifikasi Sistem · Penawaran Harga · Lingkup Pekerjaan · BOQ · Garansi dan Jadwal · Datasheet modul dan inverter · Terima Kasih.
+
+| Dibanding standar | Perubahan |
+|---|---|
+| Dibuang | Ringkasan Eksekutif, Profil Beban/Energi, Analisis Penghematan, Proyeksi Arus Kas, semua angka hemat, balik modal, IRR, CO₂ |
+| Cover | Judul "Penawaran BOS PLTS"; penerima = developer, baris lokasi = site; kalimat hemat diganti pembagian suplai |
+| Ringkasan Penawaran (baru) | Developer, site, sistem, nilai, harga per Wp, jadwal, daftar Termasuk dan Tidak Termasuk |
+| Spesifikasi | Modul dan inverter ditandai "disuplai <developer>"; rasio DC/AC dan kWh/kWp diganti baris `id.bos_specs` |
+| Harga | Catatan tebal "Tidak termasuk modul surya dan inverter"; tanda tangan oleh developer |
+| Lingkup | Kolom HME dan developer, juga untuk suplai material; survei, perizinan pemasangan, K3, dan QA/QC dikerjakan bersama |
+| BOQ | Tanpa modul, modul cadangan, dan inverter |
+| Garansi | Mounting dan instalasi; modul dan inverter mengikuti pabrikan, di luar garansi HME |
+
+Bagian tetap ada di blok `developer` pada `projects/_base/project.json`, digabung oleh `assemble.py` hanya untuk segmen ini. Input tambahan: `site.name`, `site.short_name`,
+`system.panel.spare`, `id.bos_specs`, `id.included`. `system.panel.model` boleh kosong. Tanpa `pln_bills`, `load`, dan harga penggantian: `build.py` memakai `finance_bos()` (harga, PPN, Rp/Wp saja)
+dan memperingatkan bila BOQ masih memuat modul atau inverter.

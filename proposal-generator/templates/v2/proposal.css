@@ -9,7 +9,6 @@
   --navy: #104674; --navy-deep: #0A3055; --navy-ink: #071C30;
   --amber: #F59A1B; --sun: #FDB813; --accent-ink: #A45300;
   --on-navy: #FFFFFF; --on-navy-muted: #B9CDE0;
-  --night: linear-gradient(180deg, #071C30 0%, #0A3055 45%, #104674 100%);
   --f-display: "Bricolage", "Segoe UI", system-ui, sans-serif;
   --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
   /* spacing scale (mm) */
@@ -31,7 +30,14 @@ body { font-family: var(--f-body); color: var(--ink); font-size: 9.6pt; line-hei
 .amber-ink { color: var(--accent-ink); }
 
 /* ------------------------------------------------ cover */
-.cover { background: var(--night); color: var(--on-navy); }
+/* cover and closing are light so they print cheaply: no page-wide navy, colour only around the photo (glasshex macro).
+   The --on-navy tokens are remapped to ink here. */
+.cover, .closing { --on-navy: var(--ink); --on-navy-muted: var(--muted); color: var(--ink);
+  background: radial-gradient(120mm 120mm at 100% 0%, #FDF1DC 0%, rgba(253, 241, 220, 0) 100%),
+              radial-gradient(140mm 140mm at 0% 100%, #E7F0F7 0%, rgba(231, 240, 247, 0) 100%), #FFFFFF; }
+.cover h1, .cover .brand b, .closing h2, .close-foot b { color: var(--navy-ink); }
+.cover .specs .cap small { color: var(--amber); }
+.cover .verdict b, .cover .reach b { color: var(--accent-ink); }
 .cover .art { position: absolute; inset: 0; width: 210mm; height: 297mm; }
 .cover .brand { position: absolute; left: var(--margin-x); top: 16mm; display: flex; align-items: center; gap: 3.2mm; }
 .cover .brand img { width: 13mm; height: auto; }
@@ -40,11 +46,11 @@ body { font-family: var(--f-body); color: var(--ink); font-size: 9.6pt; line-hei
 
 .cover .title { position: absolute; left: var(--margin-x); right: 60mm; top: 42mm; }
 .cover h1 { font-size: 40pt; line-height: 1.04; }
-.cover h1 .sun { display: block; }
+.cover h1 .sun { display: block; color: var(--sun); }
 .cover .sub { margin-top: 4.5mm; font-size: 11pt; color: var(--on-navy-muted); letter-spacing: .01em; }
 
 .cover .specs { position: absolute; left: var(--margin-x); width: 52mm; top: 112mm; }
-.cover .specs div { padding: 2.6mm 0; border-bottom: .25mm solid rgba(185, 205, 224, .22); }
+.cover .specs div { padding: 2.6mm 0; border-bottom: .25mm solid var(--line); }
 .cover .specs div:first-child { padding-top: 0; }
 .cover .specs dt { font-size: 7.6pt; color: var(--on-navy-muted); }
 .cover .specs dd { font-family: var(--f-display); font-weight: 700; font-size: 11.5pt; letter-spacing: -0.01em; line-height: 1.2; margin-top: .8mm; }
@@ -53,18 +59,18 @@ body { font-family: var(--f-body); color: var(--ink); font-size: 9.6pt; line-hei
 .cover .client-block { position: absolute; left: var(--margin-x); width: 84mm; bottom: 46mm; }
 .cover .client { font-family: var(--f-display); font-weight: 700; font-size: 17pt; letter-spacing: -0.01em; line-height: 1.15; text-wrap: balance; }
 .cover .loc { font-size: 9.6pt; color: var(--on-navy-muted); margin-top: 1.2mm; }
-.cover .verdict { margin-top: 5mm; width: 106mm; font-size: 10.4pt; line-height: 1.5; color: var(--on-navy); max-width: none; }
+.cover .verdict { margin-top: 5mm; width: 102mm; font-size: 10.4pt; line-height: 1.5; color: var(--on-navy); max-width: none; }
 .cover .verdict::before { content: ""; display: block; width: 14mm; height: .7mm; background: var(--amber); margin-bottom: 3.6mm; }
-.cover .verdict b { color: var(--sun); font-weight: 700; white-space: nowrap; }
+.cover .verdict b { font-weight: 700; white-space: nowrap; }
 
-.cover .meta { position: absolute; left: 0; right: 0; bottom: 0; height: 34mm; background: var(--navy-ink); padding: 0 var(--margin-x); display: flex; justify-content: space-between; align-items: center; }
+.cover .meta { position: absolute; left: var(--margin-x); right: var(--margin-x); bottom: 0; height: 34mm; border-top: .3mm solid var(--line); display: flex; justify-content: space-between; align-items: center; }
 .cover .qinfo { width: auto; border-collapse: collapse; font-size: 9.6pt; line-height: 1.55; }
 .cover .qinfo td { padding: 0; vertical-align: baseline; }
 .cover .qinfo td:first-child { color: var(--on-navy-muted); padding-right: 5mm; white-space: nowrap; }
 .cover .qinfo td:nth-child(2) { color: var(--on-navy-muted); padding-right: 2mm; }
 .cover .qinfo td:last-child { font-weight: 600; color: var(--on-navy); }
 .cover .reach { text-align: right; align-self: flex-end; padding-bottom: 7mm; }
-.cover .reach b { display: block; font-weight: 600; font-size: 9pt; color: var(--sun); }
+.cover .reach b { display: block; font-weight: 600; font-size: 9pt; }
 .cover .reach span { display: block; font-size: 7.6pt; color: var(--on-navy-muted); margin-top: .6mm; }
 
 /* ------------------------------------------------ inner page shell */
@@ -249,13 +255,12 @@ table.boq tr.secrow td { font-family: var(--f-display); font-weight: 700; color:
 .ds-slot { position: absolute; border: .25mm solid var(--line); background: #fff; }
 
 /* ------------------------------------------------ closing */
-.closing { background: var(--navy-ink); color: var(--on-navy); }
 .closing .art { position: absolute; inset: 0; width: 210mm; height: 297mm; }
 .close-body { position: absolute; left: var(--margin-x); right: var(--margin-x); top: 112mm; }
-.closing h2 { font-size: 52pt; color: var(--on-navy); }
+.closing h2 { font-size: 52pt; }
 .close-lead { font-size: 12pt; line-height: 1.5; color: var(--on-navy-muted); margin-top: 5mm; max-width: 130mm; }
 .contacts { display: grid; grid-template-columns: 1fr 1fr; margin-top: 11mm; border-top: .5mm solid var(--amber); }
-.contacts div { padding: 3mm 4mm 3mm 0; border-bottom: .25mm solid rgba(185, 205, 224, .22); }
+.contacts div { padding: 3mm 4mm 3mm 0; border-bottom: .25mm solid var(--line); }
 .contacts div.wide { grid-column: 1 / -1; }
 .contacts dt { font-size: 7.8pt; color: var(--on-navy-muted); }
 .contacts dd { font-size: 11pt; font-weight: 600; margin-top: .6mm; }
@@ -320,6 +325,12 @@ ol.implic li::marker { color: var(--accent-ink); font-weight: 700; }
 table.data td.cost { color: var(--accent-ink); font-weight: 700; }
 
 /* ------------------------------------------------ sistem without a layout drawing (residential): house photo in a hexagon */
+.sheet .k small { display: block; font-size: 7.4pt; color: var(--muted); margin-top: .3mm; }
+.two.bos-split { margin-top: 4mm; gap: 8mm; align-items: start; }
+.bos-list { list-style: none; margin: 2mm 0 0; padding: 0; font-size: 9pt; }
+.bos-list li { position: relative; padding: 1.3mm 0 1.3mm 5mm; border-bottom: .25mm solid var(--line); line-height: 1.4; }
+.bos-list li::before { content: ""; position: absolute; left: .4mm; top: 3.3mm; width: 2.2mm; height: 1.9mm; background: var(--amber); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+.bos-list.out li::before { background: var(--line); }
 .layout.house { display: grid; grid-template-columns: 78mm 1fr; gap: 8mm; align-items: center; }
 .layout.house svg { width: 100%; height: auto; display: block; }
 .layout.house figcaption { font-size: 8.8pt; color: var(--muted); line-height: 1.5; margin-top: 0; }

@@ -8,9 +8,10 @@ memakai [Claude Code](https://claude.com/claude-code) dan skill `/buat-proposal-
 | Folder | Isi |
 |---|---|
 | `.claude/skills/buat-proposal-cni/` | Skill Claude Code: `SKILL.md` + script `read_boq.py`, `assemble.py`, `check_pdf.py` |
+| `.claude/skills/buat-proposal-developer/` | Skill Claude Code untuk penawaran BOS ke developer (modul dan inverter disuplai developer); memakai script dari `buat-proposal-cni` |
 | `proposal-generator/` | `build.py` (hitung + render PDF), template `templates/v2`, aset (logo, foto, font), tabel iradiasi `data/irradiance.json` |
 | `proposal-generator/projects/_base/` | Bagian tetap semua penawaran (syarat, garansi, jadwal, lingkup, termin) |
-| `proposal-generator/projects/contoh-*` | Contoh input (anonim): `contoh-industri` (dengan tagihan PLN) dan `contoh-rumah` (rumah tinggal, hybrid) |
+| `proposal-generator/projects/contoh-*` | Contoh input (anonim): `contoh-industri` (dengan tagihan PLN) dan `contoh-rumah` (rumah tinggal, hybrid), dan `contoh-developer` (BOS ke developer) |
 | `datasheet/` | Datasheet PDF modul, inverter, dan baterai yang dilampirkan ke penawaran |
 
 Aturan template lengkap ada di [`proposal-generator/TEMPLATE.md`](proposal-generator/TEMPLATE.md).

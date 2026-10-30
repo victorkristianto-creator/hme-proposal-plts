@@ -1,0 +1,70 @@
+{
+ "meta": {
+  "number": "003/Q.PLTS/HME/X/2026",
+  "date": "30 October 2026",
+  "date_id": "30 Oktober 2026",
+  "revision": "00",
+  "prepared_by": "Tim Sales HME",
+  "language": "id"
+ },
+ "client": {
+  "name": "PT Contoh Energi Hijau",
+  "short_name": "Contoh Energi",
+  "location": "Pasuruan, East Java",
+  "location_id": "Pasuruan, Jawa Timur",
+  "city": "Pasuruan",
+  "segment": "Developer"
+ },
+ "site": {
+  "name": "PT Contoh Logam Indonesia",
+  "short_name": "Contoh Logam"
+ },
+ "system": {
+  "type": "On-Grid",
+  "mounting": "Rooftop",
+  "capacity_kwp": 1000,
+  "capacity_kva": 800,
+  "panel": {"qty": 1600, "spare": 16, "brand": "Trina Solar", "model": "", "wp": 625},
+  "inverter": {"qty": 6, "brand": "Huawei", "model": "150KTL-MG0", "kva": 150,
+   "mix": [{"qty": 5, "model": "150KTL-MG0", "kva": 150}, {"qty": 1, "model": "50KTL-M0", "kva": 50}]},
+  "battery": null,
+  "monitoring": "Smartlogger Huawei + sensor cuaca"
+ },
+ "price": {"total": 4000000000, "vat_pct": 11},
+ "id": {
+  "bos_specs": [
+   ["Mounting", "Kliplok", ""],
+   ["Panel AC", "1 panel · ACB 1250 A", "1 titik interkoneksi, zero export"]
+  ]
+ },
+ "boq": [
+  {"section": "Aksesori Monitoring", "items": [
+   ["Monitoring", 1, "pcs", "Smartlogger Huawei"],
+   ["Sensor cuaca", 1, "pcs", "Pyranometer"]
+  ]},
+  {"section": "Mounting & Penetrasi Atap", "items": [
+   ["Mounting", 1000000, "Wp", "Kliplok"],
+   ["Sealant hitam", 80, "pcs", ""]
+  ]},
+  {"section": "Kabel", "items": [
+   ["Kabel DC", 20000, "m", "Solar cable 6 mm²"],
+   ["Kabel AC", 800, "m", "NYY 1×120 mm²"],
+   ["Kabel grounding", 1000, "m", "NYA 1×10 mm²"]
+  ]},
+  {"section": "Panel Combiner DC/AC", "items": [
+   ["Box panel AC", 1, "ls", "Standing panel 180 × 80 × 80 cm"],
+   ["Breaker utama", 1, "pcs", "ACB 1250 A 4P"],
+   ["Zero export", 1, "ls", "1 titik interkoneksi"]
+  ]},
+  {"section": "Jasa, Pengiriman & Perizinan", "items": [
+   ["Jasa instalasi", 1000000, "Wp", ""],
+   ["Pengiriman", 1, "ls", ""],
+   ["SLO dan NIDI", 1, "ls", ""]
+  ]}
+ ],
+ "datasheets": [
+  {"title": "Modul Surya · Trina Solar TSM-NE19R", "file": "../../../datasheet/Trina/Vertex_NE19R_5600-630 EN_2024_APAC_A_web.pdf"},
+  {"title": "Inverter · Huawei SUN2000-150KTL-MG0", "file": "../../../datasheet/huawei/150.pdf"},
+  {"title": "Inverter · Huawei SUN2000-50KTL-M0", "file": "../../../datasheet/huawei/SUN2000-50KTL-M0.pdf"}
+ ]
+}

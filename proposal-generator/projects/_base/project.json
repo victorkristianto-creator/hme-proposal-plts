@@ -463,5 +463,138 @@
       ]
     ]
   },
-  "_comment": "Fixed parts of every HME proposal. assemble.py merges per-project inputs on top. Do not put client data here."
+  "developer": {
+    "id": {
+      "price_items": [
+        "Pekerjaan BOS PLTS On-Grid Rooftop",
+        "Material BOS kelas industri",
+        "Jasa instalasi"
+      ],
+      "included": [
+        "Struktur mounting dan penetrasi atap",
+        "Kabel DC, AC, grounding, dan komunikasi",
+        "Panel AC, proteksi, dan metering",
+        "Monitoring dan sensor cuaca",
+        "Cable tray, walkway, safety line, dan tangga akses",
+        "Instalasi, commissioning, SLO, dan NIDI"
+      ],
+      "excluded": [
+        "Perkuatan struktur bila bangunan eksisting dinilai kurang kuat"
+      ],
+      "terms": [
+        "Harga berlaku 14 hari.",
+        "Franco {kota}.",
+        "Modul surya dan inverter disuplai {developer} dan tiba di lokasi sesuai jadwal proyek.",
+        "Harga berdasarkan desain yang diusulkan HME; perubahan desain, jumlah, atau tipe modul dan inverter akan mengubah harga.",
+        "Ukuran dan harga dapat berubah setelah analisis struktur.",
+        "HME berhak mengganti merek dan model material BOS dengan yang setara atau lebih baik.",
+        "{developer} menyediakan ruang penyimpanan material di lokasi."
+      ],
+      "warranty": [
+        {
+          "item": "Struktur mounting",
+          "value": "10 tahun",
+          "detail": "Garansi produk struktur mounting."
+        },
+        {
+          "item": "Instalasi",
+          "value": "12 bulan",
+          "detail": "HME menjamin instalasi bebas cacat. Dapat diperpanjang atas permintaan."
+        },
+        {
+          "item": "Modul surya dan inverter",
+          "value": "Garansi pabrikan",
+          "detail": "Disuplai developer, sehingga di luar garansi HME."
+        }
+      ],
+      "quality": [
+        [
+          "Perizinan",
+          "SLO dan NIDI diurus HME",
+          "Termasuk dalam lingkup pekerjaan dan harga penawaran."
+        ],
+        [
+          "Pemantauan",
+          "Alarm gangguan real-time",
+          "Dikirim ke tim HME dan tim developer melalui sistem monitoring."
+        ]
+      ],
+      "schedule": [
+        {
+          "task": "Penandatanganan kontrak",
+          "start": 0,
+          "end": 0.5
+        },
+        {
+          "task": "Desain engineering detail",
+          "start": 0.25,
+          "end": 1
+        },
+        {
+          "task": "Pengadaan material BOS",
+          "start": 0.75,
+          "end": 2
+        },
+        {
+          "task": "Konstruksi",
+          "start": 1.5,
+          "end": 3
+        },
+        {
+          "task": "Pengujian & commissioning",
+          "start": 2.75,
+          "end": 3.25
+        },
+        {
+          "task": "SLO & izin operasi",
+          "start": 3,
+          "end": 3.5
+        }
+      ],
+      "scope": {
+        "services": [
+          ["1", "Survei lokasi", true, true],
+          ["2", "Manajemen proyek", true, true],
+          ["2.1", "Perizinan untuk instalasi", true, true],
+          ["2.2", "Perencanaan & koordinasi proyek", true, true],
+          ["2.3", "Pelacakan & laporan progres", true, false],
+          ["2.4", "Pengawasan lapangan", true, false],
+          ["2.5", "Penerapan aturan K3", true, true],
+          ["2.6", "QA/QC", true, true],
+          ["3", "Desain engineering detail", true, false],
+          ["3.1", "Desain & perhitungan engineering", true, false],
+          ["3.2", "Shop drawing", true, false],
+          ["3.3", "As-built drawing", true, false],
+          ["4", "Pengadaan & suplai", true, false],
+          ["5", "Konstruksi pembangkit", true, false],
+          ["6", "Commissioning", true, false],
+          ["7", "SLO & izin operasi PLTS", true, false],
+          ["8", "Pekerjaan tambahan", true, true]
+        ],
+        "supply": [
+          ["Modul surya", false, true],
+          ["Inverter", false, true],
+          ["Cable tray", true, false],
+          ["Kabel DC", true, false],
+          ["Smart logger", true, false],
+          ["Weather station", true, false],
+          ["Struktur mounting", true, false],
+          ["Safety line", true, false],
+          ["Kabel AC", true, false],
+          ["Conduit & aksesori", true, false],
+          ["Struktur grounding", true, false],
+          ["Kabel grounding", true, false],
+          ["Walkway", true, false],
+          ["Sistem pembersih air", true, false],
+          ["Shelter inverter", true, false],
+          ["Kabel komunikasi", true, false],
+          ["Switchgear", true, false],
+          ["Peralatan K3", true, false],
+          ["Tangga akses", true, false],
+          ["APAR", true, false]
+        ]
+      }
+    }
+  },
+  "_comment": "Fixed parts of every HME proposal. assemble.py merges per-project inputs on top; 'developer' is merged in for client.segment = Developer only. Do not put client data here."
 }

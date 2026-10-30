@@ -554,6 +554,18 @@ def finance(p):
     return fin
 
 
+def is_bos(p):
+    """Developer offer: HME supplies the balance of system, the developer supplies modules and inverters."""
+    return p["client"].get("segment") == "Developer"
+
+
+def finance_bos(p):
+    """A BOS offer is judged on price alone; the developer owns the energy yield, so nothing about savings is computed."""
+    capex = p["price"]["total"]
+    return dict(bos=True, capex=capex, vat=capex * p["price"]["vat_pct"] / 100, grand=capex * (1 + p["price"]["vat_pct"] / 100),
+                price_per_wp=capex / (p["system"]["capacity_kwp"] * 1000), load=None)
+
+
 # ---------------------------------------------------------------- charts (inline SVG)
 def nice_step(span, n=5):
     raw = span / n
@@ -1198,6 +1210,16 @@ def datasheet_pages(p, pdir, fmt):
 
 
 def build_pages(p, pdir, fmt):
+    if fmt == "v2" and is_bos(p):
+        # BOS offer to a developer: what HME supplies and what it costs — no load, savings or payback
+        pages = [("cover", {}), ("tentang", {}), ("bos", {}), ("sistem", {}), ("harga", {}), ("lingkup", {})]
+        boq = p.get("id", {}).get("boq") or p["boq"]
+        for i, chunk in enumerate(boq_pages_v2(boq)):
+            pages.append(("boq", dict(sections=chunk, part=i)))
+        pages.append(("garansi", {}))
+        pages += [("datasheet", ds) for ds in datasheet_pages(p, pdir, fmt)]
+        pages.append(("penutup", {}))
+        return pages
     if fmt == "v2" and p["client"].get("segment") == "Residential":
         # simple version for homes: decision, system, price, materials — nothing else
         pages = [("cover", {}), ("ringkasan", {}), ("sistem", {}), ("harga", {})]
@@ -1482,13 +1504,21 @@ def validate(p, fin, pdir):
         if "{kota}" in t:
             w.append("Syarat dan ketentuan masih berisi '{kota}'. Isi client.city.")
             break
+    lay = (p.get("images") or {}).get("layout")
+    if lay and not (Path(pdir) / lay).exists():
+        w.append(f"Gambar layout tidak ditemukan: {lay}")
+    if fin.get("bos"):
+        if any("{developer}" in t for t in ID.get("terms") or []):
+            w.append("Syarat dan ketentuan masih berisi '{developer}'. Isi client.short_name.")
+        for sec in ID.get("boq") or p.get("boq") or []:
+            for it in sec["items"]:
+                if re.match(r"(modul|panel surya|inverter on|solar panel)", str(it[0]).strip().lower()):
+                    w.append(f"BOQ masih memuat '{it[0]}': modul dan inverter disuplai developer, keluarkan dari daftar material.")
+        return w
     if fin["payback"] is None:
         w.append(f"Investasi belum kembali dalam {f['years']} tahun. Periksa harga dan asumsi sebelum dikirim.")
     elif not 2 <= fin["payback"] <= 15:
         w.append(f"Balik modal {fin['payback']:.1f} tahun, di luar kisaran wajar 2–15 tahun. Periksa harga dan asumsi.")
-    lay = (p.get("images") or {}).get("layout")
-    if lay and not (Path(pdir) / lay).exists():
-        w.append(f"Gambar layout tidak ditemukan: {lay}")
     w += fin["plan"]["warnings"]
     if "performance_ratio" in f and not f.get("irradiance_source") and abs(f["peak_sun_hours"] - 4.5) < 1e-9:
         city = (p.get("client") or {}).get("city")
@@ -1509,7 +1539,9 @@ def render(p, fin, pdir, fmt, out_dir=None):
                        brand_logo=brand_logo)
     ctx = dict(p=p, fin=fin, pages=pages, total_pages=len(pages), C=C, fmt=fmt,
                root=ROOT.as_uri(), pdir=pdir.as_uri(), hexp=hex_path, terms=final_terms(p))
-    if fmt == "v2":
+    if fmt == "v2" and is_bos(p):
+        ctx.update(chart_sched2=chart_schedule_v2(p.get("id", {}).get("schedule") or p["schedule"]))
+    elif fmt == "v2":
         ba = bill_analysis(p)  # once: the bill page, its chart and the day chart all read the same analysis
         ctx.update(
             ba=ba,
@@ -1564,10 +1596,14 @@ def run_check(pdf_path):
 def main(project_dir, which="v2", out_dir=None, check=True):
     pdir = (ROOT / project_dir).resolve()
     p = json.loads((pdir / "project.json").read_text(encoding="utf-8"))
-    fin = finance(p)
-    pb = fin["payback"]
-    pb_txt = f"{pb:.2f} yr" if pb is not None else f"> {p['financial']['years']} yr"
-    print(f"Payback {pb_txt} · ROI {fin['roi']:.0f}% · LCOE Rp {fin['lcoe']:.0f}/kWh")
+    if is_bos(p):
+        fin = finance_bos(p)
+        print(f"BOS Rp {fin['capex']:,.0f} · Rp {fin['price_per_wp']:,.0f}/Wp")
+    else:
+        fin = finance(p)
+        pb = fin["payback"]
+        pb_txt = f"{pb:.2f} yr" if pb is not None else f"> {p['financial']['years']} yr"
+        print(f"Payback {pb_txt} · ROI {fin['roi']:.0f}% · LCOE Rp {fin['lcoe']:.0f}/kWh")
     for msg in validate(p, fin, pdir):
         print(f"  ! {msg}")
     for fmt in (FORMATS if which == "all" else [which]):
