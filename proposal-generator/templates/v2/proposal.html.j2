@@ -10,9 +10,16 @@
 {%- set bos = p.client.segment == 'Developer' -%}
 {%- set site = p.get('site') or {} -%}
 {%- set dev = p.client.short_name -%}
+{#- savings-only offer: the client supplies part of the plant (system.client_supplied), so the price is not the whole
+    investment and payback / IRR / ROI / LCOE are left out (financial.show_payback = false) -#}
+{%- set pb = fin.get('show_payback', True) -%}
+{%- set cs = s.get('client_supplied') or [] -%}
+{%- set cs_names = {'panel': 'modul surya', 'inverter': 'inverter', 'battery': 'baterai'} -%}
+{%- set cs_ns = namespace(names=[]) -%}{%- for k in cs -%}{%- set cs_ns.names = cs_ns.names + [cs_names[k]] -%}{%- endfor -%}
+{%- set cs_text = cs_ns.names|join(' dan ') -%}
 {%- set titles = {
   'tagihan': 'Profil Beban dan Energi', 'ringkasan': 'Ringkasan Eksekutif', 'bos': 'Ringkasan Penawaran', 'tentang': 'Profil Perusahaan', 'sistem': 'Spesifikasi Sistem', 'energi': 'Analisis Profil Energi',
-  'penghematan': 'Analisis Penghematan', 'proyeksi': 'Proyeksi Arus Kas', 'harga': 'Penawaran Harga', 'lingkup': 'Lingkup Pekerjaan',
+  'penghematan': 'Analisis Penghematan', 'proyeksi': 'Proyeksi Arus Kas' if pb else 'Proyeksi Penghematan', 'harga': 'Penawaran Harga', 'lingkup': 'Lingkup Pekerjaan',
   'boq': 'Daftar Material', 'garansi': 'Garansi dan Jadwal', 'datasheet': 'Lampiran Datasheet',
 } -%}
 {%- macro tick() -%}<svg class="tick" viewBox="0 0 16 16" aria-label="ya"><path d="M3.5 8.4l3 3 6-6.8"/></svg>{%- endmacro -%}
@@ -71,16 +78,16 @@
   </div>
   <dl class="specs">
     <div class="cap"><dt>Kapasitas</dt><dd>{{ s.capacity_kwp|kwp }} <small>kWp</small></dd></div>
-    <div><dt>Modul surya{% if bos %} · disuplai {{ dev }}{% endif %}</dt><dd>{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp</dd></div>
-    <div><dt>Inverter{% if bos %} · disuplai {{ dev }}{% endif %}</dt><dd>{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ m.kva|kwp }}{% if not loop.last %} + {% endif %}{% endfor %} kVA {{ s.inverter.brand }}{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.kva|kwp }} kVA{% endif %}</dd></div>
-    {% if s.battery %}<div><dt>Baterai</dt><dd>{{ s.battery }}</dd></div>{% endif %}
+    <div><dt>Modul surya{% if bos or 'panel' in cs %} · disuplai {{ dev }}{% endif %}</dt><dd>{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp</dd></div>
+    <div><dt>Inverter{% if bos or 'inverter' in cs %} · disuplai {{ dev }}{% endif %}</dt><dd>{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ m.kva|kwp }}{% if not loop.last %} + {% endif %}{% endfor %} kVA {{ s.inverter.brand }}{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.kva|kwp }} kVA{% endif %}</dd></div>
+    {% if s.battery %}<div><dt>Baterai{% if 'battery' in cs %} · disuplai {{ dev }}{% endif %}</dt><dd>{{ s.battery }}</dd></div>{% endif %}
   </dl>
   <div class="client-block">
     <div class="client">{{ p.client.name }}</div>
     {% if bos %}<div class="loc">Site {{ site.name }}, {{ loc }}</div>
     <p class="verdict"><b>Material BOS, instalasi, commissioning, dan perizinan</b> oleh HME. Modul surya dan inverter disuplai {{ dev }}.</p>
     {% else %}<div class="loc">{{ loc }}</div>
-    <p class="verdict">Perkiraan hemat <b>Rp&nbsp;{{ fin.monthly_saving|short }} per bulan</b> sejak tahun pertama{% if fin.payback is not none %}, dengan investasi kembali dalam <b>{{ fin.payback|payback }}</b>.{% else %}, namun investasi belum kembali dalam {{ f.years }} tahun.{% endif %}</p>{% endif %}
+    <p class="verdict">Perkiraan hemat <b>Rp&nbsp;{{ fin.monthly_saving|short }} per bulan</b> sejak tahun pertama{% if not pb %}.{% elif fin.payback is not none %}, dengan investasi kembali dalam <b>{{ fin.payback|payback }}</b>.{% else %}, namun investasi belum kembali dalam {{ f.years }} tahun.{% endif %}</p>{% endif %}
   </div>
   <div class="meta">
     <table class="qinfo">
@@ -136,7 +143,7 @@
     <div class="block">
       <h3>Profil Daya Harian: Beban, Surya, dan PLN</h3>
       {{ chart_billday2|safe }}
-      <p class="note">Beban dari rata-rata LWBP/WBP di rekening. Area kuning = dipasok PLTS pada hari cerah, garis navy = yang masih dibeli dari PLN. Penghematan dihitung dari campuran hari cerah, berawan, dan hujan. Bentuk beban per jam yang sebenarnya kami pastikan dengan data AMR PLN atau logger saat survei.</p>
+      <p class="note">Beban dari rata-rata LWBP/WBP di rekening. Area kuning = dipasok PLTS pada hari cerah, garis navy = yang masih dibeli dari PLN.{% if s.battery_kwh %} Area hijau muda = kelebihan surya yang mengisi baterai, area hijau tua = baterai memasok beban.{% endif %} Penghematan dihitung dari campuran hari cerah, berawan, dan hujan. Bentuk beban per jam yang sebenarnya kami pastikan dengan data AMR PLN atau logger saat survei.</p>
     </div>
     <div class="two bill-split">
       <div class="sheet compact-sheet bill">
@@ -162,16 +169,18 @@
     <p class="lead">PT Hexa Multi Energi mengusulkan pembangunan PLTS {{ s.type }} {{ s.mounting|lower }} berkapasitas <b>{{ s.capacity_kwp|kwp }}&nbsp;kWp</b> untuk {{ p.client.name }}. {% if p.client.segment == 'Residential' %}Listrik surya dipakai langsung di siang hari{% if s.battery %}, sisanya disimpan di baterai untuk malam hari{% endif %}{% elif L and L.scr < 0.995 %}Sekitar <b>{{ (L.scr*100)|num }}%</b> listrik surya terpakai oleh {{ 'pabrik' if p.client.segment == 'Industrial' else 'bangunan' }}{% if s.battery %}, langsung atau lewat baterai,{% endif %}{% else %}Seluruh listrik surya dipakai langsung oleh {{ 'pabrik' if p.client.segment == 'Industrial' else 'bangunan' }}{% endif %}{% if L %} dan menggantikan sekitar <b>{{ (L.solar_share*100)|num }}%</b> kWh listrik dari PLN{% endif %}. Penghematan dihitung hanya dari energi yang benar-benar terpakai di lokasi, tanpa kredit ekspor.{% if L %} Setelah PLTS beroperasi, tagihan PLN bulanan Anda turun dari <b>Rp&nbsp;{{ L.monthly_bill|short }}</b> menjadi sekitar <b>Rp&nbsp;{{ L.bill_after|short }}</b>.{% endif %}</p>
     <div class="sheet">
       <div class="row"><div class="k">Sistem</div><div class="v">{{ s.capacity_kwp|kwp }} kWp<small>{{ s.panel.qty|num }} modul {{ s.panel.brand }} {{ s.panel.wp }} Wp · {{ s.inverter.qty }} inverter {{ s.inverter.brand }} {% if s.inverter.get("mix") %}{{ s.capacity_kva|kwp }}{% else %}{{ s.inverter.kva|kwp }}{% endif %} kVA</small></div></div>
-      <div class="row"><div class="k">Nilai investasi</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%</small></div></div>
+      <div class="row"><div class="k">{{ 'Nilai investasi' if pb else 'Nilai penawaran HME' }}</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%{% if cs %} · di luar {{ cs_text }} dari {{ dev }}{% endif %}</small></div></div>
       <div class="row money"><div class="k">Penghematan tahun pertama</div><div class="v">Rp&nbsp;{{ fin.y1_saving|short }}<small>{{ T.y1_monthly }}</small></div></div>
-      <div class="row key"><div class="k">Balik modal</div><div class="v">{{ fin.payback|payback }}</div></div>
+      {% if pb %}<div class="row key"><div class="k">Balik modal</div><div class="v">{{ fin.payback|payback }}</div></div>
       <div class="row money"><div class="k">{{ 'Keuntungan' if fin.net >= 0 else 'Kerugian' }} bersih {{ f.years }} tahun</div><div class="v">Rp&nbsp;{{ fin.net|abs|short }}<small>{{ fin.roi|abs|num }}% dari investasi</small></div></div>
       {% if fin.irr %}<div class="row"><div class="k">Tingkat pengembalian (IRR)</div><div class="v">{{ (fin.irr*100)|num(1) }}% per tahun<small>imbal hasil tahunan atas investasi</small></div></div>{% endif %}
       <div class="row"><div class="k">Biaya listrik surya</div><div class="v">Rp&nbsp;{{ fin.lcoe|num }}/kWh<small>dibanding PLN Rp&nbsp;{{ f.pln_tariff_rp_kwh|num }}/kWh</small></div></div>
+      {% else %}<div class="row"><div class="k">Energi surya terpakai</div><div class="v">{{ fin.y1_used|num }} kWh/tahun<small>± {{ (fin.y1_used/12)|num }} kWh per bulan</small></div></div>
+      <div class="row money key"><div class="k">Penghematan bersih {{ f.years }} tahun</div><div class="v">Rp&nbsp;{{ fin.total_saving|short }}<small>setelah biaya O&amp;M dan penggantian peralatan</small></div></div>{% endif %}
       <div class="row"><div class="k">Emisi CO₂ dihindari</div><div class="v">{{ fin.co2_y1|num }} ton/tahun<small>setara serapan ± {{ ((fin.trees / 100)|round|int * 100)|num }} pohon dewasa</small></div></div>
     </div>
     <div class="block">
-      <h3>Posisi Kas Kumulatif {{ f.years }} Tahun</h3>
+      <h3>{{ 'Posisi Kas Kumulatif' if pb else 'Penghematan Bersih Kumulatif' }} {{ f.years }} Tahun</h3>
       {{ chart_cash|safe }}
       <p class="note">Asumsi: {{ T.line }}.</p>
     </div>
@@ -255,12 +264,12 @@
     {% else %}<figure class="layout pending"><div>Layout atap menyusul setelah survei lokasi</div></figure>{% endif %}
     <div class="sheet compact-sheet">
       {%- set pl_ = brand_logo(s.panel.brand) -%}{%- set il_ = brand_logo(s.inverter.brand) -%}
-      <div class="row"><div class="k">Modul surya{% if bos %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.model }}<small>{{ s.panel.wp }} Wp{% if not bos %} · Tier-1{% endif %}</small></div>{% if pl_ %}<img class="blogo" src="{{ photo(pl_, 320, 92, true) }}" alt="{{ s.panel.brand }}">{% endif %}</div>
-      <div class="row"><div class="k">Inverter{% if bos %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ s.inverter.brand }} {{ m.model }}{% if not loop.last %}<br>{% endif %}{% endfor %}<small>total {{ s.capacity_kva|kwp }} kVA</small>{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kVA{% if s.inverter.qty > 1 %} · total {{ s.capacity_kva|kwp }} kVA{% endif %}</small>{% endif %}</div>{% if il_ %}<img class="blogo" src="{{ photo(il_, 320, 92, true) }}" alt="{{ s.inverter.brand }}">{% endif %}</div>
+      <div class="row"><div class="k">Modul surya{% if bos or 'panel' in cs %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.model }}<small>{{ s.panel.wp }} Wp{% if not bos and 'panel' not in cs %} · Tier-1{% endif %}</small></div>{% if pl_ %}<img class="blogo" src="{{ photo(pl_, 320, 92, true) }}" alt="{{ s.panel.brand }}">{% endif %}</div>
+      <div class="row"><div class="k">Inverter{% if bos or 'inverter' in cs %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ s.inverter.brand }} {{ m.model }}{% if not loop.last %}<br>{% endif %}{% endfor %}<small>total {{ s.capacity_kva|kwp }} kVA</small>{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kVA{% if s.inverter.qty > 1 %} · total {{ s.capacity_kva|kwp }} kVA{% endif %}</small>{% endif %}</div>{% if il_ %}<img class="blogo" src="{{ photo(il_, 320, 92, true) }}" alt="{{ s.inverter.brand }}">{% endif %}</div>
       <div class="row"><div class="k">Monitoring</div><div class="v">{{ s.monitoring }}</div></div>
       {% if bos %}{% for k, v, note in ID.bos_specs or [] %}<div class="row"><div class="k">{{ k }}</div><div class="v">{{ v }}{% if note %}<small>{{ note }}</small>{% endif %}</div></div>{% endfor %}
       {% else %}<div class="row"><div class="k">Rasio DC/AC</div><div class="v">{{ (s.capacity_kwp / s.capacity_kva)|num(2) }}<small>{{ fin.specific_yield|num }} kWh/kWp per tahun</small></div></div>{% endif %}
-      {% if s.battery %}<div class="row"><div class="k">Baterai</div><div class="v">{{ s.battery }}</div></div>{% endif %}
+      {% if s.battery %}<div class="row"><div class="k">Baterai{% if 'battery' in cs %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{{ s.battery }}</div></div>{% endif %}
     </div>
     <div class="two mon">
       <img src="{{ photo('dash-overview.webp', 1000) }}" alt="Dashboard monitoring">
@@ -278,7 +287,7 @@
     <div class="block">
       <h3>Profil Daya pada Hari Kerja</h3>
       {{ chart_day2|safe }}
-      <p class="note">Ilustrasi hari cerah dari data tagihan Anda. Garis putus-putus = beban, area kuning = dipasok surya, garis navy = yang masih dibeli dari PLN.</p>
+      <p class="note">Ilustrasi hari cerah dari data tagihan Anda. Garis putus-putus = beban, area kuning = dipasok surya, garis navy = yang masih dibeli dari PLN.{% if s.battery_kwh %} Area hijau muda = kelebihan surya siang yang mengisi baterai ({{ s.battery_kwh|num }}&nbsp;kWh, kapasitas pakai 90%); area hijau tua = baterai memasok beban saat surya turun. Kelebihan di atas itu tidak terpakai (tanpa ekspor).{% endif %}</p>
     </div>
     <div class="sheet">
       <div class="row"><div class="k">Tagihan PLN sekarang</div><div class="v">Rp&nbsp;{{ L.monthly_bill|short }}</div></div>
@@ -290,12 +299,13 @@
       <tr><td>{% if L.bill_given %}Tagihan PLN per bulan{% else %}Konsumsi per bulan{% endif %}</td><td>{% if L.bill_given %}{{ L.monthly_bill|rp }} ≈ {{ L.monthly_kwh|num }} kWh pada Rp&nbsp;{{ f.pln_tariff_rp_kwh|num(2) }}/kWh{% else %}{{ L.monthly_kwh|num }} kWh{% endif %}</td></tr>
       <tr><td>Jam operasi</td><td>{% if L.work_hours[0] == 0 and L.work_hours[1] == 24 %}24 jam{% else %}{{ '%02d.00' % L.work_hours[0] }} – {{ '%02d.00' % L.work_hours[1] }}{% endif %} · {{ days_id }}</td></tr>
       {% if not (L.work_hours[0] == 0 and L.work_hours[1] == 24 and L.workdays|length == 7) %}<tr><td>Beban di luar jam operasi</td><td>{{ L.base_pct|num }}% dari beban operasi</td></tr>{% endif %}
+      {% if ID.load_note %}<tr><td>Sumber data beban</td><td>{{ ID.load_note }}</td></tr>{% endif %}
       <tr><td>Beban rata-rata · puncak daya surya (hari cerah)</td><td>{{ L.load_kw|num }} kW · {{ L.pv_peak_kw|num }} kW</td></tr>
     </table>
 
 {# ---------------------------------------------------------------- penghematan #}
 {% elif kind == 'penghematan' %}
-    <h2 class="display head">Analisis Penghematan dan Kelayakan Investasi</h2>
+    <h2 class="display head">Analisis Penghematan{{ ' dan Kelayakan Investasi' if pb }}</h2>
     <div class="block">
       <h3>Komposisi Listrik Tahun Pertama</h3>
       <div class="pies">
@@ -311,14 +321,17 @@
     <div class="calc">
       <div><span>Produksi tahun pertama</span><b>{{ fin.y1_energy|num }} kWh</b><small>{{ T.prod_formula }}{% if f.irradiance_source %}<br>Iradiasi: {{ f.irradiance_source }}{% endif %}</small></div>
       <div><span>Penghematan tahun pertama</span><b class="amber-ink">Rp&nbsp;{{ fin.y1_saving|short }}</b><small>{{ T.saving_formula }}</small></div>
-      <div><span>Balik modal</span><b>{{ fin.payback|payback }}</b><small>{{ T.payback_basis }}</small></div>
+      {% if pb %}<div><span>Balik modal</span><b>{{ fin.payback|payback }}</b><small>{{ T.payback_basis }}</small></div>
+      {% else %}<div><span>Penghematan bersih {{ f.years }} tahun</span><b>Rp&nbsp;{{ fin.total_saving|short }}</b><small>Penghematan {{ f.years }} tahun Rp&nbsp;{{ fin.total_gross|short }} dikurangi O&amp;M dan penggantian Rp&nbsp;{{ fin.total_cost|short }}</small></div>{% endif %}
     </div>
     <div class="two">
       <div>
         <h3 class="sect">Analisis Sensitivitas Tarif PLN</h3>
         <table class="data">
-          <tr><th>Kenaikan tarif</th><th class="num">Balik modal</th><th class="num">Keuntungan bersih</th></tr>
+          {% if pb %}<tr><th>Kenaikan tarif</th><th class="num">Balik modal</th><th class="num">Keuntungan bersih</th></tr>
           {% for r in fin.sens %}<tr{% if r.current %} class="hl"{% endif %}><td>{{ r.esc }}% per tahun{% if r.current %} · dasar{% endif %}</td><td class="num">{{ r.payback|payback_short }}</td><td class="num">{{ '−' if r.net < 0 }}Rp&nbsp;{{ r.net|abs|short }}</td></tr>{% endfor %}
+          {% else %}<tr><th>Kenaikan tarif</th><th class="num">Penghematan bersih {{ f.years }} tahun</th></tr>
+          {% for r in fin.sens %}<tr{% if r.current %} class="hl"{% endif %}><td>{{ r.esc }}% per tahun{% if r.current %} · dasar{% endif %}</td><td class="num">Rp&nbsp;{{ r.saving|short }}</td></tr>{% endfor %}{% endif %}
         </table>
         <h3 class="sect">Kontribusi terhadap Laporan ESG</h3>
         <p class="side"><b>{{ fin.co2_y1|num }} ton CO₂</b> dihindari per tahun ({{ fin.co2_total|num }} ton selama {{ f.years }} tahun), setara serapan ± {{ ((fin.trees / 100)|round|int * 100)|num }} pohon dewasa. Data monitoring dapat dipakai sebagai bukti pengurangan emisi listrik (Scope 2) untuk laporan ke pembeli dan pemegang saham.</p>
@@ -333,7 +346,7 @@
           {% else %}<tr><td>Jam matahari efektif</td><td>{{ f.peak_sun_hours|num(1) }} jam/hari × {{ f.operating_days }} hari</td></tr>{% endif %}
           <tr><td>Degradasi modul</td><td>{% if f.degradation_first_year_pct %}{{ f.degradation_first_year_pct|num(1) }}% tahun 1, lalu {{ f.degradation_pct|num(1) }}%/tahun{% else %}{{ f.degradation_pct|num(1) }}%/tahun{% endif %}</td></tr>
           <tr><td>Surya terpakai</td><td>{{ (fin.scr*100)|num }}% · tanpa kredit ekspor</td></tr>
-          <tr><td>Biaya O&amp;M</td><td>{% if plan.om %}{{ T.om_pct }}% per tahun · Rp&nbsp;{{ plan.om|short }}{% else %}Tidak dihitung{% endif %}</td></tr>
+          <tr><td>Biaya O&amp;M</td><td>{% if plan.om %}{{ T.om_pct }}% {{ 'per tahun' if pb else 'nilai penawaran HME per tahun' }} · Rp&nbsp;{{ plan.om|short }}{% else %}Tidak dihitung{% endif %}</td></tr>
           {% if plan['items'] %}<tr><td>Penggantian peralatan</td><td>{% for it in plan['items'] %}{{ it.label }} · tahun {{ it.years|join(', ') }}<br><span class="muted">Rp&nbsp;{{ it.price|short }} per penggantian, harga hari ini</span>{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>{% endif %}
         </table>
       </div>
@@ -342,17 +355,17 @@
 
 {# ---------------------------------------------------------------- proyeksi #}
 {% elif kind == 'proyeksi' %}
-    <h2 class="display head">Proyeksi Arus Kas {{ f.years }} Tahun</h2>
+    <h2 class="display head">{{ 'Proyeksi Arus Kas' if pb else 'Proyeksi Penghematan' }} {{ f.years }} Tahun</h2>
     {% set has_scr = fin.scr < 0.995 %}
     <table class="data proj">
       <tr><th class="c">Tahun</th><th class="num">Produksi (kWh)</th>{% if has_scr %}<th class="num">Terpakai (kWh)</th>{% endif %}<th class="num">Tarif (Rp/kWh)</th><th class="num">Penghematan (Rp)</th><th class="num">Biaya (Rp)</th><th class="num">Kumulatif (Rp)</th></tr>
-      <tr><td class="c">0</td><td></td>{% if has_scr %}<td></td>{% endif %}<td></td><td></td><td class="num muted">Investasi</td><td class="num neg">−{{ fin.capex|num }}</td></tr>
+      {% if pb %}<tr><td class="c">0</td><td></td>{% if has_scr %}<td></td>{% endif %}<td></td><td></td><td class="num muted">Investasi</td><td class="num neg">−{{ fin.capex|num }}</td></tr>{% endif %}
       {% for r in fin.rows %}
-      <tr{% if r.year == fin.payback_year %} class="hl"{% endif %}><td class="c">{{ r.year }}</td><td class="num">{{ r.energy|num }}</td>{% if has_scr %}<td class="num">{{ r.used|num }}</td>{% endif %}<td class="num">{{ r.tariff|num(2) }}</td><td class="num">{{ r.gross|num }}</td><td class="num {{ 'cost' if r.repl }}">{% if r.cost %}{{ r.cost|num }}{% else %}–{% endif %}</td><td class="num {{ 'neg' if r.cum < 0 else 'pos' }}">{{ '−' if r.cum < 0 }}{{ (r.cum|abs)|num }}</td></tr>
+      <tr{% if pb and r.year == fin.payback_year %} class="hl"{% endif %}><td class="c">{{ r.year }}</td><td class="num">{{ r.energy|num }}</td>{% if has_scr %}<td class="num">{{ r.used|num }}</td>{% endif %}<td class="num">{{ r.tariff|num(2) }}</td><td class="num">{{ r.gross|num }}</td><td class="num {{ 'cost' if r.repl }}">{% if r.cost %}{{ r.cost|num }}{% else %}–{% endif %}</td>{% set cv = r.cum if pb else r.cum_saving %}<td class="num {{ 'neg' if cv < 0 else 'pos' }}">{{ '−' if cv < 0 }}{{ (cv|abs)|num }}</td></tr>
       {% endfor %}
-      <tr class="total"><td class="c">Total</td><td class="num">{{ fin.total_energy|num }}</td>{% if has_scr %}<td class="num">{{ fin.total_used|num }}</td>{% endif %}<td></td><td class="num">{{ fin.total_gross|num }}</td><td class="num">{% if fin.total_cost %}{{ fin.total_cost|num }}{% else %}–{% endif %}</td><td class="num {{ 'neg' if fin.net < 0 else 'pos' }}">{{ '−' if fin.net < 0 }}{{ (fin.net|abs)|num }}</td></tr>
+      <tr class="total"><td class="c">Total</td><td class="num">{{ fin.total_energy|num }}</td>{% if has_scr %}<td class="num">{{ fin.total_used|num }}</td>{% endif %}<td></td><td class="num">{{ fin.total_gross|num }}</td><td class="num">{% if fin.total_cost %}{{ fin.total_cost|num }}{% else %}–{% endif %}</td>{% set cv = fin.net if pb else fin.total_saving %}<td class="num {{ 'neg' if cv < 0 else 'pos' }}">{{ '−' if cv < 0 }}{{ (cv|abs)|num }}</td></tr>
     </table>
-    <p class="note">{% if fin.payback_year %}Baris bersorot: tahun balik modal. {% endif %}Kumulatif = penghematan dikurangi biaya, setelah investasi.{% if plan.om or plan['items'] %} Biaya = {% if plan.om %}O&amp;M {{ T.om_pct }}% investasi per tahun{% endif %}{% if plan['items'] %}{% if plan.om %} dan {% endif %}penggantian {% for it in plan['items'] %}{{ it.label|lower }} (tahun {{ it.years|join(', ') }}){% if not loop.last %}, {% endif %}{% endfor %}{% endif %}.{% endif %} Biaya listrik surya sekitar Rp&nbsp;{{ fin.lcoe|num }}/kWh selama {{ f.years }} tahun, dibanding Rp&nbsp;{{ f.pln_tariff_rp_kwh|num }}/kWh dari PLN.</p>
+    <p class="note">{% if pb and fin.payback_year %}Baris bersorot: tahun balik modal. {% endif %}Kumulatif = penghematan dikurangi biaya{{ ', setelah investasi' if pb }}.{% if plan.om or plan['items'] %} Biaya = {% if plan.om %}O&amp;M {{ T.om_pct }}% {{ 'investasi' if pb else 'nilai penawaran HME' }} per tahun{% endif %}{% if plan['items'] %}{% if plan.om %} dan {% endif %}penggantian {% for it in plan['items'] %}{{ it.label|lower }} (tahun {{ it.years|join(', ') }}){% if not loop.last %}, {% endif %}{% endfor %}{% endif %}.{% endif %}{% if pb %} Biaya listrik surya sekitar Rp&nbsp;{{ fin.lcoe|num }}/kWh selama {{ f.years }} tahun, dibanding Rp&nbsp;{{ f.pln_tariff_rp_kwh|num }}/kWh dari PLN.{% else %} {{ cs_text|capitalize }} disuplai {{ dev }} dan tidak termasuk nilai penawaran HME, jadi balik modal tidak dihitung.{% endif %}</p>
 
 {# ---------------------------------------------------------------- harga #}
 {% elif kind == 'harga' %}
@@ -366,6 +379,7 @@
       <tr class="grand"><td>Total termasuk PPN</td><td class="num">{{ fin.grand|num }}</td></tr>
     </table>
     {% if bos %}<p class="note">Harga lump-sum sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN). <b>Tidak termasuk modul surya dan inverter</b>, yang disuplai {{ dev }}.</p>
+    {% elif cs %}<p class="note">Harga lump-sum sesuai daftar material. <b>Tidak termasuk {{ cs_text }}</b>, yang disuplai {{ dev }}; HME memasang dan mengintegrasikannya ke sistem.</p>
     {% else %}<p class="note">Harga lump-sum EPC untuk sistem lengkap sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN).</p>{% endif %}
     {% if ID.payment_terms %}
     <h3 class="sect">Termin Pembayaran</h3>
@@ -383,6 +397,7 @@
 {% elif kind == 'lingkup' %}
     <h2 class="display head">Lingkup Pekerjaan</h2>
     {% if bos %}<p class="lead">HME menangani engineering, pengadaan material BOS, dan konstruksi. {{ dev }} menyuplai modul surya dan inverter, serta bersama HME menangani survei, koordinasi proyek, perizinan pemasangan, K3, dan QA/QC.</p>
+    {% elif cs %}<p class="lead">HME menangani engineering, pengadaan material, dan konstruksi. {{ dev }} menyuplai {{ cs_text }}, yang dipasang dan diintegrasikan HME ke sistem, serta terlibat pada koordinasi proyek dan pekerjaan tambahan bila ada.</p>
     {% else %}<p class="lead">HME menangani pekerjaan engineering, pengadaan, dan konstruksi secara penuh. Klien terlibat pada koordinasi proyek dan pekerjaan tambahan bila ada.</p>{% endif %}
     {% set sc = ID.scope or p.scope %}
     <div class="two scope">
@@ -415,7 +430,7 @@
       {% endfor %}
       {% endfor %}
     </table>
-    {% if loop.nextitem and loop.nextitem[0] != 'boq' %}<p class="note">Semua item termasuk dalam harga lump-sum.{% if bos %} Modul surya dan inverter disuplai {{ dev }} dan tidak termasuk daftar ini.{% endif %} Rincian harga per item tersedia atas permintaan.</p>{% endif %}
+    {% if loop.nextitem and loop.nextitem[0] != 'boq' %}<p class="note">Semua item termasuk dalam harga lump-sum.{% if bos %} Modul surya dan inverter disuplai {{ dev }} dan tidak termasuk daftar ini.{% elif cs %} {{ cs_text|capitalize }} disuplai {{ dev }} dan tidak termasuk daftar ini.{% endif %} Rincian harga per item tersedia atas permintaan.</p>{% endif %}
 
 {# ---------------------------------------------------------------- garansi #}
 {% elif kind == 'garansi' %}

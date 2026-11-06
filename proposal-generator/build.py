@@ -268,6 +268,59 @@ def bill_analysis(p):
     )
 
 
+def battery_dispatch(load, pv, batt_kwh, dt):
+    """Battery over one clear day for the charts, same rules as load_analysis: surplus solar charges up to the usable
+    capacity (BATT_USABLE), energy comes back at BATT_RT_EFF whenever the load is above solar. The day is run twice so
+    the evening leftover carries into the next morning (steady state). Returns (charge_kw, discharge_kw) per step."""
+    n = len(load)
+    cap = batt_kwh * BATT_USABLE
+    soc = 0.0
+    charge, dis = [0.0] * n, [0.0] * n
+    for rnd in range(2):
+        for k in range(n):
+            surplus = pv[k] - load[k]
+            if surplus > 0:
+                c = min(surplus, (cap - soc) / dt)
+                soc += c * dt
+                if rnd:
+                    charge[k] = c
+            else:
+                d = min(-surplus, soc * BATT_RT_EFF / dt)
+                soc -= d * dt / BATT_RT_EFF
+                if rnd:
+                    dis[k] = d
+    return charge, dis
+
+
+def battery_layers(X, Y, xs, load, solar, charge, dis):
+    """SVG pieces for the battery: green band above the load while it charges, green area on top of the solar
+    it adds to while it discharges, each with a direct label."""
+    out = []
+    if max(charge) > 0.01:
+        top = [l + c for l, c in zip(load, charge)]
+        pts = " ".join(f"{X(x):.1f},{Y(v):.1f}" for x, v in zip(xs, top))
+        back = " ".join(f"{X(x):.1f},{Y(v):.1f}" for x, v in reversed(list(zip(xs, load))))
+        out.append(f'<polygon points="{pts} {back}" class="a-charge"/>')
+    if max(dis) > 0.01:
+        top = [s_ + d for s_, d in zip(solar, dis)]
+        pts = " ".join(f"{X(x):.1f},{Y(v):.1f}" for x, v in zip(xs, top))
+        back = " ".join(f"{X(x):.1f},{Y(v):.1f}" for x, v in reversed(list(zip(xs, solar))))
+        out.append(f'<polygon points="{pts} {back}" class="a-batt"/>')
+    return out
+
+
+def battery_labels(X, Y, xs, load, solar, charge, dis):
+    out = []
+    if max(charge) > 0.01:
+        k = max(range(len(charge)), key=lambda i: charge[i])
+        out.append(f'<text x="{X(xs[k]):.1f}" y="{Y(load[k] + charge[k]) - 6:.1f}" text-anchor="middle" class="lbl batt-l">Mengisi baterai</text>')
+    if max(dis) > 0.01:
+        # label where the discharge band is widest in the afternoon/evening, inside the band
+        k = max(range(len(dis)), key=lambda i: dis[i] if xs[i] >= 12 else -1)
+        out.append(f'<text x="{X(xs[k]) - 6:.1f}" y="{Y(solar[k] + dis[k] * 0.5) + 4:.1f}" text-anchor="end" class="lbl batt-l">Dari baterai</text>')
+    return out
+
+
 def chart_bill_day_v2(ba, fin, w=680, h=250):
     """One day, all from the bill: load at the LWBP level with the WBP block 18–22 (dashed),
     clear-day solar (amber area) and what is still bought from PLN (navy) = load − solar."""
@@ -278,7 +331,9 @@ def chart_bill_day_v2(ba, fin, w=680, h=250):
     load = [ba["kw_wbp"] if a <= t < b_ else ba["kw_lwbp"] for t in hours]
     pv = [pv_kw(t, clear_day_kwh(fin["y1_energy"]), fin.get("kva")) for t in hours]  # same clear-day curve as the load analysis
     solar = [min(l, v) for l, v in zip(load, pv)]
-    grid = [l - s_ for l, s_ in zip(load, solar)]
+    batt = fin.get("batt_kwh") or 0
+    charge, dis = battery_dispatch(load, pv, batt, 1 / per) if batt else ([0.0] * len(load), [0.0] * len(load))
+    grid = [l - s_ - d for l, s_, d in zip(load, solar, dis)]
     pl, pr, pt, pb = 46, 18, 22, 28
     hi = max(max(load), max(pv)) * 1.18
     step = nice_step(hi, 4)
@@ -303,10 +358,14 @@ def chart_bill_day_v2(ba, fin, w=680, h=250):
     for hh in range(0, 25, 3):
         out.append(f'<text x="{X(hh):.1f}" y="{h - 8}" text-anchor="middle" class="ax">{hh:02d}.00</text>')
     out.append(f'<polygon points="{X(0):.1f},{Y(0):.1f} {line(solar)} {X(24):.1f},{Y(0):.1f}" class="a-solar"/>')
+    out += battery_layers(X, Y, hours, load, solar, charge, dis)
     out.append(f'<polyline points="{line(load)}" class="ln-load"/>')
+    if batt:  # full solar output, so the charging band reads as part of it
+        out.append(f'<polyline points="{line(pv)}" class="ln-pv"/>')
     out.append(f'<polyline points="{line(grid)}" class="ln-grid"/>')
     out.append(f'<polyline points="{line(solar)}" class="ln-solar"/>')
     out.append(f'<text x="{X(12):.1f}" y="{Y(max(solar) * 0.4):.1f}" text-anchor="middle" class="lbl on-solar">Dari surya</text>')
+    out += battery_labels(X, Y, hours, load, solar, charge, dis)
     k = int(7.5 * per)
     out.append(f'<text x="{X(hours[k]) - 10:.1f}" y="{Y(grid[k]) + 4:.1f}" text-anchor="end" class="lbl grid-l">Dari PLN</text>')
     out.append(f'<text x="{X(3):.1f}" y="{Y(ba["kw_lwbp"]) - 9:.1f}" text-anchor="middle" class="lbl load-l">Beban LWBP ± {fnum(ba["kw_lwbp"])} kW</text>')
@@ -481,7 +540,8 @@ def describe_assumptions(p, fin):
     t["tariff"] = f"tarif PLN Rp{NB}{fnum(f['pln_tariff_rp_kwh'], 2)}/kWh " + (f"naik {fpct(esc)}%/tahun" if esc else "tetap (tanpa kenaikan)")
     t["sun"] = f"iradiasi {fdec(psh)}{NB}kWh/m²/hari × PR {fpct(pr * 100)}%" if pr is not None else f"{fdec(psh)} jam matahari efektif/hari"
     t["deg"] = f"degradasi modul {fpct(d1)}% tahun 1, lalu {fpct(d)}%/tahun" if d1 else f"degradasi modul {fpct(d)}%/tahun"
-    t["om"] = f"biaya O&M {fpct(om)}% investasi/tahun" if om else "biaya O&M tidak dihitung"
+    capex_word = "investasi" if fin.get("show_payback", True) else "nilai penawaran"
+    t["om"] = f"biaya O&M {fpct(om)}% {capex_word}/tahun" if om else "biaya O&M tidak dihitung"
     repl = [f"{it['label'].lower()} tahun {_years_text(it['years'])}" for it in plan["items"]]
     t["repl"] = ("penggantian " + "; ".join(repl)) if repl else ""
     t["line"] = " · ".join(x for x in (t["tariff"], t["sun"], t["deg"], t["om"], t["repl"]) if x)
@@ -526,9 +586,16 @@ def finance(p):
     sens = []
     for e in f["sensitivity_escalation_pct"]:
         r2, pb2, _ = simulate(p, e, scr)
-        sens.append(dict(esc=e, payback=pb2, net=r2[-1]["cum"], current=e == f["tariff_escalation_pct"]))
+        sens.append(dict(esc=e, payback=pb2, net=r2[-1]["cum"], saving=r2[-1]["cum"] + capex, current=e == f["tariff_escalation_pct"]))
+    for r in rows:  # cumulative net savings without the investment (used when show_payback is false)
+        r["cum_saving"] = r["cum"] + capex
     fin = dict(
         rows=rows, payback=payback, payback_year=pb_year, specific_yield=sy, capex=capex, plan=plan,
+        # false: part of the plant is supplied by the client, so the price is not the whole investment;
+        # the proposal shows savings only (no payback, IRR, ROI, LCOE)
+        show_payback=f.get("show_payback", True),
+        site_word="pabrik" if p["client"].get("segment") == "Industrial" else "bangunan",
+        batt_kwh=p["system"].get("battery_kwh") or 0,
         pr=f.get("performance_ratio"), kva=p["system"].get("capacity_kva"),
         vat=capex * p["price"]["vat_pct"] / 100,
         grand=capex * (1 + p["price"]["vat_pct"] / 100),
@@ -643,11 +710,14 @@ def chart_cashline(fin, w=680, h=290, upper=None):
     Below zero is tinted navy (not yet recovered), above zero amber (net gain). Direct labels, no legend."""
     rows = fin["rows"]
     n = len(rows)
-    vals = [-fin["capex"]] + [r["cum"] for r in rows]
+    show_pb = fin.get("show_payback", True)
+    # without payback (client supplies part of the plant): cumulative net savings from zero, no investment
+    base = 0 if show_pb else fin["capex"]
+    vals = [-fin["capex"] + base] + [r["cum"] + base for r in rows]
     up = None
     if upper:  # comparison escalation scenario: (pct_base, pct_alt, rows_alt)
         esc_base, esc_alt, rows_alt = upper
-        up = [-fin["capex"]] + [r["cum"] for r in rows_alt]
+        up = [-fin["capex"] + base] + [r["cum"] + base for r in rows_alt]
     top = max(max(up), max(vals)) if up else max(vals)
     ceil_ = max(top, 0)  # the zero line stays inside the plot even when the investment is never recovered
     pl, pr, pt, pb = 58, (128 if up else 18), 26, 30  # with two scenarios, end labels sit right of the lines
@@ -662,7 +732,9 @@ def chart_cashline(fin, w=680, h=290, upper=None):
     def Y(v):
         return pt + (hi - v) / (hi - lo) * (h - pt - pb)
 
-    out = [f'<svg viewBox="0 0 {w} {h}" class="chart" role="img" aria-label="Posisi kas kumulatif selama {n} tahun{", balik modal tahun " + fnum(fin["payback"], 1) if fin["payback"] else ", investasi belum kembali"}">']
+    aria = (f'Posisi kas kumulatif selama {n} tahun{", balik modal tahun " + fnum(fin["payback"], 1) if fin["payback"] else ", investasi belum kembali"}'
+            if show_pb else f"Penghematan bersih kumulatif selama {n} tahun")
+    out = [f'<svg viewBox="0 0 {w} {h}" class="chart" role="img" aria-label="{aria}">']
     unit, label = (1e9, "Rp miliar") if max(top, -min(vals)) >= 1e9 else (1e6, "Rp juta")  # homes are in millions
     dec = 0 if step >= unit else 1
     v = math.ceil(lo / step) * step
@@ -687,13 +759,14 @@ def chart_cashline(fin, w=680, h=290, upper=None):
         out.append(f'<polygon points="{upts} {back}" class="a-range"/>')
         out.append(f'<polyline points="{upts}" class="ln-alt"/>')
     out.append(f'<polyline points="{pts}" class="ln"/>')
-    pbk = fin["payback"]
+    pbk = fin["payback"] if show_pb else None
     if pbk:
         bx = X(pbk)
         out.append(f'<circle cx="{bx:.1f}" cy="{y0:.1f}" r="5.5" class="be-dot"/>')
         out.append(f'<text x="{bx - 4:.1f}" y="{y0 - 12:.1f}" text-anchor="end" class="lbl">Balik modal · tahun {fnum(pbk, 1)}</text>')
     out.append(f'<circle cx="{X(0):.1f}" cy="{Y(vals[0]):.1f}" r="4" class="start-dot"/>')
-    out.append(f'<text x="{X(0) + 8:.1f}" y="{Y(lo) - 6:.1f}" class="lbl neg">−Rp {fshort_id(fin["capex"])} investasi awal</text>')
+    if show_pb:
+        out.append(f'<text x="{X(0) + 8:.1f}" y="{Y(lo) - 6:.1f}" class="lbl neg">−Rp {fshort_id(fin["capex"])} investasi awal</text>')
     out.append(f'<circle cx="{X(n):.1f}" cy="{Y(vals[-1]):.1f}" r="4.5" class="end-dot"/>')
     if up:
         out.append(f'<circle cx="{X(n):.1f}" cy="{Y(up[-1]):.1f}" r="3.5" class="alt-dot"/>')
@@ -704,7 +777,7 @@ def chart_cashline(fin, w=680, h=290, upper=None):
             out.append(f'<text x="{lx:.1f}" y="{y + 1:.1f}" class="lbl {cls}">{signed_rp(val)}</text>')
             out.append(f'<text x="{lx:.1f}" y="{y + 15:.1f}" class="ax">{sub}</text>')
     else:
-        out.append(f'<text x="{X(n) - 4:.1f}" y="{Y(vals[-1]) - 12:.1f}" text-anchor="end" class="lbl {"pos" if vals[-1] >= 0 else "neg"}">{signed_rp(vals[-1])} setelah {n} tahun</text>')
+        out.append(f'<text x="{X(n) - 4:.1f}" y="{Y(vals[-1]) - 12:.1f}" text-anchor="end" class="lbl {"pos" if vals[-1] >= 0 else "neg"}">{signed_rp(vals[-1])} {"" if show_pb else "hemat bersih "}setelah {n} tahun</text>')
     out.append("</svg>")
     return "\n".join(out)
 
@@ -731,7 +804,10 @@ def chart_day_v2(fin, w=680, h=270):
     pv = [pv_kw(k / per, clear_day_kwh(fin["y1_energy"]), fin.get("kva")) for k in range(n)]  # clear day, same curve as the load analysis
     load = _smooth_steps([l for l, _ in ld["day_work"]], per) if ld else [max(pv) * 1.6] * n
     solar = [min(l, v) for l, v in zip(load, pv)]
-    grid = [l - s_ for l, s_ in zip(load, solar)]
+    batt = fin.get("batt_kwh") or 0
+    charge, dis = battery_dispatch(load, pv, batt, 1 / per) if batt else ([0.0] * n, [0.0] * n)
+    grid = [l - s_ - d for l, s_, d in zip(load, solar, dis)]
+    ks = list(range(n))
     pl, pr, pt, pb = 46, 18, 22, 28
     hi = max(max(load), max(pv)) * 1.15  # headroom for the line labels, no empty top band
     step = nice_step(hi, 3)
@@ -756,15 +832,20 @@ def chart_day_v2(fin, w=680, h=270):
         k = min(hh * per, n - 1)
         out.append(f'<text x="{X(k):.1f}" y="{h - 8}" text-anchor="middle" class="ax">{hh:02d}.00</text>')
     out.append(f'<polygon points="{X(0):.1f},{Y(0):.1f} {line(solar)} {X(n - 1):.1f},{Y(0):.1f}" class="a-solar"/>')
+    hrs = [k / per for k in ks]
+    out += battery_layers(lambda t: X(t * per), Y, hrs, load, solar, charge, dis)
     out.append(f'<polyline points="{line(load)}" class="ln-load"/>')
+    if batt:  # full solar output, so the charging band reads as part of it
+        out.append(f'<polyline points="{line(pv)}" class="ln-pv"/>')
     out.append(f'<polyline points="{line(grid)}" class="ln-grid"/>')
     out.append(f'<polyline points="{line(solar)}" class="ln-solar"/>')
     km = 12 * per
     out.append(f'<text x="{X(km):.1f}" y="{Y(solar[km] * 0.4):.1f}" text-anchor="middle" class="lbl on-solar">Dari surya</text>')
+    out += battery_labels(lambda t: X(t * per), Y, hrs, load, solar, charge, dis)
     kg = int(7.5 * per)
     out.append(f'<text x="{X(kg) - 10:.1f}" y="{Y(grid[kg]) + 4:.1f}" text-anchor="end" class="lbl grid-l">Dari PLN</text>')
     k2 = 21 * per
-    out.append(f'<text x="{X(k2):.1f}" y="{Y(load[k2]) - 9:.1f}" text-anchor="middle" class="lbl load-l">Beban pabrik</text>')
+    out.append(f'<text x="{X(k2):.1f}" y="{Y(load[k2]) - 9:.1f}" text-anchor="middle" class="lbl load-l">Beban {fin.get("site_word", "pabrik")}</text>')
     out.append("</svg>")
     return "\n".join(out)
 
@@ -1515,7 +1596,9 @@ def validate(p, fin, pdir):
                 if re.match(r"(modul|panel surya|inverter on|solar panel)", str(it[0]).strip().lower()):
                     w.append(f"BOQ masih memuat '{it[0]}': modul dan inverter disuplai developer, keluarkan dari daftar material.")
         return w
-    if fin["payback"] is None:
+    if not fin.get("show_payback", True):
+        pass  # savings-only proposal: payback is not shown, so it is not checked
+    elif fin["payback"] is None:
         w.append(f"Investasi belum kembali dalam {f['years']} tahun. Periksa harga dan asumsi sebelum dikirim.")
     elif not 2 <= fin["payback"] <= 15:
         w.append(f"Balik modal {fin['payback']:.1f} tahun, di luar kisaran wajar 2–15 tahun. Periksa harga dan asumsi.")

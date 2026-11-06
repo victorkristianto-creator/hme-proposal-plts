@@ -72,6 +72,7 @@ Bagian yang tetap sama untuk semua proyek: profil perusahaan, logo klien/merek, 
 cerah 50% (1,25× hari rata-rata), berawan 35% (0,90×), hujan 15% (0,40×). Rata-rata terbobot tepat 1,0, jadi produksi tahunan tidak berubah.
 Bentuk kurva hari cerah: sin(π(t−6)/12)^1,5 antara 06.00–18.00; daya dipotong di `system.capacity_kva`. Grafik "hari cerah" memakai kurva yang sama.
 Baterai: tersimpan = min(surplus hari itu, 90% × `battery_kwh`), kembali × 90% (efisiensi bolak-balik), maksimal sebesar sisa beban hari itu.
+Grafik profil harian (hari cerah) menggambar baterai dengan aturan yang sama per 10 menit (`battery_dispatch`): hijau muda = surplus siang yang mengisi baterai, hijau tua = baterai memasok beban saat surya turun; garis PLN = beban − surya − baterai.
 Hemat = kWh terpakai × tarif; surplus tidak dikreditkan (tanpa ekspor). CO₂ dan jumlah pohon dihitung dari kWh terpakai.
 
 **Biaya (arus kas bersih).** Tiap tahun: biaya = O&M (`om_pct_of_capex`% × investasi, datar) + penggantian pada tahun yang terdaftar. Hemat bersih = hemat − biaya.
@@ -127,6 +128,18 @@ Asumsi biaya rumah (default `assemble.py` untuk proyek baru bila input tidak men
 `battery_replacement_years` [15] (± 6.000 siklus ≈ 16 tahun pada 1 siklus/hari; O&M rumah lebih ringan dari pabrik). Segmen lain tetap memakai
 default `_base` (O&M 1%, baterai tahun 10 dan 20). Isi `financial.om_pct_of_capex` / `battery_replacement_years` di inputs.json untuk menimpa.
 Contoh: `projects/contoh-rumah`.
+
+## Sebagian Material Disuplai Klien (tanpa balik modal)
+
+Untuk penawaran yang modul surya, inverter, atau baterainya disuplai klien sendiri, sehingga harga HME bukan nilai investasi seluruh sistem.
+
+| Input | Efek |
+|---|---|
+| `system.client_supplied: ["panel", "battery"]` (pilihan: `panel`, `inverter`, `battery`) | Cover dan Spesifikasi menulis "disuplai <klien>"; modul klien tidak diberi label Tier-1; catatan harga, BOQ, dan Lingkup menyebut barang yang tidak termasuk |
+| `financial.show_payback: false` | Tanpa balik modal, IRR, ROI, dan LCOE. Ringkasan, grafik, dan Proyeksi memakai penghematan bersih kumulatif mulai dari nol; judul halaman "Proyeksi Penghematan"; O&M ditulis "% nilai penawaran HME" |
+| `id.load_note` | Baris "Sumber data beban" di Analisis Profil Energi (mis. rata-rata PLN Mobile) |
+
+Barang dari klien tidak ikut di BOQ. Isi `battery_replacement_years: []` bila harga baterai klien tidak diketahui, dan sebutkan di laporan.
 
 ## Versi Developer (BOS)
 
