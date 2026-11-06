@@ -86,6 +86,7 @@ Payback, IRR, NPV, ROI, sensitivitas, dan grafik kas memakai arus bersih; paybac
 | `performance_ratio` | 0,80 | tidak ada = 1,0 (rumus lama) |
 | `degradation_first_year_pct` / `degradation_pct` | 1 / 0,4 | sesuai datasheet modul N-type; berlaku mulai tahun 1 |
 | `om_pct_of_capex` | 1 | % investasi per tahun |
+| `om_rp_per_year` (+ `om_note`) | — | O&M tetap dalam Rupiah per tahun; bila diisi, menggantikan `om_pct_of_capex` dan ditulis sebagai Rupiah |
 | `inverter_replacement_years` | [12] | daftar tahun; tidak ada = tanpa penggantian |
 | `battery_replacement_years` | [10, 20] | hanya bila `system.battery_kwh` |
 | `system.inverter.price_rp` | dari BOQ | jumlah baris inverter; kosong → 10% investasi + peringatan |

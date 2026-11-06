@@ -437,7 +437,11 @@ def cost_plan(p):
             price = capex * 0.25
             warns.append("system.battery_price_rp kosong: biaya penggantian baterai dipakai 25% dari investasi. Isi dari baris baterai di BOQ.")
         items.append(dict(kind="battery", label="Baterai", years=batt_years, price=price, fallback=not s.get("battery_price_rp")))
-    return dict(om=capex * (f.get("om_pct_of_capex") or 0) / 100, items=items, warnings=warns)
+    # a fixed yearly O&M in Rupiah (financial.om_rp_per_year) wins over the % of capex
+    om = f.get("om_rp_per_year")
+    if om is None:
+        om = capex * (f.get("om_pct_of_capex") or 0) / 100
+    return dict(om=om, items=items, warnings=warns)
 
 
 def payback_of(rows):
@@ -534,6 +538,7 @@ def describe_assumptions(p, fin):
     d1, d = f.get("degradation_first_year_pct", 0) or 0, f["degradation_pct"]
     esc = f["tariff_escalation_pct"]
     om = f.get("om_pct_of_capex", 0) or 0
+    om_rp = f.get("om_rp_per_year")
     plan = fin["plan"]
     psh, days = f["peak_sun_hours"], f["operating_days"]
     t = {"psh": fdec(psh), "om_pct": fpct(om)}
@@ -541,7 +546,12 @@ def describe_assumptions(p, fin):
     t["sun"] = f"iradiasi {fdec(psh)}{NB}kWh/m²/hari × PR {fpct(pr * 100)}%" if pr is not None else f"{fdec(psh)} jam matahari efektif/hari"
     t["deg"] = f"degradasi modul {fpct(d1)}% tahun 1, lalu {fpct(d)}%/tahun" if d1 else f"degradasi modul {fpct(d)}%/tahun"
     capex_word = "investasi" if fin.get("show_payback", True) else "nilai penawaran"
-    t["om"] = f"biaya O&M {fpct(om)}% {capex_word}/tahun" if om else "biaya O&M tidak dihitung"
+    if om_rp is not None:  # fixed amount: say the Rupiah, not a percentage
+        t["om_desc"] = nb(f"Rp {fshort_id(om_rp)} per tahun") + (f" ({f['om_note']})" if f.get("om_note") else "")
+        t["om"] = f"biaya O&M Rp{NB}{fshort_id(om_rp)}/tahun" if om_rp else "biaya O&M tidak dihitung"
+    else:
+        t["om_desc"] = f"{fpct(om)}% {capex_word} per tahun"
+        t["om"] = f"biaya O&M {fpct(om)}% {capex_word}/tahun" if om else "biaya O&M tidak dihitung"
     repl = [f"{it['label'].lower()} tahun {_years_text(it['years'])}" for it in plan["items"]]
     t["repl"] = ("penggantian " + "; ".join(repl)) if repl else ""
     t["line"] = " · ".join(x for x in (t["tariff"], t["sun"], t["deg"], t["om"], t["repl"]) if x)
@@ -558,7 +568,7 @@ def describe_assumptions(p, fin):
     deg_short = f"degradasi {fpct(d1)}% lalu {fpct(d)}%/tahun" if d1 else f"degradasi {fpct(d)}%/tahun"
     basis = ["tarif naik " + fpct(esc) + "%/tahun" if esc else "tarif tetap", deg_short]
     if plan["om"]:
-        basis.append(f"O&M {fpct(om)}%/tahun")
+        basis.append(f"O&M Rp{NB}{fshort_id(om_rp)}/tahun" if om_rp is not None else f"O&M {fpct(om)}%/tahun")
     if repl:
         basis.append("ganti " + "; ".join(repl))
     t["payback_basis"] = f"Rp{NB}{fshort_id(fin['capex'])} ÷ penghematan bersih per tahun, dengan " + ", ".join(basis)
