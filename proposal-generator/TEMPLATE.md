@@ -130,6 +130,14 @@ Asumsi biaya rumah (default `assemble.py` untuk proyek baru bila input tidak men
 default `_base` (O&M 1%, baterai tahun 10 dan 20). Isi `financial.om_pct_of_capex` / `battery_replacement_years` di inputs.json untuk menimpa.
 Contoh: `projects/contoh-rumah`.
 
+## Penawaran Awal (preliminary)
+
+`meta.preliminary: true`: hanya sistem dan harga, tanpa hemat, balik modal, halaman Harga, BOQ, dan Garansi.
+Halaman: Cover · (Profil Perusahaan, kecuali Residential) · Ringkasan Penawaran Awal (sistem, perkiraan produksi, harga + PPN,
+`id.included`, `id.next_steps`) · Spesifikasi · Datasheet · Terima Kasih. Tidak perlu `load` atau tagihan; `boq` tetap diisi untuk penawaran final.
+`id.prelim_notes` menambah kalimat di catatan bawah (mis. "Harga franco Surabaya, belum termasuk biaya pengiriman ke lokasi.").
+Agent: `/buat-proposal-residensial`. Contoh: `projects/contoh-rumah-awal`.
+
 ## Sebagian Material Disuplai Klien (tanpa balik modal)
 
 Untuk penawaran yang modul surya, inverter, atau baterainya disuplai klien sendiri, sehingga harga HME bukan nilai investasi seluruh sistem.

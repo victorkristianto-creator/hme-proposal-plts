@@ -11,6 +11,7 @@
 /.claude/skills/*
 !/.claude/skills/buat-proposal-cni/
 !/.claude/skills/buat-proposal-developer/
+!/.claude/skills/buat-proposal-residensial/
 
 !/proposal-generator/
 /proposal-generator/output/

@@ -114,7 +114,7 @@ def main(gen_dir, pid, inputs_path):
     if not p.get("boq"):
         missing.append("boq")
     bills = p.get("pln_bills") or []
-    if not is_dev:
+    if not is_dev and not get(p, "meta.preliminary"):  # a preliminary offer has no savings, so no load is needed
         if not bills and not get(p, "load.monthly_bill_rp") and not get(p, "load.monthly_kwh"):
             missing.append("pln_bills ATAU load.monthly_bill_rp (tagihan bulanan)")
         if not bills and p.get("load") and not get(p, "load.work_hours"):

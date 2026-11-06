@@ -1300,7 +1300,20 @@ def datasheet_pages(p, pdir, fmt):
     return out
 
 
+def is_preliminary(p):
+    """Preliminary offer (meta.preliminary): system and price only — no savings, payback, price page, BOQ or warranty."""
+    return bool((p.get("meta") or {}).get("preliminary"))
+
+
 def build_pages(p, pdir, fmt):
+    if fmt == "v2" and is_preliminary(p) and not is_bos(p):
+        pages = [("cover", {})]
+        if p["client"].get("segment") != "Residential":
+            pages.append(("tentang", {}))
+        pages += [("ringkasan", {}), ("sistem", {})]
+        pages += [("datasheet", ds) for ds in datasheet_pages(p, pdir, fmt)]
+        pages.append(("penutup", {}))
+        return pages
     if fmt == "v2" and is_bos(p):
         # BOS offer to a developer: what HME supplies and what it costs — no load, savings or payback
         pages = [("cover", {}), ("tentang", {}), ("bos", {}), ("sistem", {}), ("harga", {}), ("lingkup", {})]
@@ -1606,8 +1619,8 @@ def validate(p, fin, pdir):
                 if re.match(r"(modul|panel surya|inverter on|solar panel)", str(it[0]).strip().lower()):
                     w.append(f"BOQ masih memuat '{it[0]}': modul dan inverter disuplai developer, keluarkan dari daftar material.")
         return w
-    if not fin.get("show_payback", True):
-        pass  # savings-only proposal: payback is not shown, so it is not checked
+    if not fin.get("show_payback", True) or is_preliminary(p):
+        pass  # savings-only or preliminary proposal: payback is not shown, so it is not checked
     elif fin["payback"] is None:
         w.append(f"Investasi belum kembali dalam {f['years']} tahun. Periksa harga dan asumsi sebelum dikirim.")
     elif not 2 <= fin["payback"] <= 15:
@@ -1696,7 +1709,10 @@ def main(project_dir, which="v2", out_dir=None, check=True):
         fin = finance(p)
         pb = fin["payback"]
         pb_txt = f"{pb:.2f} yr" if pb is not None else f"> {p['financial']['years']} yr"
-        print(f"Payback {pb_txt} · ROI {fin['roi']:.0f}% · LCOE Rp {fin['lcoe']:.0f}/kWh")
+        if is_preliminary(p):
+            print(f"Preliminary Rp {fin['capex']:,.0f} · produksi {fin['y1_energy']:,.0f} kWh/tahun")
+        else:
+            print(f"Payback {pb_txt} · ROI {fin['roi']:.0f}% · LCOE Rp {fin['lcoe']:.0f}/kWh")
     for msg in validate(p, fin, pdir):
         print(f"  ! {msg}")
     for fmt in (FORMATS if which == "all" else [which]):

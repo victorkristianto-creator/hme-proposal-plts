@@ -1,0 +1,347 @@
+{
+  "meta": {
+    "number": "001/Q.PLTS/HME/XI/2026",
+    "date": "6 November 2026",
+    "date_id": "6 November 2026",
+    "revision": "00",
+    "prepared_by": "Tim Sales HME",
+    "language": "id",
+    "preliminary": true
+  },
+  "client": {
+    "name": "Rumah Contoh",
+    "short_name": "Rumah Contoh",
+    "location": "Surabaya, East Java",
+    "location_id": "Surabaya, Jawa Timur",
+    "city": "Surabaya",
+    "segment": "Residential"
+  },
+  "system": {
+    "type": "Hybrid",
+    "mounting": "Rooftop",
+    "capacity_kwp": 2.36,
+    "capacity_kva": 3,
+    "panel": {
+      "qty": 4,
+      "brand": "DAHAI",
+      "model": "590 Wp Bifacial",
+      "wp": 590
+    },
+    "inverter": {
+      "qty": 1,
+      "brand": "SolaX",
+      "model": "X1-HYB-3.0-LV",
+      "kva": 3,
+      "price_rp": 13850416
+    },
+    "battery": "SolaX 5 kWh",
+    "battery_kwh": 5,
+    "battery_price_rp": 20083102,
+    "monitoring": "SolaX Pocket WiFi + LAN V2.0 · zero export"
+  },
+  "price": {
+    "total": 72000000,
+    "vat_pct": 11
+  },
+  "datasheets": [
+    {
+      "title": "Inverter Hybrid · SolaX X1-HYB-LV",
+      "file": "../../../datasheet/solax/x1/solax-x1-hybrid-lv-datasheet-en.pdf"
+    }
+  ],
+  "id": {
+    "included": [
+      "4 modul surya DAHAI 590 Wp bifacial",
+      "Inverter hybrid SolaX 3 kW satu fasa dan baterai SolaX 5 kWh",
+      "Mounting atap: L-feet dengan flashing dan rail",
+      "Kabel DC, AC, grounding, komunikasi, dan baterai",
+      "Panel AC dengan proteksi, zero export, dan ATS dengan kontrol WiFi",
+      "Monitoring SolaX (Pocket WiFi + LAN)",
+      "Jasa instalasi (± 3 hari)"
+    ],
+    "next_steps": [
+      "Survei atap dan instalasi listrik rumah.",
+      "Penawaran final: daftar material, garansi, dan jadwal.",
+      "Instalasi ± 3 hari kerja, lalu pengujian dan serah terima."
+    ],
+    "prelim_notes": [
+      "Harga franco Surabaya, belum termasuk biaya pengiriman ke lokasi."
+    ]
+  },
+  "boq": [
+    {
+      "section": "Material Utama",
+      "items": [
+        [
+          "Modul surya",
+          4,
+          "pcs",
+          "DAHAI 590 Wp bifacial"
+        ],
+        [
+          "Inverter hybrid",
+          1,
+          "pcs",
+          "SolaX 3 kW satu fasa"
+        ],
+        [
+          "Baterai",
+          1,
+          "pcs",
+          "SolaX 5 kWh"
+        ],
+        [
+          "Konektor MC4",
+          6,
+          "pcs",
+          "MC4-EVO2"
+        ]
+      ]
+    },
+    {
+      "section": "Monitoring",
+      "items": [
+        [
+          "Monitoring",
+          1,
+          "pcs",
+          "Dongle Pocket WiFi + LAN V2.0"
+        ],
+        [
+          "Zero export",
+          1,
+          "ls",
+          ""
+        ]
+      ]
+    },
+    {
+      "section": "Mounting & Penetrasi Atap",
+      "items": [
+        [
+          "Roofing mounting",
+          10,
+          "pcs",
+          "L-feet single flashing"
+        ],
+        [
+          "Rail",
+          4,
+          "pcs",
+          "2.400 mm"
+        ],
+        [
+          "End clamp",
+          4,
+          "pcs",
+          "30 mm"
+        ],
+        [
+          "Mid clamp",
+          6,
+          "pcs",
+          ""
+        ],
+        [
+          "Grounding lug",
+          2,
+          "pcs",
+          ""
+        ],
+        [
+          "Grounding clip",
+          6,
+          "pcs",
+          ""
+        ],
+        [
+          "Fisher & baut, sekrup SDS, sealant",
+          1,
+          "ls",
+          ""
+        ]
+      ]
+    },
+    {
+      "section": "Kabel",
+      "items": [
+        [
+          "Kabel DC PV",
+          50,
+          "m",
+          "Solar cable 1×4 mm²"
+        ],
+        [
+          "Kabel grounding DC",
+          20,
+          "m",
+          "NYA 1×4 mm²"
+        ],
+        [
+          "Kabel AC inverter (grid)",
+          15,
+          "m",
+          "NYY 4×4 mm²"
+        ],
+        [
+          "Kabel AC inverter (load)",
+          15,
+          "m",
+          "NYY 4×4 mm²"
+        ],
+        [
+          "Kabel grounding AC",
+          10,
+          "m",
+          "NYA 1×4 mm²"
+        ],
+        [
+          "Kabel komunikasi (paralel inverter)",
+          15,
+          "m",
+          "Cat 6 RJ45"
+        ],
+        [
+          "Kabel komunikasi (dongle)",
+          15,
+          "m",
+          "RS485 AWG24 1 pair shielded 9841"
+        ],
+        [
+          "Kabel baterai",
+          2,
+          "m",
+          "NYAF 35 mm²"
+        ],
+        [
+          "Aksesori kabel",
+          1,
+          "ls",
+          "Skun, vinyl, soket, dll."
+        ]
+      ]
+    },
+    {
+      "section": "Panel AC",
+      "items": [
+        [
+          "Box panel AC",
+          1,
+          "pcs",
+          "40×50×20 cm"
+        ],
+        [
+          "SPD AC",
+          1,
+          "pcs",
+          ""
+        ],
+        [
+          "MCB AC inverter (grid)",
+          1,
+          "pcs",
+          "MCB 2P 32 A 6 kA"
+        ],
+        [
+          "MCB AC inverter (load)",
+          1,
+          "pcs",
+          "MCB 2P 25 A 6 kA"
+        ],
+        [
+          "Aksesori panel",
+          1,
+          "ls",
+          "Busbar, fuse, DIN rail, ties, kabel kontrol, dll."
+        ]
+      ]
+    },
+    {
+      "section": "ATS",
+      "items": [
+        [
+          "Automatic transfer switch",
+          1,
+          "pcs",
+          "TOMZN ATS AC 63 A 220 V 2P"
+        ],
+        [
+          "Kontrol WiFi",
+          1,
+          "pcs",
+          "MCB Tuya smart programmable timer"
+        ],
+        [
+          "Saklar COS",
+          1,
+          "pcs",
+          "FORT SF 219G-25A"
+        ],
+        [
+          "Breaker input ATS",
+          2,
+          "pcs",
+          "MCB Himel 2P 6 A 4,5 kA"
+        ],
+        [
+          "Aksesori",
+          1,
+          "ls",
+          "Kabel, skun, label, vinyl, dll."
+        ]
+      ]
+    },
+    {
+      "section": "Conduit & Cable Duct",
+      "items": [
+        [
+          "Flexible conduit",
+          20,
+          "m",
+          "BOSS 20 mm"
+        ],
+        [
+          "Pipa conduit",
+          7,
+          "pcs",
+          "BOSS 20 mm, 2,9 m"
+        ],
+        [
+          "Sok & klem conduit",
+          31,
+          "pcs",
+          "BOSS 20 mm"
+        ],
+        [
+          "Cable duct",
+          2,
+          "pcs",
+          "Fortindo 25×16 mm, 2 m"
+        ],
+        [
+          "Cable gland & T-dus",
+          6,
+          "pcs",
+          ""
+        ]
+      ]
+    },
+    {
+      "section": "Jasa",
+      "items": [
+        [
+          "Jasa instalasi",
+          1,
+          "ls",
+          "3 hari, 4 orang"
+        ],
+        [
+          "Shelter",
+          1,
+          "ls",
+          ""
+        ]
+      ]
+    }
+  ]
+}

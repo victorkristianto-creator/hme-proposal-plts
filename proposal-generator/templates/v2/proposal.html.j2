@@ -13,6 +13,8 @@
 {#- savings-only offer: the client supplies part of the plant (system.client_supplied), so the price is not the whole
     investment and payback / IRR / ROI / LCOE are left out (financial.show_payback = false) -#}
 {%- set pb = fin.get('show_payback', True) -%}
+{#- preliminary offer (meta.preliminary): system and price only, no savings, price page, BOQ or warranty -#}
+{%- set pre = p.meta.get('preliminary') -%}
 {%- set cs = s.get('client_supplied') or [] -%}
 {%- set cs_names = {'panel': 'modul surya', 'inverter': 'inverter', 'battery': 'baterai'} -%}
 {%- set cs_ns = namespace(names=[]) -%}{%- for k in cs -%}{%- set cs_ns.names = cs_ns.names + [cs_names[k]] -%}{%- endfor -%}
@@ -74,7 +76,7 @@
   <div class="brand"><img src="{{ photo('hme-logo.webp', 400) }}" alt="Logo HME"><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
   <div class="title">
     <h1 class="display">Penawaran {{ 'BOS PLTS' if bos else 'PLTS' }}<span class="sun">{{ s.type }} {{ s.mounting }}</span></h1>
-    <p class="sub">{{ 'Material Balance of System dan Instalasi' if bos else 'Pembangkit Listrik Tenaga Surya' }}</p>
+    <p class="sub">{{ 'Material Balance of System dan Instalasi' if bos else 'Penawaran awal · Pembangkit Listrik Tenaga Surya' if pre else 'Pembangkit Listrik Tenaga Surya' }}</p>
   </div>
   <dl class="specs">
     <div class="cap"><dt>Kapasitas</dt><dd>{{ s.capacity_kwp|kwp }} <small>kWp</small></dd></div>
@@ -86,6 +88,8 @@
     <div class="client">{{ p.client.name }}</div>
     {% if bos %}<div class="loc">Site {{ site.name }}, {{ loc }}</div>
     <p class="verdict"><b>Material BOS, instalasi, commissioning, dan perizinan</b> oleh HME. Modul surya dan inverter disuplai {{ dev }}.</p>
+    {% elif pre %}<div class="loc">{{ loc }}</div>
+    <p class="verdict">Nilai penawaran awal <b>Rp&nbsp;{{ fin.capex|short }}</b> (belum PPN), termasuk material dan instalasi. Harga final setelah survei lokasi.</p>
     {% else %}<div class="loc">{{ loc }}</div>
     <p class="verdict">Perkiraan hemat <b>Rp&nbsp;{{ fin.monthly_saving|short }} per bulan</b> sejak tahun pertama{% if not pb %}.{% elif fin.payback is not none %}, dengan investasi kembali dalam <b>{{ fin.payback|payback }}</b>.{% else %}, namun investasi belum kembali dalam {{ f.years }} tahun.{% endif %}</p>{% endif %}
   </div>
@@ -125,7 +129,7 @@
 {# ================================================================ INNER PAGES #}
 {% else %}
 <section class="page inner {{ kind }}">
-  <header class="runhead"><span class="mark"><img src="{{ photo('hme-logo.webp', 400) }}" alt="">PT Hexa Multi Energi</span><span>{{ titles[kind] }}{% if kind == 'boq' and d.part > 0 %} (lanjutan){% endif %}</span></header>
+  <header class="runhead"><span class="mark"><img src="{{ photo('hme-logo.webp', 400) }}" alt="">PT Hexa Multi Energi</span><span>{{ 'Ringkasan Penawaran Awal' if pre and kind == 'ringkasan' else titles[kind] }}{% if kind == 'boq' and d.part > 0 %} (lanjutan){% endif %}</span></header>
   <main class="body">
 
 {# ---------------------------------------------------------------- tagihan (client's PLN bill, before the pitch) #}
@@ -164,6 +168,31 @@
     </div>
 
 {# ---------------------------------------------------------------- ringkasan #}
+{% elif kind == 'ringkasan' and pre %}
+    <h2 class="display head">Ringkasan Penawaran Awal</h2>
+    <p class="lead">PT Hexa Multi Energi mengusulkan PLTS {{ s.type }} {{ s.mounting|lower }} berkapasitas <b>{{ s.capacity_kwp|kwp }}&nbsp;kWp</b> untuk {{ p.client.name }}. Listrik surya dipakai langsung di siang hari{% if s.battery %}, kelebihannya disimpan di baterai untuk malam hari{% if s.type == 'Off-Grid' %}; ATS memindahkan beban ke PLN saat baterai hampir habis{% else %} dan sebagai cadangan saat listrik PLN padam{% endif %}{% endif %}. Ini penawaran awal; desain, harga, dan jadwal final kami susun setelah survei lokasi.</p>
+    <div class="sheet">
+      <div class="row"><div class="k">Sistem</div><div class="v">{{ s.capacity_kwp|kwp }} kWp · {{ s.capacity_kva|kwp }} kW<small>{{ s.type }} {{ s.mounting|lower }}</small></div></div>
+      <div class="row"><div class="k">Modul surya</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp{% if s.panel.model and s.panel.model != s.panel.wp ~ ' Wp' %}<small>{{ s.panel.model }}</small>{% endif %}</div></div>
+      <div class="row"><div class="k">Inverter</div><div class="v">{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kW</small></div></div>
+      {% if s.battery %}<div class="row"><div class="k">Baterai</div><div class="v">{{ s.battery }}</div></div>{% endif %}
+      <div class="row"><div class="k">Perkiraan produksi</div><div class="v">± {{ fin.y1_energy|num }} kWh/tahun<small>± {{ (fin.y1_energy/12)|num }} kWh per bulan · {{ T.sun }}</small></div></div>
+      <div class="row"><div class="k">Nilai penawaran awal</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%</small></div></div>
+      <div class="row"><div class="k">PPN {{ p.price.vat_pct }}%</div><div class="v">Rp&nbsp;{{ fin.vat|num }}</div></div>
+      <div class="row money key"><div class="k">Total termasuk PPN</div><div class="v">Rp&nbsp;{{ fin.grand|num }}</div></div>
+    </div>
+    <div class="two bos-split">
+      <div>
+        <h3 class="sect">Termasuk Penawaran</h3>
+        <ul class="bos-list">{% for x in ID.included or [] %}<li>{{ x }}</li>{% endfor %}</ul>
+      </div>
+      <div>
+        <h3 class="sect">Langkah Berikutnya</h3>
+        <ol class="implic">{% for x in ID.next_steps or ['Survei atap dan instalasi listrik rumah.', 'Desain dan penawaran final: daftar material, garansi, dan jadwal.', 'Instalasi dan pengujian.'] %}<li>{{ x }}</li>{% endfor %}</ol>
+      </div>
+    </div>
+    <p class="note">Harga berlaku 14 hari dan dapat berubah setelah survei lokasi.{% for x in ID.prelim_notes or [] %} {{ x }}{% endfor %} Perkiraan produksi untuk hari rata-rata; hasil sebenarnya bergantung pada arah, kemiringan, dan bayangan atap.</p>
+
 {% elif kind == 'ringkasan' %}
     <h2 class="display head">Ringkasan Eksekutif</h2>
     <p class="lead">PT Hexa Multi Energi mengusulkan pembangunan PLTS {{ s.type }} {{ s.mounting|lower }} berkapasitas <b>{{ s.capacity_kwp|kwp }}&nbsp;kWp</b> untuk {{ p.client.name }}. {% if p.client.segment == 'Residential' %}Listrik surya dipakai langsung di siang hari{% if s.battery %}, sisanya disimpan di baterai untuk malam hari{% endif %}{% elif L and L.scr < 0.995 %}Sekitar <b>{{ (L.scr*100)|num }}%</b> listrik surya terpakai oleh {{ 'pabrik' if p.client.segment == 'Industrial' else 'bangunan' }}{% if s.battery %}, langsung atau lewat baterai,{% endif %}{% else %}Seluruh listrik surya dipakai langsung oleh {{ 'pabrik' if p.client.segment == 'Industrial' else 'bangunan' }}{% endif %}{% if L %} dan menggantikan sekitar <b>{{ (L.solar_share*100)|num }}%</b> kWh listrik dari PLN{% endif %}. Penghematan dihitung hanya dari energi yang benar-benar terpakai di lokasi, tanpa kredit ekspor.{% if L %} Setelah PLTS beroperasi, tagihan PLN bulanan Anda turun dari <b>Rp&nbsp;{{ L.monthly_bill|short }}</b> menjadi sekitar <b>Rp&nbsp;{{ L.bill_after|short }}</b>.{% endif %}</p>
