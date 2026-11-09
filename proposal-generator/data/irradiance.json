@@ -201,5 +201,11 @@
     "lon": 112.5239,
     "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-10-24",
     "nasa_power_cross_check_kwh_m2_day": 5.26
+  },
+  "Sorong": {
+    "ghi_kwh_m2_day": 5.02,
+    "lat": -0.8762,
+    "lon": 131.2558,
+    "source": "Global Solar Atlas (Solargis), GHI rata-rata jangka panjang, diambil 2026-11-06"
   }
 }
