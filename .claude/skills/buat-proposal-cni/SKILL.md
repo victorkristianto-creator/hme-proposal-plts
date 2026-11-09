@@ -93,7 +93,7 @@ py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/assemble.py proposal-gene
 
 ```
 py proposal-generator/build.py projects/<id>
-py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/check_pdf.py proposal-generator/output/<id>-v2.pdf
+py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/check_pdf.py proposal-generator/output/<id>.pdf
 ```
 
 `build.py` otomatis menjalankan `check_pdf.py` setelah PDF jadi (matikan dengan `--no-check`) dan mencetak peringatan validasi (`! …`: termin ≠ 100%, jumlah inverter/modul tidak cocok kapasitas, `{kota}` tersisa, harga inverter/baterai kosong, payback di luar 2–15 tahun, layout tidak ditemukan). **Baca dan selesaikan semua peringatan** sebelum melapor.
@@ -115,5 +115,5 @@ Singkat, Bahasa Indonesia:
 - path PDF (dan kirim file ke user);
 - kapasitas, harga, hemat/bulan, payback;
 - asumsi yang dipakai: iradiasi kota X kWh/m²/hari (sumber) × performance ratio 80% × 365 hari, degradasi 1% tahun 1 lalu 0,4%/tahun, O&M 1% investasi/tahun, penggantian inverter tahun 12 (Rp …) dan baterai tahun 10 dan 20 bila ada (rumah tinggal: O&M 0,5% dan baterai sekali di tahun 15), eskalasi tarif 2%/tahun, tanpa ekspor;
-- balik modal, IRR, dan hemat per bulan (hemat per bulan = pengurangan tagihan, sebelum O&M);
+- balik modal, IRR, hemat per bulan (hemat per bulan = pengurangan tagihan, sebelum O&M), dan produksi kWh per bulan (sama dengan baris "Produksi listrik surya" di Ringkasan Eksekutif; keuntungan bersih 25 tahun dan biaya listrik surya/LCOE tidak lagi ditampilkan di Ringkasan);
 - yang masih placeholder/belum ada (layout, datasheet tidak ketemu).

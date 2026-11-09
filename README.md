@@ -41,7 +41,7 @@ Aturan template lengkap ada di [`proposal-generator/TEMPLATE.md`](proposal-gener
    ```
    lalu lampirkan foto/PDF rincian rekening PLN (1–12 bulan) dan sebut nama klien + lokasi bila belum ada di BOQ.
 3. Claude membaca BOQ dan tagihan, mengisi `proposal-generator/projects/<id>/inputs.json`, membangun PDF, memeriksa tiap halaman,
-   dan hanya bertanya sekali untuk data yang kurang. Hasil: `proposal-generator/output/<id>-v2.pdf`.
+   dan hanya bertanya sekali untuk data yang kurang. Hasil: `proposal-generator/output/<id>.pdf`.
 
 ## Mencoba tanpa Claude (cek instalasi)
 
@@ -50,7 +50,7 @@ py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/assemble.py proposal-gene
 py proposal-generator/build.py projects/contoh-industri
 ```
 
-PDF muncul di `proposal-generator/output/contoh-industri-v2.pdf`.
+PDF muncul di `proposal-generator/output/contoh-industri.pdf`.
 
 ## Catatan
 

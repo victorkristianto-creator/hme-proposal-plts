@@ -35,6 +35,10 @@ Tanggal = hari ini (format Indonesia). Revisi "00" (naikkan bila versi sebelumny
 - "Exclude pengiriman" / franco: kurangi baris Delivery/Logistik dari total, hapus "pengiriman" dari `id.included`, dan tambahkan
   `id.prelim_notes: ["Harga franco <Kota>, belum termasuk biaya pengiriman ke lokasi."]`.
 - Kenaikan/diskon persen ("up 30%"): kalikan harga sebelum PPN, bulatkan ke rupiah. Sebut harga lama → baru di laporan.
+- Ongkos kirim/asuransi ke lokasi ditambahkan: `price.breakdown: [["Material dan instalasi", <rp>, ""], ["Ongkos kirim & asuransi", <rp>, "Surabaya – <Kota>"]]`,
+  `price.total` = jumlahnya, `id.price_scope` = "material, instalasi, serta ongkos kirim dan asuransi ke <Kota>", tambah baris di `id.included`,
+  dan ganti catatan franco dengan "Harga sudah termasuk ongkos kirim dan asuransi Surabaya – <Kota>." PPN dihitung dari total.
+- Termin pembayaran: `id.payment_terms` (4 baris `[langkah, "40%", kapan]`, jumlah 100%) tampil di Ringkasan. Tanpa isian → termin standar _base (30/45/20/5).
 
 ## 3. Tulis inputs.json
 
@@ -71,7 +75,7 @@ py proposal-generator/build.py projects/<id>
 ```
 
 Peringatan "tanpa gambar layout" normal (Spesifikasi memakai foto contoh rumah). Selesaikan peringatan lain (`! …`).
-Lalu **lihat** PNG di `proposal-generator/output/.check/<id>-v2/` dengan Read, minimal halaman 1–3:
+Lalu **lihat** PNG di `proposal-generator/output/.check/<id>/` dengan Read, minimal halaman 1–3:
 - urutan halaman sesuai di atas, tidak ada `OVERFLOW?`, tidak ada "None"/"{kota}";
 - cover: nama klien, kota, kapasitas, modul/inverter/baterai, "Nilai penawaran awal Rp … (belum PPN)";
 - ringkasan: harga sebelum PPN, PPN 11%, total = yang dihitung di langkah 2; catatan franco muncul bila ada;

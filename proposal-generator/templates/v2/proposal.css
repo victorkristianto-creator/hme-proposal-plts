@@ -198,6 +198,14 @@ table.data .neg { color: var(--navy); } table.data .pos { color: var(--accent-in
 .layout img { width: 100%; height: 100mm; object-fit: cover; border-radius: 3mm; display: block; }
 .layout figcaption { font-size: 7.8pt; color: var(--muted); margin-top: 1.8mm; }
 .compact-sheet { margin-top: 5mm; }
+/* preliminary summary: system, price breakdown, payment terms and scope on one page */
+.prelim .sheet .row { padding: 1.4mm 2.5mm 1.2mm; }
+.prelim .sheet .v { font-size: 12.5pt; }
+.prelim .sheet .row.key .v { font-size: 16pt; }
+.prelim h3.sect { margin-top: 4.2mm; }
+.prelim .bos-list { font-size: 8.4pt; }
+.prelim .bos-list li { padding: .8mm 0 .8mm 5mm; }
+.prelim .bos-list li::before { top: 2.2mm; }
 .compact-sheet .row { grid-template-columns: 34mm 1fr 26mm; padding: 2mm 2.5mm; }
 .compact-sheet .v { font-size: 12pt; }
 .blogo { max-width: 26mm; max-height: 7mm; justify-self: end; align-self: center; object-fit: contain; }

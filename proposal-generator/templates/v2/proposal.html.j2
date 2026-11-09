@@ -89,7 +89,7 @@
     {% if bos %}<div class="loc">Site {{ site.name }}, {{ loc }}</div>
     <p class="verdict"><b>Material BOS, instalasi, commissioning, dan perizinan</b> oleh HME. Modul surya dan inverter disuplai {{ dev }}.</p>
     {% elif pre %}<div class="loc">{{ loc }}</div>
-    <p class="verdict">Nilai penawaran awal <b>Rp&nbsp;{{ fin.capex|short }}</b> (belum PPN), termasuk material dan instalasi. Harga final setelah survei lokasi.</p>
+    <p class="verdict">Nilai penawaran awal <b>Rp&nbsp;{{ fin.capex|short }}</b> (belum PPN), termasuk {{ ID.price_scope or 'material dan instalasi' }}. Harga final setelah survei lokasi.</p>
     {% else %}<div class="loc">{{ loc }}</div>
     <p class="verdict">Perkiraan hemat <b>Rp&nbsp;{{ fin.monthly_saving|short }} per bulan</b> sejak tahun pertama{% if not pb %}.{% elif fin.payback is not none %}, dengan investasi kembali dalam <b>{{ fin.payback|payback }}</b>.{% else %}, namun investasi belum kembali dalam {{ f.years }} tahun.{% endif %}</p>{% endif %}
   </div>
@@ -128,7 +128,7 @@
 
 {# ================================================================ INNER PAGES #}
 {% else %}
-<section class="page inner {{ kind }}">
+<section class="page inner {{ kind }}{{ ' prelim' if pre }}">
   <header class="runhead"><span class="mark"><img src="{{ photo('hme-logo.webp', 400) }}" alt="">PT Hexa Multi Energi</span><span>{{ 'Ringkasan Penawaran Awal' if pre and kind == 'ringkasan' else titles[kind] }}{% if kind == 'boq' and d.part > 0 %} (lanjutan){% endif %}</span></header>
   <main class="body">
 
@@ -176,11 +176,17 @@
       <div class="row"><div class="k">Modul surya</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp{% if s.panel.model and s.panel.model != s.panel.wp ~ ' Wp' %}<small>{{ s.panel.model }}</small>{% endif %}</div></div>
       <div class="row"><div class="k">Inverter</div><div class="v">{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kW</small></div></div>
       {% if s.battery %}<div class="row"><div class="k">Baterai</div><div class="v">{{ s.battery }}</div></div>{% endif %}
-      <div class="row"><div class="k">Perkiraan produksi</div><div class="v">± {{ fin.y1_energy|num }} kWh/tahun<small>± {{ (fin.y1_energy/12)|num }} kWh per bulan · {{ T.sun }}</small></div></div>
-      <div class="row"><div class="k">Nilai penawaran awal</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%</small></div></div>
+      <div class="row"><div class="k">Perkiraan produksi</div><div class="v">± {{ fin.y1_energy|num }} kWh/tahun<small>± {{ (fin.y1_energy/12)|num }} kWh per bulan</small></div></div>
+      {% if p.price.breakdown %}{% for label, rp, note in p.price.breakdown %}<div class="row"><div class="k">{{ label }}</div><div class="v">Rp&nbsp;{{ rp|num }}{% if note %}<small>{{ note }}</small>{% endif %}</div></div>{% endfor %}
+      <div class="row"><div class="k">Total sebelum PPN</div><div class="v">Rp&nbsp;{{ fin.capex|num }}</div></div>
+      {% else %}<div class="row"><div class="k">Nilai penawaran awal</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%</small></div></div>{% endif %}
       <div class="row"><div class="k">PPN {{ p.price.vat_pct }}%</div><div class="v">Rp&nbsp;{{ fin.vat|num }}</div></div>
       <div class="row money key"><div class="k">Total termasuk PPN</div><div class="v">Rp&nbsp;{{ fin.grand|num }}</div></div>
     </div>
+    {% if ID.payment_terms %}
+    <h3 class="sect">Termin Pembayaran</h3>
+    <div class="terms-pay">{% for step, pct, when in ID.payment_terms %}<div><span>{{ loop.index }} · {{ step }}</span><b>{{ pct }}</b><small>{{ when }}</small></div>{% endfor %}</div>
+    {% endif %}
     <div class="two bos-split">
       <div>
         <h3 class="sect">Termasuk Penawaran</h3>
@@ -191,7 +197,7 @@
         <ol class="implic">{% for x in ID.next_steps or ['Survei atap dan instalasi listrik rumah.', 'Desain dan penawaran final: daftar material, garansi, dan jadwal.', 'Instalasi dan pengujian.'] %}<li>{{ x }}</li>{% endfor %}</ol>
       </div>
     </div>
-    <p class="note">Harga berlaku 14 hari dan dapat berubah setelah survei lokasi.{% for x in ID.prelim_notes or [] %} {{ x }}{% endfor %} Perkiraan produksi untuk hari rata-rata; hasil sebenarnya bergantung pada arah, kemiringan, dan bayangan atap.</p>
+    <p class="note">Harga berlaku 14 hari dan dapat berubah setelah survei lokasi.{% for x in ID.prelim_notes or [] %} {{ x }}{% endfor %} Perkiraan produksi dari {{ T.sun }} ({{ f.irradiance_source or 'iradiasi rata-rata' }}) untuk hari rata-rata; hasil sebenarnya bergantung pada arah, kemiringan, dan bayangan atap.</p>
 
 {% elif kind == 'ringkasan' %}
     <h2 class="display head">Ringkasan Eksekutif</h2>
@@ -201,9 +207,8 @@
       <div class="row"><div class="k">{{ 'Nilai investasi' if pb else 'Nilai penawaran HME' }}</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%{% if cs %} · di luar {{ cs_text }} dari {{ dev }}{% endif %}</small></div></div>
       <div class="row money"><div class="k">Penghematan tahun pertama</div><div class="v">Rp&nbsp;{{ fin.y1_saving|short }}<small>{{ T.y1_monthly }}</small></div></div>
       {% if pb %}<div class="row key"><div class="k">Balik modal</div><div class="v">{{ fin.payback|payback }}</div></div>
-      <div class="row money"><div class="k">{{ 'Keuntungan' if fin.net >= 0 else 'Kerugian' }} bersih {{ f.years }} tahun</div><div class="v">Rp&nbsp;{{ fin.net|abs|short }}<small>{{ fin.roi|abs|num }}% dari investasi</small></div></div>
       {% if fin.irr %}<div class="row"><div class="k">Tingkat pengembalian (IRR)</div><div class="v">{{ (fin.irr*100)|num(1) }}% per tahun<small>imbal hasil tahunan atas investasi</small></div></div>{% endif %}
-      <div class="row"><div class="k">Biaya listrik surya</div><div class="v">Rp&nbsp;{{ fin.lcoe|num }}/kWh<small>dibanding PLN Rp&nbsp;{{ f.pln_tariff_rp_kwh|num }}/kWh</small></div></div>
+      <div class="row"><div class="k">Produksi listrik surya</div><div class="v">± {{ (fin.y1_energy/12)|num }} kWh/bulan<small>{{ fin.y1_energy|num }} kWh di tahun pertama</small></div></div>
       {% else %}<div class="row"><div class="k">Energi surya terpakai</div><div class="v">{{ fin.y1_used|num }} kWh/tahun<small>± {{ (fin.y1_used/12)|num }} kWh per bulan</small></div></div>
       <div class="row money key"><div class="k">Penghematan bersih {{ f.years }} tahun</div><div class="v">Rp&nbsp;{{ fin.total_saving|short }}<small>setelah biaya O&amp;M dan penggantian peralatan</small></div></div>{% endif %}
       <div class="row"><div class="k">Emisi CO₂ dihindari</div><div class="v">{{ fin.co2_y1|num }} ton/tahun<small>setara serapan ± {{ ((fin.trees / 100)|round|int * 100)|num }} pohon dewasa</small></div></div>

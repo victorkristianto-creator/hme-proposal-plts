@@ -19,7 +19,7 @@ dan `performance_ratio` dipakai tetapi iradiasi masih default 4,5. Selesaikan se
 |---|---|---|---|
 | 1 | Cover | selalu | `meta`, `client`, `system`; foto tetap (`hero-roof.webp`, Residential `res-1.webp`) |
 | 2 | Profil Perusahaan | selalu | tetap (company profile HME), `company` |
-| 3 | Ringkasan Eksekutif | selalu | hasil hitung `finance()` |
+| 3 | Ringkasan Eksekutif | selalu | hasil hitung `finance()`: sistem, investasi, hemat tahun 1, balik modal, IRR, produksi kWh/bulan, CO₂ (keuntungan bersih dan biaya listrik surya/LCOE tidak ditampilkan) |
 | 4 | Profil Beban dan Energi | ada `pln_bills` | tagihan PLN + simulasi surya |
 | 4 | Analisis Profil Energi | ada `load`, tanpa `pln_bills` | `load` (tagihan bulanan saja) |
 | 5 | Spesifikasi Sistem | selalu | `system`, `images.layout` (tanpa layout: foto rumah dalam heksagon untuk Residential, kotak 35 mm untuk lainnya) |
@@ -136,6 +136,8 @@ Contoh: `projects/contoh-rumah`.
 Halaman: Cover · (Profil Perusahaan, kecuali Residential) · Ringkasan Penawaran Awal (sistem, perkiraan produksi, harga + PPN,
 `id.included`, `id.next_steps`) · Spesifikasi · Datasheet · Terima Kasih. Tidak perlu `load` atau tagihan; `boq` tetap diisi untuk penawaran final.
 `id.prelim_notes` menambah kalimat di catatan bawah (mis. "Harga franco Surabaya, belum termasuk biaya pengiriman ke lokasi.").
+`price.breakdown: [[label, rp, catatan], ...]` merinci harga sebelum PPN (jumlahnya harus = `price.total`, dicek `build.py`), mis. material + ongkos kirim.
+`id.price_scope` mengganti "material dan instalasi" di kalimat cover. Termin `id.payment_terms` tampil di Ringkasan Penawaran Awal.
 Agent: `/buat-proposal-residensial`. Contoh: `projects/contoh-rumah-awal`.
 
 ## Sebagian Material Disuplai Klien (tanpa balik modal)

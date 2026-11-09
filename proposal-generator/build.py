@@ -1,7 +1,7 @@
 """HME proposal generator.
 
 Usage:  py build.py projects/<id> [v2] [--no-check]
-Reads <project>/project.json and writes output/<slug>-v2.pdf (A4 portrait, Bahasa Indonesia, templates/v2),
+Reads <project>/project.json and writes output/<slug>.pdf (A4 portrait, Bahasa Indonesia, templates/v2),
 prints validation warnings first and runs the skill's check_pdf.py afterwards (--no-check skips it).
 The archived formats (print, slides, ...) are still reachable as the second argument but are no longer maintained.
 """
@@ -1611,6 +1611,9 @@ def validate(p, fin, pdir):
     lay = (p.get("images") or {}).get("layout")
     if lay and not (Path(pdir) / lay).exists():
         w.append(f"Gambar layout tidak ditemukan: {lay}")
+    bd = (p.get("price") or {}).get("breakdown")
+    if bd and abs(sum(x[1] for x in bd) - p["price"]["total"]) > 1:
+        w.append(f"price.breakdown berjumlah Rp {sum(x[1] for x in bd):,.0f}, tetapi price.total = Rp {p['price']['total']:,.0f}.")
     if fin.get("bos"):
         if any("{developer}" in t for t in ID.get("terms") or []):
             w.append("Syarat dan ketentuan masih berisi '{developer}'. Isi client.short_name.")
@@ -1675,7 +1678,8 @@ def render(p, fin, pdir, fmt, out_dir=None):
     html = env.get_template("proposal.html.j2").render(**ctx)
     out_dir = Path(out_dir) if out_dir else ROOT / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{pdir.name}-{fmt}"
+    # The standard template (v2) gets the plain project name; legacy formats keep a suffix.
+    stem = pdir.name if fmt == "v2" else f"{pdir.name}-{fmt}"
     html_path = out_dir / f"{stem}.html"
     pdf_path = out_dir / f"{stem}.pdf"
     html_path.write_text(html, encoding="utf-8")
