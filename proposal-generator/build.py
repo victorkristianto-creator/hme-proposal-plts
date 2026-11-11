@@ -1380,6 +1380,38 @@ def find_chrome():
     sys.exit("Chrome/Edge not found")
 
 
+def shrink_effect_images(doc, dpi=150, above=200):
+    """Chrome rasterises the SVG blur/shadow of the glass hexagons into full-page RGBA bitmaps at 300 dpi (~16 MB decoded
+    each). A soft shadow needs no more than `dpi`: resample colour and alpha together, which cuts the memory a weak laptop
+    or phone has to decode by 4x. The size is taken from the image's largest placement. JPEG photos are left alone."""
+    import io
+    from PIL import Image
+    widest = {}
+    for page in doc:
+        for im in page.get_image_info(xrefs=True):
+            if im["xref"]:
+                widest[im["xref"]] = max(widest.get(im["xref"], 0), (im["bbox"][2] - im["bbox"][0]) / 72)
+    for page in doc:
+        for im in page.get_image_info(xrefs=True):
+            x = im["xref"]
+            if not x or x not in widest:
+                continue
+            wi = widest.pop(x)
+            if wi <= 0 or im["width"] / wi <= above:
+                continue
+            obj = doc.xref_object(x, compressed=True)
+            if "/SMask" not in obj or "DCTDecode" in obj:
+                continue
+            mask = doc.xref_get_key(x, "SMask")[1].split()[0]
+            pm, mk = pymupdf.Pixmap(doc, x), pymupdf.Pixmap(doc, int(mask))
+            size = (max(1, round(pm.width * dpi / (im["width"] / wi))), max(1, round(pm.height * dpi / (im["width"] / wi))))
+            rgb = Image.frombytes("RGB", (pm.width, pm.height), pm.samples).resize(size, Image.LANCZOS)
+            rgb.putalpha(Image.frombytes("L", (mk.width, mk.height), mk.samples).resize(size, Image.LANCZOS))
+            buf = io.BytesIO()
+            rgb.save(buf, "PNG", optimize=True)
+            page.replace_image(x, stream=buf.getvalue())
+
+
 def stamp_datasheets(pdf_path, pages):
     doc = pymupdf.open(pdf_path)
     for idx, (kind, data) in enumerate(pages):
@@ -1390,6 +1422,7 @@ def stamp_datasheets(pdf_path, pages):
                     doc[idx].show_pdf_page(rect, src, pg, keep_proportion=True)
     # No object streams: PDF 1.4 opens in every browser viewer, phone previewer and print driver.
     # No doc.rewrite_images(): it drops the alpha of the glass-hexagon PNGs on the cover.
+    shrink_effect_images(doc)
     tmp = pdf_path.with_suffix(".tmp.pdf")
     doc.save(tmp, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True)
     doc.close()
