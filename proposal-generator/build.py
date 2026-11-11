@@ -1388,8 +1388,10 @@ def stamp_datasheets(pdf_path, pages):
                 for pg, (x, y, w, h) in zip(data["pages"], data["slots"]):
                     rect = pymupdf.Rect(x * MM, y * MM, (x + w) * MM, (y + h) * MM)
                     doc[idx].show_pdf_page(rect, src, pg, keep_proportion=True)
+    # No object streams: PDF 1.4 opens in every browser viewer, phone previewer and print driver.
+    # No doc.rewrite_images(): it drops the alpha of the glass-hexagon PNGs on the cover.
     tmp = pdf_path.with_suffix(".tmp.pdf")
-    doc.save(tmp, garbage=3, deflate=True)
+    doc.save(tmp, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True)
     doc.close()
     tmp.replace(pdf_path)
 

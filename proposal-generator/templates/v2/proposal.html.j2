@@ -73,7 +73,7 @@
   <svg class="art" viewBox="0 0 210 297" aria-hidden="true">
     {{ glasshex('cv', photo('res-1.webp' if p.client.segment == 'Residential' else 'hero-roof.webp', 1800), 178, 167, 160, back_dx=-2, deco=(-0.12, 0.5, 0.42), low=(-1, 10)) }}
   </svg>
-  <div class="brand"><img src="{{ photo('hme-logo.webp', 400) }}" alt="Logo HME"><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
+  <div class="brand"><img src="{{ photo('hme-logo.webp', 240) }}" alt="Logo HME"><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
   <div class="title">
     <h1 class="display">Penawaran {{ 'BOS PLTS' if bos else 'PLTS' }}<span class="sun">{{ s.type }} {{ s.mounting }}</span></h1>
     <p class="sub">{{ 'Material Balance of System dan Instalasi' if bos else 'Penawaran awal · Pembangkit Listrik Tenaga Surya' if pre else 'Pembangkit Listrik Tenaga Surya' }}</p>
@@ -123,13 +123,13 @@
       <div class="wide"><dt>Alamat</dt><dd>Kawasan Citraland, Jl. Taman Puspa Raya, Ruko North Junction Blok RA-25, Sambikerep, Surabaya, Jawa Timur</dd></div>
     </dl>
   </div>
-  <div class="close-foot"><img src="{{ photo('hme-logo.webp', 400) }}" alt="Logo HME"><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
+  <div class="close-foot"><img src="{{ photo('hme-logo.webp', 240) }}" alt="Logo HME"><div><b>PT Hexa Multi Energi</b><span>Clean energy for a better future</span></div></div>
 </section>
 
 {# ================================================================ INNER PAGES #}
 {% else %}
 <section class="page inner {{ kind }}">
-  <header class="runhead"><span class="mark"><img src="{{ photo('hme-logo.webp', 400) }}" alt="">PT Hexa Multi Energi</span><span>{{ 'Ringkasan Penawaran Awal' if pre and kind == 'ringkasan' else titles[kind] }}{% if kind == 'boq' and d.part > 0 %} (lanjutan){% endif %}</span></header>
+  <header class="runhead"><span class="mark"><img src="{{ photo('hme-logo.webp', 240) }}" alt="">PT Hexa Multi Energi</span><span>{{ 'Ringkasan Penawaran Awal' if pre and kind == 'ringkasan' else titles[kind] }}{% if kind == 'boq' and d.part > 0 %} (lanjutan){% endif %}</span></header>
   <main class="body">
 
 {# ---------------------------------------------------------------- tagihan (client's PLN bill, before the pitch) #}
@@ -263,7 +263,7 @@
     <svg class="honey" viewBox="0 0 174 {{ ch * 1.5 + 2 }}" aria-label="Foto proyek industri HME">
       <defs>{% for f_, t, v in projs %}{% set cx = 7 + cw/2 + loop.index0 * cw * 0.75 %}{% set cy = ch/2 + 1 + (ch/2 if loop.index0 % 2 else 0) %}{{ hexclip('pj' ~ loop.index, cx, cy, cw - 1.6, 2.6) }}{% endfor %}</defs>
       {% for f_, t, v in projs %}{% set cx = 7 + cw/2 + loop.index0 * cw * 0.75 %}{% set cy = ch/2 + 1 + (ch/2 if loop.index0 % 2 else 0) %}
-      <image href="{{ photo(f_ ~ '.webp', 700) }}" x="{{ cx - cw/2 }}" y="{{ cy - ch/2 }}" width="{{ cw }}" height="{{ ch }}" preserveAspectRatio="xMidYMid slice" clip-path="url(#pj{{ loop.index }})"/>
+      <image href="{{ photo(f_ ~ '.webp', 520) }}" x="{{ cx - cw/2 }}" y="{{ cy - ch/2 }}" width="{{ cw }}" height="{{ ch }}" preserveAspectRatio="xMidYMid slice" clip-path="url(#pj{{ loop.index }})"/>
       {% endfor %}
     </svg>
     <ol class="projlist">{% for f_, t, v in projs %}<li><b>{{ v }}</b>{{ t }}</li>{% endfor %}</ol>
@@ -271,9 +271,9 @@
 
     <div class="logos-block">
       <h3 class="sect">Klien Kami</h3>
-      <div class="logos clients">{% for c in ['c-ph', 'c-mitra', 'c-sk', 'c-inkasa', 'c-im', 'c-sh', 'c-bravo', 'c-azana', 'c-boncafe', 'c-zhang'] %}<div><img src="{{ photo(c ~ '.webp', 320, 92, true) }}" alt=""></div>{% endfor %}</div>
+      <div class="logos clients">{% for c in ['c-ph', 'c-mitra', 'c-sk', 'c-inkasa', 'c-im', 'c-sh', 'c-bravo', 'c-azana', 'c-boncafe', 'c-zhang'] %}<div><img src="{{ photo(c ~ '.webp', 260, 85, true) }}" alt=""></div>{% endfor %}</div>
       <h3 class="sect">Merek Komponen</h3>
-      <div class="logos brands">{% for c in ['b-jasolar', 'b-trina', 'b-jinko', 'b-huawei', 'b-sungrow', 'b-schneider', 'b-zte', 'b-solarack', 'b-supreme', 'b-kabelindo', 'b-jjlapp', 'b-soeasy'] %}<div><img class="{{ 'sq' if c in ['b-huawei', 'b-supreme', 'b-kabelindo', 'b-jinko'] }}" src="{{ photo(c ~ '.webp', 320, 92, true) }}" alt=""></div>{% endfor %}</div>
+      <div class="logos brands">{% for c in ['b-jasolar', 'b-trina', 'b-jinko', 'b-huawei', 'b-sungrow', 'b-schneider', 'b-zte', 'b-solarack', 'b-supreme', 'b-kabelindo', 'b-jjlapp', 'b-soeasy'] %}<div><img class="{{ 'sq' if c in ['b-huawei', 'b-supreme', 'b-kabelindo', 'b-jinko'] }}" src="{{ photo(c ~ '.webp', 260, 85, true) }}" alt=""></div>{% endfor %}</div>
     </div>
 
 {# ---------------------------------------------------------------- sistem #}
@@ -293,8 +293,8 @@
     {% else %}<figure class="layout pending"><div>Layout atap menyusul setelah survei lokasi</div></figure>{% endif %}
     <div class="sheet compact-sheet">
       {%- set pl_ = brand_logo(s.panel.brand) -%}{%- set il_ = brand_logo(s.inverter.brand) -%}
-      <div class="row"><div class="k">Modul surya{% if bos or 'panel' in cs %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.model }}<small>{{ s.panel.wp }} Wp{% if not bos and 'panel' not in cs %} · Tier-1{% endif %}</small></div>{% if pl_ %}<img class="blogo" src="{{ photo(pl_, 320, 92, true) }}" alt="{{ s.panel.brand }}">{% endif %}</div>
-      <div class="row"><div class="k">Inverter{% if bos or 'inverter' in cs %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ s.inverter.brand }} {{ m.model }}{% if not loop.last %}<br>{% endif %}{% endfor %}<small>total {{ s.capacity_kva|kwp }} kVA</small>{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kVA{% if s.inverter.qty > 1 %} · total {{ s.capacity_kva|kwp }} kVA{% endif %}</small>{% endif %}</div>{% if il_ %}<img class="blogo" src="{{ photo(il_, 320, 92, true) }}" alt="{{ s.inverter.brand }}">{% endif %}</div>
+      <div class="row"><div class="k">Modul surya{% if bos or 'panel' in cs %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.model }}<small>{{ s.panel.wp }} Wp{% if not bos and 'panel' not in cs %} · Tier-1{% endif %}</small></div>{% if pl_ %}<img class="blogo" src="{{ photo(pl_, 260, 85, true) }}" alt="{{ s.panel.brand }}">{% endif %}</div>
+      <div class="row"><div class="k">Inverter{% if bos or 'inverter' in cs %}<small>disuplai {{ dev }}</small>{% endif %}</div><div class="v">{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ s.inverter.brand }} {{ m.model }}{% if not loop.last %}<br>{% endif %}{% endfor %}<small>total {{ s.capacity_kva|kwp }} kVA</small>{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kVA{% if s.inverter.qty > 1 %} · total {{ s.capacity_kva|kwp }} kVA{% endif %}</small>{% endif %}</div>{% if il_ %}<img class="blogo" src="{{ photo(il_, 260, 85, true) }}" alt="{{ s.inverter.brand }}">{% endif %}</div>
       <div class="row"><div class="k">Monitoring</div><div class="v">{{ s.monitoring }}</div></div>
       {% if bos %}{% for k, v, note in ID.bos_specs or [] %}<div class="row"><div class="k">{{ k }}</div><div class="v">{{ v }}{% if note %}<small>{{ note }}</small>{% endif %}</div></div>{% endfor %}
       {% else %}<div class="row"><div class="k">Rasio DC/AC</div><div class="v">{{ (s.capacity_kwp / s.capacity_kva)|num(2) }}<small>{{ fin.specific_yield|num }} kWh/kWp per tahun</small></div></div>{% endif %}

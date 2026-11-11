@@ -1,7 +1,14 @@
 /* HME proposal v2 · A4 portrait · Bahasa Indonesia
    Tokens taken 1:1 from Company Profile 2026 (adedian.github.io/company-profile) */
-@font-face { font-family: "Bricolage"; src: url("../../assets/fonts/bricolage-wdth.woff2") format("woff2"); font-weight: 200 800; font-stretch: 75% 100%; }
-@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree.woff2") format("woff2"); font-weight: 300 900; }
+/* Static weights, not variable fonts: Chrome writes variable fonts into the PDF as Type3 glyph drawings (heavy, soft in some viewers) */
+@font-face { font-family: "Bricolage"; src: url("../../assets/fonts/bricolage-600.woff2") format("woff2"); font-weight: 600; }
+@font-face { font-family: "Bricolage"; src: url("../../assets/fonts/bricolage-700.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Bricolage"; src: url("../../assets/fonts/bricolage-800.woff2") format("woff2"); font-weight: 800; }
+@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree-400.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree-500.woff2") format("woff2"); font-weight: 500; }
+@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree-600.woff2") format("woff2"); font-weight: 600; }
+@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree-700.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Figtree"; src: url("../../assets/fonts/figtree-800.woff2") format("woff2"); font-weight: 800; }
 
 :root {
   --bg: #F3F7FB; --surface: #FFFFFF; --soft: #E7F0F7;
