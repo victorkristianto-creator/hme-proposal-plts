@@ -237,6 +237,11 @@ def load_analysis(p, y1_energy):
 WBP_HOURS = (18, 22)  # PLN peak block (Waktu Beban Puncak)
 
 
+def shaped_load(ld):
+    """True when the project gave real operating hours (not the flat 24 h default derived from bills)."""
+    return bool(ld) and tuple(ld["work_hours"]) != (0, 24)
+
+
 def bill_analysis(p):
     """What one PLN bill (rincian rekening) says about the site: average load per tariff block,
     where the money goes, and which kWh solar can replace. Returns None without a pln_bill block."""
@@ -328,7 +333,14 @@ def chart_bill_day_v2(ba, fin, w=680, h=250):
     per = 12
     n = 24 * per
     hours = [k / per for k in range(n + 1)]
-    load = [ba["kw_wbp"] if a <= t < b_ else ba["kw_lwbp"] for t in hours]
+    ld = fin.get("load")
+    shaped = shaped_load(ld)
+    if shaped:  # operating hours were given: draw the working-day load the savings are computed on
+        ws, we = ld["work_hours"]
+        off_kw = ld["load_kw"] * ld["base_pct"] / 100
+        load = [ld["load_kw"] if ws <= t < we else off_kw for t in hours]
+    else:
+        load = [ba["kw_wbp"] if a <= t < b_ else ba["kw_lwbp"] for t in hours]
     pv = [pv_kw(t, clear_day_kwh(fin["y1_energy"]), fin.get("kva")) for t in hours]  # same clear-day curve as the load analysis
     solar = [min(l, v) for l, v in zip(load, pv)]
     batt = fin.get("batt_kwh") or 0
@@ -368,8 +380,13 @@ def chart_bill_day_v2(ba, fin, w=680, h=250):
     out += battery_labels(X, Y, hours, load, solar, charge, dis)
     k = int(7.5 * per)
     out.append(f'<text x="{X(hours[k]) - 10:.1f}" y="{Y(grid[k]) + 4:.1f}" text-anchor="end" class="lbl grid-l">Dari PLN</text>')
-    out.append(f'<text x="{X(3):.1f}" y="{Y(ba["kw_lwbp"]) - 9:.1f}" text-anchor="middle" class="lbl load-l">Beban LWBP ± {fnum(ba["kw_lwbp"])} kW</text>')
-    out.append(f'<text x="{X((a + b_) / 2):.1f}" y="{Y(ba["kw_wbp"]) - 9:.1f}" text-anchor="middle" class="lbl load-l">WBP ± {fnum(ba["kw_wbp"])} kW</text>')
+    if shaped:
+        out.append(f'<text x="{X(3):.1f}" y="{Y(off_kw) - 9:.1f}" text-anchor="middle" class="lbl load-l">Di luar jam kerja ± {fnum(off_kw)} kW</text>')
+        out.append(f'<text x="{X((we + 24) / 2):.1f}" y="{Y(off_kw) - 9:.1f}" text-anchor="middle" class="lbl load-l">± {fnum(off_kw)} kW</text>')
+        out.append(f'<text x="{X(ws + 1.5):.1f}" y="{Y(ld["load_kw"]) - 9:.1f}" text-anchor="middle" class="lbl load-l">Jam kerja ± {fnum(ld["load_kw"])} kW</text>')
+    else:
+        out.append(f'<text x="{X(3):.1f}" y="{Y(ba["kw_lwbp"]) - 9:.1f}" text-anchor="middle" class="lbl load-l">Beban LWBP ± {fnum(ba["kw_lwbp"])} kW</text>')
+        out.append(f'<text x="{X((a + b_) / 2):.1f}" y="{Y(ba["kw_wbp"]) - 9:.1f}" text-anchor="middle" class="lbl load-l">WBP ± {fnum(ba["kw_wbp"])} kW</text>')
     out.append("</svg>")
     return "\n".join(out)
 
@@ -1645,7 +1662,7 @@ def render(p, fin, pdir, fmt, out_dir=None):
     env.filters.update(num=fnum, rp=frp, kwp=fkwp, short=fshort_id if fmt == "v2" else fshort,
                        payback=lambda x: fpayback(x, years), payback_short=lambda x: fpayback(x, years, True))
     env.globals.update(photo=photo, pphoto=lambda rel, px=2000, q=88: project_photo(pdir, rel, px, q),
-                       brand_logo=brand_logo)
+                       brand_logo=brand_logo, shaped_load=shaped_load)
     ctx = dict(p=p, fin=fin, pages=pages, total_pages=len(pages), C=C, fmt=fmt,
                root=ROOT.as_uri(), pdir=pdir.as_uri(), hexp=hex_path, terms=final_terms(p))
     if fmt == "v2" and is_bos(p):

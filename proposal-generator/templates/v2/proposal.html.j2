@@ -147,7 +147,7 @@
     <div class="block">
       <h3>Profil Daya Harian: Beban, Surya, dan PLN</h3>
       {{ chart_billday2|safe }}
-      <p class="note">Beban dari rata-rata LWBP/WBP di rekening. Area kuning = dipasok PLTS pada hari cerah, garis navy = yang masih dibeli dari PLN.{% if s.battery_kwh %} Area hijau muda = kelebihan surya yang mengisi baterai, area hijau tua = baterai memasok beban.{% endif %} Penghematan dihitung dari campuran hari cerah, berawan, dan hujan. Bentuk beban per jam yang sebenarnya kami pastikan dengan data AMR PLN atau logger saat survei.</p>
+      <p class="note">{% if shaped_load(L) %}Hari kerja ({{ days_id }}, {{ '%02d'|format(L.work_hours[0]) }}.00–{{ '%02d'|format(L.work_hours[1]) }}.00). Beban dibagi dari total kWh rekening ke jam kerja; di luar jam kerja ± {{ L.base_pct|num }}% beban jam kerja.{% else %}Beban dari rata-rata LWBP/WBP di rekening.{% endif %} Area kuning = dipasok PLTS pada hari cerah, garis navy = yang masih dibeli dari PLN.{% if s.battery_kwh %} Area hijau muda = kelebihan surya yang mengisi baterai, area hijau tua = baterai memasok beban.{% endif %} Penghematan dihitung dari campuran hari cerah, berawan, dan hujan. Bentuk beban per jam yang sebenarnya kami pastikan dengan data AMR PLN atau logger saat survei.</p>
     </div>
     <div class="two bill-split">
       <div class="sheet compact-sheet bill">
@@ -159,8 +159,8 @@
         <h3>Artinya untuk PLTS</h3>
         <ol class="implic">
           {%- set wbp_ratio = (b.wbp_rp_kwh / b.lwbp_rp_kwh) if b.lwbp_rp_kwh else 1 -%}
-          {% if fin.scr >= 0.995 %}<li>Beban {{ 'merata siang dan malam' if ba.flat else 'berubah antar blok waktu' }}, ± {{ ba.kw_lwbp|num }}&nbsp;kW di jam surya, di atas puncak daya PLTS {{ L.pv_peak_kw|num }}&nbsp;kW pada hari cerah. Semua listrik surya terpakai sendiri, tanpa ekspor.</li>
-          {% else %}<li>Beban {{ 'merata siang dan malam' if ba.flat else 'berubah antar blok waktu' }}, ± {{ ba.kw_lwbp|num }}&nbsp;kW di jam surya. Pada sebagian jam, daya PLTS (puncak {{ L.pv_peak_kw|num }}&nbsp;kW pada hari cerah) melebihi beban, jadi hanya {{ (fin.scr*100)|num }}% produksi yang terpakai sendiri. Hanya bagian itu yang dihitung sebagai penghematan, tanpa ekspor.</li>{% endif %}
+          {% if fin.scr >= 0.995 %}<li>{% if shaped_load(L) %}Beban mengikuti jam kerja, ± {{ L.load_kw|num }}&nbsp;kW di jam surya{% else %}Beban {{ 'merata siang dan malam' if ba.flat else 'berubah antar blok waktu' }}, ± {{ ba.kw_lwbp|num }}&nbsp;kW di jam surya{% endif %}, di atas puncak daya PLTS {{ L.pv_peak_kw|num }}&nbsp;kW pada hari cerah. Semua listrik surya terpakai sendiri, tanpa ekspor.</li>
+          {% else %}<li>{% if shaped_load(L) %}Beban mengikuti jam kerja, ± {{ L.load_kw|num }}&nbsp;kW di jam surya{% else %}Beban {{ 'merata siang dan malam' if ba.flat else 'berubah antar blok waktu' }}, ± {{ ba.kw_lwbp|num }}&nbsp;kW di jam surya{% endif %}. Pada sebagian jam, daya PLTS (puncak {{ L.pv_peak_kw|num }}&nbsp;kW pada hari cerah) melebihi beban, jadi hanya {{ (fin.scr*100)|num }}% produksi yang terpakai sendiri. Hanya bagian itu yang dihitung sebagai penghematan, tanpa ekspor.</li>{% endif %}
           <li>PLTS menggantikan kWh LWBP, jadi penghematan dihitung pada Rp&nbsp;{{ ba.solar_rp_kwh|num }}/kWh (LWBP + PPJ), bukan harga rata-rata Rp&nbsp;{{ ba.rp_kwh|num }}.</li>
           <li>WBP hanya {{ (ba.wbp_share*100)|num }}% dari kWh tapi {{ (ba.wbp_rp_share*100)|num }}% dari biaya energi{% if wbp_ratio|round(2) != 1 %}; tarifnya {{ wbp_ratio|num(1) }}× LWBP{% endif %}.</li>
         </ol>
