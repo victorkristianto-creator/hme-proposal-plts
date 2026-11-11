@@ -5,6 +5,7 @@ Reads <project>/project.json and writes output/<slug>.pdf (A4 portrait, Bahasa I
 prints validation warnings first and runs the skill's check_pdf.py afterwards (--no-check skips it).
 The archived formats (print, slides, ...) are still reachable as the second argument but are no longer maintained.
 """
+import copy
 import datetime
 import hashlib
 import json
@@ -178,7 +179,11 @@ def load_analysis(p, y1_energy):
     workdays = [d for d in DAYS if not (d == "Sat" and not ld.get("saturday", True)) and not (d == "Sun" and not ld.get("sunday", False))]
     base = ld.get("base_load_pct", 0) / 100
 
+    sat = ld.get("saturday_hours")  # shorter Saturday, e.g. [7, 12] for an office open half a day
+
     def is_work(d, h):
+        if d == "Sat" and sat:
+            return d in workdays and sat[0] <= h < sat[1]
         return d in workdays and ws <= h < we
 
     # solve working-hour load L so the week's consumption matches the monthly bill
@@ -223,7 +228,7 @@ def load_analysis(p, y1_energy):
     return dict(
         monthly_kwh=monthly_kwh, monthly_bill=monthly_bill,
         bill_given=bool(ld.get("monthly_bill_rp")),
-        work_hours=(ws, we), workdays=workdays, base_pct=base * 100,
+        work_hours=(ws, we), workdays=workdays, base_pct=base * 100, saturday_hours=sat,
         load_kw=L, pv_peak_kw=pv_kw(12.0, clear_day_kwh(y1_energy), kva),
         scr=scr, solar_share=used_month / monthly_kwh,  # share of the site's kWh that solar replaces
         used_month=used_month, pv_month=y1_energy / 12,
@@ -528,7 +533,7 @@ def nb(s):
 
 
 def fkwp(x):
-    return fnum(x, 0 if float(x).is_integer() else 1 if round(x, 1) == round(x, 2) or x >= 10 else 2)
+    return fnum(x, 0 if float(x).is_integer() else 1 if round(x, 1) == round(x, 2) or x >= 100 else 2)
 
 
 def fdec(x):
@@ -1317,9 +1322,54 @@ def datasheet_pages(p, pdir, fmt):
     return out
 
 
+def boq_priced(p):
+    """BOQ rows carry a unit price as 5th field: [item, qty, unit, spec, unit_price_rp]."""
+    return any(len(it) > 4 and isinstance(it[4], (int, float)) for sec in p.get("boq") or [] for it in sec["items"])
+
+
 def is_preliminary(p):
     """Preliminary offer (meta.preliminary): system and price only — no savings, payback, price page, BOQ or warranty."""
     return bool((p.get("meta") or {}).get("preliminary"))
+
+
+def _merge(base, extra):
+    out = copy.deepcopy(base)
+    for k, v in extra.items():
+        out[k] = _merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else copy.deepcopy(v)
+    return out
+
+
+def option_projects(p):
+    """Multi-option offer (p.options, v2 full mode): one project per option = the base merged with that option
+    (system, price, boq, images, datasheets, id.*). Lists replace, dicts merge."""
+    out = []
+    for i, o in enumerate(p.get("options") or []):
+        po = _merge({k: v for k, v in p.items() if k != "options"}, {k: v for k, v in o.items() if k != "label"})
+        letter = chr(65 + i)
+        po["option"] = dict(index=i, letter=letter, label=o.get("label") or f"Opsi {letter}")
+        out.append(po)
+    return out
+
+
+def build_pages_options(opts, pdir):
+    """One proposal, several options: cover and comparison once, then summary, system, price and BOQ per option,
+    then warranty, the datasheets of all options (each file once) and the closing page."""
+    pages = [("cover", {}), ("opsi", {})]
+    for i, o in enumerate(opts):
+        pages += [("ringkasan", dict(opt=i)), ("sistem", dict(opt=i)), ("harga", dict(opt=i))]
+        boq = o["p"].get("id", {}).get("boq") or o["p"]["boq"]
+        for k, chunk in enumerate(boq_pages_v2(boq)):
+            pages.append(("boq", dict(sections=chunk, part=k, opt=i)))
+    pages.append(("garansi", {}))
+    seen, ds_all = set(), []
+    for o in opts:
+        for ds in o["p"].get("datasheets", []):
+            if ds["file"] not in seen:
+                seen.add(ds["file"])
+                ds_all.append(ds)
+    pages += [("datasheet", ds) for ds in datasheet_pages(dict(datasheets=ds_all), pdir, "v2")]
+    pages.append(("penutup", {}))
+    return pages
 
 
 def build_pages(p, pdir, fmt):
@@ -1328,6 +1378,9 @@ def build_pages(p, pdir, fmt):
         if p["client"].get("segment") != "Residential":
             pages.append(("tentang", {}))
         pages += [("ringkasan", {}), ("sistem", {})]
+        if boq_priced(p):  # a priced BOQ is shown even in a preliminary offer
+            for i, chunk in enumerate(boq_pages_v2(p["boq"])):
+                pages.append(("boq", dict(sections=chunk, part=i)))
         pages += [("datasheet", ds) for ds in datasheet_pages(p, pdir, fmt)]
         pages.append(("penutup", {}))
         return pages
@@ -1397,16 +1450,34 @@ def find_chrome():
     sys.exit("Chrome/Edge not found")
 
 
-def stamp_datasheets(pdf_path, pages):
+DS_DPI, DS_JPEG_Q = 150, 70        # datasheet pages are placed as JPEG pictures (light, fast in Chrome/Edge)
+IMG_DPI, IMG_JPEG_Q = 140, 70      # every other picture in the final PDF is capped at this resolution
+
+
+def stamp_datasheets(pdf_path, pages, light=True):
+    """Place the datasheet pages in their slots. light (default): each source page as one JPEG at DS_DPI,
+    so a heavy vector datasheet does not make the proposal slow to open; light=False keeps them as vectors."""
     doc = pymupdf.open(pdf_path)
     for idx, (kind, data) in enumerate(pages):
         if kind == "datasheet":
             with pymupdf.open(data["src"]) as src:
                 for pg, (x, y, w, h) in zip(data["pages"], data["slots"]):
                     rect = pymupdf.Rect(x * MM, y * MM, (x + w) * MM, (y + h) * MM)
-                    doc[idx].show_pdf_page(rect, src, pg, keep_proportion=True)
+                    if light:
+                        sp = src[pg]
+                        zoom = min(rect.width / sp.rect.width, rect.height / sp.rect.height) * DS_DPI / 72
+                        pix = sp.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
+                        doc[idx].insert_image(rect, stream=pix.tobytes("jpeg", jpg_quality=DS_JPEG_Q), keep_proportion=True)
+                    else:
+                        doc[idx].show_pdf_page(rect, src, pg, keep_proportion=True)
+    if light:  # Chrome rasterises SVG filters and some photos larger than needed: cap them, then drop unused font glyphs
+        try:
+            doc.rewrite_images(dpi_threshold=IMG_DPI + 10, dpi_target=IMG_DPI, quality=IMG_JPEG_Q, lossy=True, lossless=True)
+        except AttributeError:  # PyMuPDF < 1.24.10
+            pass
+        doc.subset_fonts()
     tmp = pdf_path.with_suffix(".tmp.pdf")
-    doc.save(tmp, garbage=3, deflate=True)
+    doc.save(tmp, garbage=4, deflate=True, clean=light)
     doc.close()
     tmp.replace(pdf_path)
 
@@ -1655,8 +1726,8 @@ def validate(p, fin, pdir):
 
 
 # ---------------------------------------------------------------- render
-def render(p, fin, pdir, fmt, out_dir=None):
-    pages = build_pages(p, pdir, fmt)
+def render(p, fin, pdir, fmt, out_dir=None, opts=None, light=True):
+    pages = build_pages_options(opts, pdir) if opts else build_pages(p, pdir, fmt)
     years = p["financial"]["years"]
     env = Environment(loader=FileSystemLoader(ROOT / "templates" / fmt), autoescape=True)
     env.filters.update(num=fnum, rp=frp, kwp=fkwp, short=fshort_id if fmt == "v2" else fshort,
@@ -1679,6 +1750,10 @@ def render(p, fin, pdir, fmt, out_dir=None):
             chart_sched2=chart_schedule_v2(p.get("id", {}).get("schedule") or p["schedule"]),
             days_id=describe_days_id(fin["load"]["workdays"]) if fin["load"] else "",
         )
+        if opts:  # per-option pages rebind p / fin / chart_cash from here (see the top of the page loop)
+            for o in opts:
+                o["chart_cash"] = chart_cashline(o["fin"], upper=esc_upper(o["p"], o["fin"]))
+            ctx.update(opts=opts)
     else:  # archived templates (print, slides, ...) still want their own charts
         ctx.update(
             chart_cum=chart_cumulative(fin, h=FORMATS[fmt]["cum_h"]),
@@ -1703,7 +1778,7 @@ def render(p, fin, pdir, fmt, out_dir=None):
     subprocess.run([find_chrome(), "--headless=new", "--disable-gpu", "--no-pdf-header-footer",
                     "--virtual-time-budget=5000", f"--print-to-pdf={pdf_path}", html_path.as_uri()],
                    check=True, capture_output=True)
-    stamp_datasheets(pdf_path, pages)
+    stamp_datasheets(pdf_path, pages, light)
     print(f"Wrote {pdf_path} ({len(pages)} pages, {pdf_path.stat().st_size / 1e6:.1f} MB)")
     return pdf_path
 
@@ -1720,7 +1795,7 @@ def run_check(pdf_path):
         print(r.stderr.rstrip())
 
 
-def main(project_dir, which="v2", out_dir=None, check=True):
+def main(project_dir, which="v2", out_dir=None, check=True, light=True):
     pdir = (ROOT / project_dir).resolve()
     p = json.loads((pdir / "project.json").read_text(encoding="utf-8"))
     if is_bos(p):
@@ -1734,10 +1809,24 @@ def main(project_dir, which="v2", out_dir=None, check=True):
             print(f"Preliminary Rp {fin['capex']:,.0f} · produksi {fin['y1_energy']:,.0f} kWh/tahun")
         else:
             print(f"Payback {pb_txt} · ROI {fin['roi']:.0f}% · LCOE Rp {fin['lcoe']:.0f}/kWh")
-    for msg in validate(p, fin, pdir):
-        print(f"  ! {msg}")
+    opts = None
+    if p.get("options") and not is_bos(p):  # one proposal, several options: each option is a full project
+        opts = []
+        for po in option_projects(p):
+            fo = finance(po)
+            opts.append(dict(p=po, fin=fo, label=po["option"]["label"], letter=po["option"]["letter"]))
+            pb = fo["payback"]
+            print(f"  Opsi {po['option']['letter']} ({po['option']['label']}): Rp {fo['capex']:,.0f} · payback "
+                  + (f"{pb:.2f} yr" if pb is not None else "-") + f" · hemat Rp {fo['monthly_saving']:,.0f}/bln")
+            for msg in validate(po, fo, pdir):
+                print(f"  ! Opsi {po['option']['letter']}: {msg}")
+        p, fin = opts[0]["p"], opts[0]["fin"]
+        which = "v2"
+    else:
+        for msg in validate(p, fin, pdir):
+            print(f"  ! {msg}")
     for fmt in (FORMATS if which == "all" else [which]):
-        pdf = render(p, fin, pdir, fmt, out_dir)
+        pdf = render(p, fin, pdir, fmt, out_dir, opts, light)
         if check and fmt == "v2":
             run_check(pdf)
 
@@ -1747,4 +1836,5 @@ if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     main(args[0] if args else "projects/contoh-industri",
          args[1] if len(args) > 1 else "v2",  # v2 = standard template since 2026-10-22
-         check="--no-check" not in sys.argv)
+         check="--no-check" not in sys.argv,
+         light="--full" not in sys.argv)  # --full: vector datasheets and pictures as Chrome wrote them (print shop)

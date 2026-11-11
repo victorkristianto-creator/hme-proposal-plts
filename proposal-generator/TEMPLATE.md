@@ -173,3 +173,18 @@ Halaman: Cover · Profil Perusahaan · Ringkasan Penawaran · Spesifikasi Sistem
 Bagian tetap ada di blok `developer` pada `projects/_base/project.json`, digabung oleh `assemble.py` hanya untuk segmen ini. Input tambahan: `site.name`, `site.short_name`,
 `system.panel.spare`, `id.bos_specs`, `id.included`. `system.panel.model` boleh kosong. Tanpa `pln_bills`, `load`, dan harga penggantian: `build.py` memakai `finance_bos()` (harga, PPN, Rp/Wp saja)
 dan memperingatkan bila BOQ masih memuat modul atau inverter.
+
+## Beberapa Opsi dalam Satu Proposal (`options`)
+
+`options: [{label, system?, price?, boq?, images?, financial?, datasheets?, id?}, ...]` di project.json. Tiap opsi = proyek dasar
+digabung dengan isi opsinya (dict digabung, list diganti); isi `system`/`price`/`boq` tingkat atas dengan opsi pertama agar assemble lolos.
+Halaman: Cover (rentang kapasitas, hemat, balik modal) · Perbandingan Opsi (`id.options_lead`, `id.options_notes`) ·
+per opsi: Ringkasan Eksekutif, Spesifikasi, Penawaran Harga, Daftar Material (berlabel "Opsi A/B") · Garansi dan Jadwal ·
+datasheet semua opsi (tiap file sekali) · Terima Kasih. `load.saturday_hours: [7, 12]` = jam kerja Sabtu yang lebih pendek.
+`price.preliminary: true` = harga disebut "preliminary" (cover, perbandingan, ringkasan, halaman harga) tanpa masuk mode penawaran awal.
+`client.attention` = penerima di cover ("u.p. …").
+
+## Ukuran File
+
+Default `build.py` = PDF ringan untuk Chrome/Edge: halaman datasheet sebagai JPEG (`DS_DPI` 150), gambar lain dibatasi `IMG_DPI` 140,
+font di-subset, `garbage=4`. `py build.py projects/<id> --full` = datasheet vektor dan gambar apa adanya (untuk percetakan).

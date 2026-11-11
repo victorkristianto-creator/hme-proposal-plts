@@ -90,6 +90,9 @@ Tanggal = hari ini (format Indonesia). Revisi "00" (naikkan bila versi sebelumny
 - `boq`: gaya `/buat-proposal-cni`, tanpa harga, bagian dan spesifikasi dari BOQ (Bahasa Indonesia, satuan mm²).
 - Datasheet: cari di `datasheet/<merek>/` (juga subfolder, mis. `solax/x1`, `solax/x3`, `solax/off grid`, `solax/batrai`), cek model di isi PDF (PyMuPDF).
   Lampirkan modul (hanya bila tipe sama persis), inverter, dan baterai. Datasheet baru dari user → salin ke subfolder merek yang sesuai. Tidak ketemu → lewati dan sebut di laporan.
+- Beberapa opsi untuk satu klien dalam **satu** proposal ("1 proposal 2 opsi"): `options: [{label, system, price, boq, images, financial, id}, ...]`; tingkat atas diisi opsi pertama. Hasilnya: Cover · Perbandingan Opsi (`id.options_lead`, `id.options_notes`) · Ringkasan/Spesifikasi/Harga/BOQ per opsi · Garansi · Datasheet. Lihat TEMPLATE.md.
+- Kantor buka setengah hari Sabtu: `load.saturday_hours: [7, 12]`. Harga disebut preliminary tapi hemat tetap dihitung: `price.preliminary: true`. Nama penerima di cover: `client.attention` (mis. "Pak Budi" → "u.p. Pak Budi").
+- Tanpa biaya ganti inverter/baterai di proyeksi (bila user minta): `financial.inverter_replacement_years: []`, `battery_replacement_years: []`.
 - Mode penawaran awal: tambah `meta.preliminary: true`, ganti `id` dengan `included`, `next_steps`, `prelim_notes`; tanpa `load` dan `financial`.
 
 ## 4. Rakit, build, cek
@@ -98,6 +101,8 @@ Tanggal = hari ini (format Indonesia). Revisi "00" (naikkan bila versi sebelumny
 py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/assemble.py proposal-generator <id> proposal-generator/projects/<id>/inputs.json
 py proposal-generator/build.py projects/<id>
 ```
+
+**Ukuran file.** Klien membuka PDF di Chrome/Edge (Windows 10+), jadi `build.py` langsung membuat versi ringan: halaman datasheet ditempel sebagai JPEG 150 dpi, semua gambar dibatasi 140 dpi, font di-subset. Foto/layout mentah dari user (PNG/JPG besar, tangkapan 3D) tidak perlu dikompres sendiri: salin ke `projects/<id>/img/`, generator memperkecilnya. Target ≤ 3–4 MB untuk ± 15–20 halaman; lebih besar → cari gambar atau datasheet yang berat. `--full` (datasheet vektor, gambar asli) hanya bila user minta untuk cetak. Sebut ukuran PDF di laporan.
 
 Selesaikan peringatan (`! …`). Lalu **lihat** PNG di `proposal-generator/output/.check/<id>/` dengan Read, minimal halaman 1–4 dan Garansi:
 - urutan halaman sesuai mode, tidak ada `OVERFLOW?`, tidak ada "None"/"{kota}";
@@ -111,4 +116,4 @@ Selesaikan peringatan (`! …`). Lalu **lihat** PNG di `proposal-generator/outpu
 
 Singkat, Bahasa Indonesia: path PDF (dan kirim file ke user), sistem, harga sebelum PPN / PPN / total, hemat tahun pertama (± per bulan),
 tagihan sebelum → sesudah, balik modal, IRR, produksi (kWh/tahun dan ± kWh/bulan), yang diasumsikan (kota, tarif, pemakaian, model inverter, nomor),
-dan datasheet yang tidak ketemu. Beberapa paket untuk klien yang sama → satu proyek per paket, nomor berurutan, laporkan dalam satu tabel.
+datasheet yang tidak ketemu, dan ukuran PDF. Beberapa paket untuk klien yang sama → satu proyek per paket, nomor berurutan, laporkan dalam satu tabel.

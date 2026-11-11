@@ -16,13 +16,15 @@
 {#- preliminary offer (meta.preliminary): system and price only, no savings, price page, BOQ or warranty -#}
 {%- set pre = p.meta.get('preliminary') -%}
 {%- set cs = s.get('client_supplied') or [] -%}
+{#- price.preliminary: the price is stated as preliminary (final after survey / detailed design), savings stay -#}
+{%- set ppre = p.price.get('preliminary') -%}
 {%- set cs_names = {'panel': 'modul surya', 'inverter': 'inverter', 'battery': 'baterai'} -%}
 {%- set cs_ns = namespace(names=[]) -%}{%- for k in cs -%}{%- set cs_ns.names = cs_ns.names + [cs_names[k]] -%}{%- endfor -%}
 {%- set cs_text = cs_ns.names|join(' dan ') -%}
 {%- set titles = {
   'tagihan': 'Profil Beban dan Energi', 'ringkasan': 'Ringkasan Eksekutif', 'bos': 'Ringkasan Penawaran', 'tentang': 'Profil Perusahaan', 'sistem': 'Spesifikasi Sistem', 'energi': 'Analisis Profil Energi',
   'penghematan': 'Analisis Penghematan', 'proyeksi': 'Proyeksi Arus Kas' if pb else 'Proyeksi Penghematan', 'harga': 'Penawaran Harga', 'lingkup': 'Lingkup Pekerjaan',
-  'boq': 'Daftar Material', 'garansi': 'Garansi dan Jadwal', 'datasheet': 'Lampiran Datasheet',
+  'boq': 'Daftar Material', 'opsi': 'Perbandingan Opsi', 'garansi': 'Garansi dan Jadwal', 'datasheet': 'Lampiran Datasheet',
 } -%}
 {%- macro tick() -%}<svg class="tick" viewBox="0 0 16 16" aria-label="ya"><path d="M3.5 8.4l3 3 6-6.8"/></svg>{%- endmacro -%}
 {%- macro hexclip(id, cx, cy, w, r=4) -%}<clipPath id="{{ id }}"><path d="{{ hexp(cx, cy, w, r) }}"/></clipPath>{%- endmacro -%}
@@ -65,6 +67,8 @@
 <body>
 {% for kind, d in pages %}
 {% set n = loop.index %}
+{#- multi-option offer: a page tagged with d.opt shows that option's project and numbers -#}
+{%- if opts and d.opt is defined %}{% set O = opts[d.opt] %}{% set p = O.p %}{% set fin = O.fin %}{% set s = O.p.system %}{% set L = O.fin.load %}{% set ID = O.p.get('id', {}) %}{% set T = O.fin.txt %}{% set plan = O.fin.plan %}{% set chart_cash = O.chart_cash %}{% set optsfx = ' · Opsi ' ~ O.letter %}{% else %}{% set optsfx = '' %}{% endif %}
 
 {# ================================================================ COVER #}
 {% if kind == 'cover' %}
@@ -78,18 +82,32 @@
     <h1 class="display">Penawaran {{ 'BOS PLTS' if bos else 'PLTS' }}<span class="sun">{{ s.type }} {{ s.mounting }}</span></h1>
     <p class="sub">{{ 'Material Balance of System dan Instalasi' if bos else 'Penawaran awal · Pembangkit Listrik Tenaga Surya' if pre else 'Pembangkit Listrik Tenaga Surya' }}</p>
   </div>
+  {% if opts %}
+  {%- set o1, o2 = opts[0], opts[-1] -%}
+  <dl class="specs">
+    <div class="cap multi"><dt>{{ opts|length }} opsi kapasitas</dt><dd>{% for o in opts %}{{ o.p.system.capacity_kwp|kwp }}{% if not loop.last %}<span class="slash">/</span>{% endif %}{% endfor %} <small>kWp</small></dd></div>
+    <div><dt>Modul surya</dt><dd>{% for o in opts %}{{ o.p.system.panel.qty|num }}{% if not loop.last %} / {% endif %}{% endfor %} × {{ s.panel.brand }} {{ s.panel.wp }} Wp</dd></div>
+    <div><dt>Inverter</dt><dd>{{ s.inverter.brand }} {% for o in opts %}{{ o.p.system.inverter.kva|kwp }}{% if not loop.last %} / {% endif %}{% endfor %} kVA</dd></div>
+    {% if s.battery %}<div><dt>Baterai</dt><dd>{{ s.battery }}</dd></div>{% endif %}
+  </dl>
+  {% else %}
   <dl class="specs">
     <div class="cap"><dt>Kapasitas</dt><dd>{{ s.capacity_kwp|kwp }} <small>kWp</small></dd></div>
     <div><dt>Modul surya{% if bos or 'panel' in cs %} · disuplai {{ dev }}{% endif %}</dt><dd>{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp</dd></div>
     <div><dt>Inverter{% if bos or 'inverter' in cs %} · disuplai {{ dev }}{% endif %}</dt><dd>{% if s.inverter.get("mix") %}{% for m in s.inverter.mix %}{{ m.qty }} × {{ m.kva|kwp }}{% if not loop.last %} + {% endif %}{% endfor %} kVA {{ s.inverter.brand }}{% else %}{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.kva|kwp }} kVA{% endif %}</dd></div>
     {% if s.battery %}<div><dt>Baterai{% if 'battery' in cs %} · disuplai {{ dev }}{% endif %}</dt><dd>{{ s.battery }}</dd></div>{% endif %}
   </dl>
+  {% endif %}
   <div class="client-block">
     <div class="client">{{ p.client.name }}</div>
+    {% if p.client.attention %}<div class="attn">u.p. {{ p.client.attention }}</div>{% endif %}
     {% if bos %}<div class="loc">Site {{ site.name }}, {{ loc }}</div>
     <p class="verdict"><b>Material BOS, instalasi, commissioning, dan perizinan</b> oleh HME. Modul surya dan inverter disuplai {{ dev }}.</p>
     {% elif pre %}<div class="loc">{{ loc }}</div>
     <p class="verdict">Nilai penawaran awal <b>Rp&nbsp;{{ fin.capex|short }}</b> (belum PPN), termasuk {{ ID.price_scope or 'material dan instalasi' }}. Harga final setelah survei lokasi.</p>
+    {% elif opts %}<div class="loc">{{ loc }}</div>
+    {%- set sv = opts|map(attribute='fin.monthly_saving')|list -%}{%- set pbs = opts|map(attribute='fin.payback')|reject('none')|list -%}
+    <p class="verdict">{{ opts|length }} opsi sistem, dengan perkiraan hemat <b>Rp&nbsp;{{ sv|min|short }}–{{ sv|max|short }} per bulan</b> sejak tahun pertama{% if pbs|length == opts|length %} dan balik modal dalam <b>{{ pbs|min|num(1) }}–{{ pbs|max|payback }}</b>{% endif %}.{% if ppre %} Harga preliminary, final setelah survei.{% endif %}</p>
     {% else %}<div class="loc">{{ loc }}</div>
     <p class="verdict">Perkiraan hemat <b>Rp&nbsp;{{ fin.monthly_saving|short }} per bulan</b> sejak tahun pertama{% if not pb %}.{% elif fin.payback is not none %}, dengan investasi kembali dalam <b>{{ fin.payback|payback }}</b>.{% else %}, namun investasi belum kembali dalam {{ f.years }} tahun.{% endif %}</p>{% endif %}
   </div>
@@ -129,7 +147,7 @@
 {# ================================================================ INNER PAGES #}
 {% else %}
 <section class="page inner {{ kind }}{{ ' prelim' if pre }}">
-  <header class="runhead"><span class="mark"><img src="{{ photo('hme-logo.webp', 400) }}" alt="">PT Hexa Multi Energi</span><span>{{ 'Ringkasan Penawaran Awal' if pre and kind == 'ringkasan' else titles[kind] }}{% if kind == 'boq' and d.part > 0 %} (lanjutan){% endif %}</span></header>
+  <header class="runhead"><span class="mark"><img src="{{ photo('hme-logo.webp', 400) }}" alt="">PT Hexa Multi Energi</span><span>{{ 'Ringkasan Penawaran Awal' if pre and kind == 'ringkasan' else titles[kind] }}{{ optsfx }}{% if kind == 'boq' and d.part > 0 %} (lanjutan){% endif %}</span></header>
   <main class="body">
 
 {# ---------------------------------------------------------------- tagihan (client's PLN bill, before the pitch) #}
@@ -168,11 +186,38 @@
     </div>
 
 {# ---------------------------------------------------------------- ringkasan #}
+{# ---------------------------------------------------------------- opsi (multi-option offer: side-by-side comparison) #}
+{% elif kind == 'opsi' %}
+    <h2 class="display head">Perbandingan Opsi</h2>
+    <p class="lead">{{ p.client.name }} saat ini memakai sekitar <b>{{ L.monthly_kwh|num }}&nbsp;kWh</b> listrik PLN per bulan, dengan tagihan sekitar <b>Rp&nbsp;{{ L.monthly_bill|short }}</b>{% if f.tariff_note %} ({{ f.tariff_note }}){% endif %}. {{ ID.options_lead or '' }} Kami menyiapkan {{ opts|length }} opsi PLTS {{ s.type }} {{ s.mounting|lower }}; pilih salah satu. Rincian tiap opsi ada di halaman berikutnya.</p>
+    <table class="data cmp">
+      <colgroup><col style="width:58mm">{% for o in opts %}<col>{% endfor %}</colgroup>
+      <tr><th></th>{% for o in opts %}<th class="num">Opsi {{ o.letter }}<small>{{ o.label }}</small></th>{% endfor %}</tr>
+      <tr><td>Kapasitas</td>{% for o in opts %}<td class="num"><b>{{ o.p.system.capacity_kwp|kwp }} kWp</b></td>{% endfor %}</tr>
+      <tr><td>Modul surya</td>{% for o in opts %}<td class="num">{{ o.p.system.panel.qty|num }} × {{ o.p.system.panel.wp }} Wp</td>{% endfor %}</tr>
+      <tr><td>Inverter</td>{% for o in opts %}<td class="num">{{ o.p.system.inverter.qty }} × {{ o.p.system.inverter.brand }} {{ o.p.system.inverter.model }}</td>{% endfor %}</tr>
+      {% if s.battery %}<tr><td>Baterai</td>{% for o in opts %}<td class="num">{{ o.p.system.battery or '-' }}</td>{% endfor %}</tr>{% endif %}
+      <tr><td>Produksi listrik surya</td>{% for o in opts %}<td class="num">± {{ (o.fin.y1_energy/12)|num }} kWh/bulan</td>{% endfor %}</tr>
+      <tr><td>Kebutuhan listrik yang dipasok PLTS</td>{% for o in opts %}<td class="num">± {{ (o.fin.load.solar_share*100)|num }}%</td>{% endfor %}</tr>
+      <tr class="sep"><td>Harga{{ ' preliminary' if ppre }} sebelum PPN</td>{% for o in opts %}<td class="num">Rp&nbsp;{{ o.fin.capex|num }}</td>{% endfor %}</tr>
+      <tr><td>Total{{ ' preliminary' if ppre }} termasuk PPN {{ p.price.vat_pct }}%</td>{% for o in opts %}<td class="num">Rp&nbsp;{{ o.fin.grand|num }}</td>{% endfor %}</tr>
+      <tr class="sep"><td>Hemat tahun pertama</td>{% for o in opts %}<td class="num pos"><b>Rp&nbsp;{{ o.fin.y1_saving|short }}</b><small>± Rp&nbsp;{{ o.fin.monthly_saving|short }} per bulan</small></td>{% endfor %}</tr>
+      <tr><td>Tagihan PLN per bulan</td>{% for o in opts %}<td class="num">Rp&nbsp;{{ o.fin.load.monthly_bill|short }} → Rp&nbsp;{{ o.fin.load.bill_after|short }}</td>{% endfor %}</tr>
+      <tr><td>Balik modal</td>{% for o in opts %}<td class="num"><b>{{ o.fin.payback|payback }}</b></td>{% endfor %}</tr>
+      <tr><td>Tingkat pengembalian (IRR)</td>{% for o in opts %}<td class="num">{% if o.fin.irr %}{{ (o.fin.irr*100)|num(1) }}% per tahun{% else %}-{% endif %}</td>{% endfor %}</tr>
+      <tr><td>Emisi CO₂ dihindari</td>{% for o in opts %}<td class="num">{{ o.fin.co2_y1|num }} ton/tahun</td>{% endfor %}</tr>
+    </table>
+    {% if ID.options_notes %}
+    <h3 class="sect">Cara Memilih</h3>
+    <ol class="implic">{% for x in ID.options_notes %}<li>{{ x }}</li>{% endfor %}</ol>
+    {% endif %}
+    <p class="note">Penghematan dihitung dari energi surya yang terpakai di lokasi, tanpa kredit ekspor, dengan profil beban {% if L.saturday_hours %}Senin – Jumat pukul {{ '%02d.00' % L.work_hours[0] }}–{{ '%02d.00' % L.work_hours[1] }}, Sabtu {{ '%02d.00' % L.saturday_hours[0] }}–{{ '%02d.00' % L.saturday_hours[1] }}{% else %}{{ days_id }} pukul {{ '%02d.00' % L.work_hours[0] }}–{{ '%02d.00' % L.work_hours[1] }}{% endif %} dan beban di luar jam kerja ± {{ L.base_pct|num }}% beban jam kerja. Asumsi lengkap ada di Ringkasan Eksekutif tiap opsi.{% if ppre %} Harga masih preliminary; harga final setelah survei lokasi dan desain detail.{% endif %}</p>
+
 {% elif kind == 'ringkasan' and pre %}
     <h2 class="display head">Ringkasan Penawaran Awal</h2>
     <p class="lead">PT Hexa Multi Energi mengusulkan PLTS {{ s.type }} {{ s.mounting|lower }} berkapasitas <b>{{ s.capacity_kwp|kwp }}&nbsp;kWp</b> untuk {{ p.client.name }}. Listrik surya dipakai langsung di siang hari{% if s.battery %}, kelebihannya disimpan di baterai untuk malam hari{% if s.type == 'Off-Grid' %}; ATS memindahkan beban ke PLN saat baterai hampir habis{% else %} dan sebagai cadangan saat listrik PLN padam{% endif %}{% endif %}. Ini penawaran awal; desain, harga, dan jadwal final kami susun setelah survei lokasi.</p>
     <div class="sheet">
-      <div class="row"><div class="k">Sistem</div><div class="v">{{ s.capacity_kwp|kwp }} kWp · {{ s.capacity_kva|kwp }} kW<small>{{ s.type }} {{ s.mounting|lower }}</small></div></div>
+      <div class="row"><div class="k">Sistem</div><div class="v">{{ s.capacity_kwp|kwp }} kWp<small>{{ s.type }} {{ s.mounting|lower }}</small></div></div>
       <div class="row"><div class="k">Modul surya</div><div class="v">{{ s.panel.qty|num }} × {{ s.panel.brand }} {{ s.panel.wp }} Wp{% if s.panel.model and s.panel.model != s.panel.wp ~ ' Wp' %}<small>{{ s.panel.model }}</small>{% endif %}</div></div>
       <div class="row"><div class="k">Inverter</div><div class="v">{{ s.inverter.qty }} × {{ s.inverter.brand }} {{ s.inverter.model }}<small>{{ s.inverter.kva|kwp }} kW</small></div></div>
       {% if s.battery %}<div class="row"><div class="k">Baterai</div><div class="v">{{ s.battery }}</div></div>{% endif %}
@@ -200,11 +245,11 @@
     <p class="note">Harga berlaku 14 hari dan dapat berubah setelah survei lokasi.{% for x in ID.prelim_notes or [] %} {{ x }}{% endfor %} Perkiraan produksi dari {{ T.sun }} ({{ f.irradiance_source or 'iradiasi rata-rata' }}) untuk hari rata-rata; hasil sebenarnya bergantung pada arah, kemiringan, dan bayangan atap.</p>
 
 {% elif kind == 'ringkasan' %}
-    <h2 class="display head">Ringkasan Eksekutif</h2>
+    <h2 class="display head">Ringkasan Eksekutif{% if optsfx %} <span class="opt-tag">Opsi {{ O.letter }} · {{ s.capacity_kwp|kwp }} kWp</span>{% endif %}</h2>
     <p class="lead">PT Hexa Multi Energi mengusulkan pembangunan PLTS {{ s.type }} {{ s.mounting|lower }} berkapasitas <b>{{ s.capacity_kwp|kwp }}&nbsp;kWp</b> untuk {{ p.client.name }}. {% if p.client.segment == 'Residential' %}Listrik surya dipakai langsung di siang hari{% if s.battery %}, sisanya disimpan di baterai untuk malam hari{% endif %}{% elif L and L.scr < 0.995 %}Sekitar <b>{{ (L.scr*100)|num }}%</b> listrik surya terpakai oleh {{ 'pabrik' if p.client.segment == 'Industrial' else 'bangunan' }}{% if s.battery %}, langsung atau lewat baterai,{% endif %}{% else %}Seluruh listrik surya dipakai langsung oleh {{ 'pabrik' if p.client.segment == 'Industrial' else 'bangunan' }}{% endif %}{% if L %} dan menggantikan sekitar <b>{{ (L.solar_share*100)|num }}%</b> kWh listrik dari PLN{% endif %}. Penghematan dihitung hanya dari energi yang benar-benar terpakai di lokasi, tanpa kredit ekspor.{% if L %} Setelah PLTS beroperasi, tagihan PLN bulanan Anda turun dari <b>Rp&nbsp;{{ L.monthly_bill|short }}</b> menjadi sekitar <b>Rp&nbsp;{{ L.bill_after|short }}</b>.{% endif %}</p>
     <div class="sheet">
       <div class="row"><div class="k">Sistem</div><div class="v">{{ s.capacity_kwp|kwp }} kWp<small>{{ s.panel.qty|num }} modul {{ s.panel.brand }} {{ s.panel.wp }} Wp · {{ s.inverter.qty }} inverter {{ s.inverter.brand }} {% if s.inverter.get("mix") %}{{ s.capacity_kva|kwp }}{% else %}{{ s.inverter.kva|kwp }}{% endif %} kVA</small></div></div>
-      <div class="row"><div class="k">{{ 'Nilai investasi' if pb else 'Nilai penawaran HME' }}</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%{% if cs %} · di luar {{ cs_text }} dari {{ dev }}{% endif %}</small></div></div>
+      <div class="row"><div class="k">{{ 'Nilai investasi' if pb else 'Nilai penawaran HME' }}{{ ' (preliminary)' if ppre }}</div><div class="v">Rp&nbsp;{{ fin.capex|num }}<small>belum termasuk PPN {{ p.price.vat_pct }}%{% if cs %} · di luar {{ cs_text }} dari {{ dev }}{% endif %}</small></div></div>
       <div class="row money"><div class="k">Penghematan tahun pertama</div><div class="v">Rp&nbsp;{{ fin.y1_saving|short }}<small>{{ T.y1_monthly }}</small></div></div>
       {% if pb %}<div class="row key"><div class="k">Balik modal</div><div class="v">{{ fin.payback|payback }}</div></div>
       {% if fin.irr %}<div class="row"><div class="k">Tingkat pengembalian (IRR)</div><div class="v">{{ (fin.irr*100)|num(1) }}% per tahun<small>imbal hasil tahunan atas investasi</small></div></div>{% endif %}
@@ -283,7 +328,7 @@
 
 {# ---------------------------------------------------------------- sistem #}
 {% elif kind == 'sistem' %}
-    <h2 class="display head">Spesifikasi Sistem PLTS</h2>
+    <h2 class="display head">Spesifikasi Sistem PLTS{% if optsfx %} <span class="opt-tag">Opsi {{ O.letter }} · {{ s.capacity_kwp|kwp }} kWp</span>{% endif %}</h2>
     {%- set lay = (p.get('images') or {}).get('layout') -%}
     {% if lay %}<figure class="layout"><img src="{{ pphoto(lay, 2000, 88) }}" alt="Layout PLTS"><figcaption>{{ ID.layout_caption or p.images.layout_caption }} Layout final dikonfirmasi setelah survei dan desain detail.</figcaption></figure>
     {% elif p.client.segment == 'Residential' %}
@@ -403,18 +448,18 @@
 
 {# ---------------------------------------------------------------- harga #}
 {% elif kind == 'harga' %}
-    <h2 class="display head">Penawaran Harga</h2>
+    <h2 class="display head">Penawaran Harga{% if optsfx %} <span class="opt-tag">Opsi {{ O.letter }} · {{ s.capacity_kwp|kwp }} kWp</span>{% endif %}</h2>
     {% set it = ID.price_items or p.price['items'] %}
     <table class="price">
-      <tr><th>Uraian</th><th class="num">Harga (Rp)</th></tr>
+      <tr><th>Uraian</th><th class="num">Harga{{ ' preliminary' if ppre }} (Rp)</th></tr>
       <tr><td><b>{{ it[0] }}</b>{% for x in it[1:] %}<small>Termasuk {{ x[0]|lower }}{{ x[1:] }}</small>{% endfor %}</td><td class="num">{{ fin.capex|num }}</td></tr>
-      <tr class="sub"><td>Total sebelum PPN</td><td class="num">{{ fin.capex|num }}</td></tr>
+      <tr class="sub"><td>Total{{ ' preliminary' if ppre }} sebelum PPN</td><td class="num">{{ fin.capex|num }}</td></tr>
       <tr><td>PPN {{ p.price.vat_pct }}%</td><td class="num">{{ fin.vat|num }}</td></tr>
-      <tr class="grand"><td>Total termasuk PPN</td><td class="num">{{ fin.grand|num }}</td></tr>
+      <tr class="grand"><td>Total{{ ' preliminary' if ppre }} termasuk PPN</td><td class="num">{{ fin.grand|num }}</td></tr>
     </table>
     {% if bos %}<p class="note">Harga lump-sum sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN). <b>Tidak termasuk modul surya dan inverter</b>, yang disuplai {{ dev }}.</p>
     {% elif cs %}<p class="note">Harga lump-sum sesuai daftar material. <b>Tidak termasuk {{ cs_text }}</b>, yang disuplai {{ dev }}; HME memasang dan mengintegrasikannya ke sistem.</p>
-    {% else %}<p class="note">Harga lump-sum EPC untuk sistem lengkap sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN).</p>{% endif %}
+    {% else %}<p class="note">{% if ppre %}<b>Harga preliminary.</b> Harga final kami tetapkan setelah survei lokasi dan desain detail. {% endif %}Harga lump-sum EPC untuk sistem lengkap sesuai daftar material, setara Rp&nbsp;{{ fin.price_per_wp|num }} per Wp (belum PPN).</p>{% endif %}
     {% if ID.payment_terms %}
     <h3 class="sect">Termin Pembayaran</h3>
     <div class="terms-pay">{% for step, pct, when in ID.payment_terms %}<div><span>{{ loop.index }} · {{ step }}</span><b>{{ pct }}</b><small>{{ when }}</small></div>{% endfor %}</div>
@@ -453,7 +498,26 @@
 
 {# ---------------------------------------------------------------- boq #}
 {% elif kind == 'boq' %}
-    {% if d.part == 0 %}<h2 class="display head">Daftar Material{{ ' BOS' if bos }} (Bill of Quantity)</h2>{% endif %}
+    {% if d.part == 0 %}<h2 class="display head">Daftar Material{{ ' BOS' if bos }}{% if optsfx %} <span class="opt-tag">Opsi {{ O.letter }} · {{ s.capacity_kwp|kwp }} kWp</span>{% else %} (Bill of Quantity){% endif %}</h2>{% endif %}
+    {%- set priced = d.sections and d.sections[0]["items"] and d.sections[0]["items"][0]|length > 5 %}
+    {%- if priced %}
+    <table class="data boq">
+      <colgroup><col style="width:8mm"><col style="width:36mm"><col><col style="width:11mm"><col style="width:12mm"><col style="width:27mm"><col style="width:28mm"></colgroup>
+      <tr><th>No</th><th>Item</th><th>Spesifikasi</th><th class="num">Qty</th><th>Satuan</th><th class="num">Harga satuan (Rp)</th><th class="num">Jumlah (Rp)</th></tr>
+      {% for sec in d.sections %}
+      <tr class="secrow"><td colspan="7">{{ sec.section|replace(" (cont.)", " (lanjutan)") }}</td></tr>
+      {% for row in sec["items"] %}{% set no, item, qty, unit, spec, price = row[:6] %}
+      <tr><td class="muted">{{ no }}</td><td>{{ item }}</td><td class="muted">{{ spec }}</td><td class="num">{{ qty|num }}</td><td>{{ unit }}</td><td class="num">{{ price|num }}</td><td class="num">{{ (qty * price)|round|int|num }}</td></tr>
+      {% endfor %}
+      {% endfor %}
+      {% if not (loop.nextitem and loop.nextitem[0] == 'boq') %}
+      {%- set vat = (p.price.total * p.price.vat_pct / 100)|round|int %}
+      <tr class="sum"><td colspan="6" class="num"><b>Total sebelum PPN</b></td><td class="num"><b>{{ p.price.total|num }}</b></td></tr>
+      <tr class="sum"><td colspan="6" class="num">PPN {{ p.price.vat_pct|num }}%</td><td class="num">{{ vat|num }}</td></tr>
+      <tr class="sum"><td colspan="6" class="num"><b>Total termasuk PPN</b></td><td class="num"><b>{{ (p.price.total + vat)|num }}</b></td></tr>
+      {% endif %}
+    </table>
+    {%- else %}
     <table class="data boq">
       <colgroup><col style="width:9mm"><col style="width:48mm"><col style="width:16mm"><col style="width:15mm"><col></colgroup>
       <tr><th>No</th><th>Item</th><th class="num">Qty</th><th>Satuan</th><th>Spesifikasi</th></tr>
@@ -464,7 +528,9 @@
       {% endfor %}
       {% endfor %}
     </table>
-    {% if loop.nextitem and loop.nextitem[0] != 'boq' %}<p class="note">Semua item termasuk dalam harga lump-sum.{% if bos %} Modul surya dan inverter disuplai {{ dev }} dan tidak termasuk daftar ini.{% elif cs %} {{ cs_text|capitalize }} disuplai {{ dev }} dan tidak termasuk daftar ini.{% endif %} Rincian harga per item tersedia atas permintaan.</p>{% endif %}
+    {%- endif %}
+    {% if priced and not (loop.nextitem and loop.nextitem[0] == 'boq') %}<p class="note">Harga dalam Rupiah.{% if pre %} Penawaran awal; harga final menyusul setelah survei lokasi.{% endif %}</p>
+    {% elif loop.nextitem and loop.nextitem[0] != 'boq' %}<p class="note">Semua item termasuk dalam harga lump-sum.{% if bos %} Modul surya dan inverter disuplai {{ dev }} dan tidak termasuk daftar ini.{% elif cs %} {{ cs_text|capitalize }} disuplai {{ dev }} dan tidak termasuk daftar ini.{% endif %} Rincian harga per item tersedia atas permintaan.</p>{% endif %}
 
 {# ---------------------------------------------------------------- garansi #}
 {% elif kind == 'garansi' %}

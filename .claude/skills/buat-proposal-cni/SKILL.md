@@ -98,6 +98,8 @@ py proposal-generator/build.py projects/<id>
 py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/check_pdf.py proposal-generator/output/<id>.pdf
 ```
 
+**Ukuran file.** Klien membuka PDF di Chrome/Edge (Windows 10+), jadi `build.py` langsung membuat versi ringan: halaman datasheet ditempel sebagai JPEG 150 dpi, semua gambar dibatasi 140 dpi, font di-subset. Foto/layout mentah dari user (PNG/JPG besar, tangkapan 3D) tidak perlu dikompres sendiri: salin ke `projects/<id>/img/`, generator memperkecilnya. Target ≤ 3–4 MB untuk ± 15–20 halaman; lebih besar → cari gambar atau datasheet yang berat. `--full` (datasheet vektor, gambar asli) hanya bila user minta untuk cetak. Sebut ukuran PDF di laporan.
+
 `build.py` otomatis menjalankan `check_pdf.py` setelah PDF jadi (matikan dengan `--no-check`) dan mencetak peringatan validasi (`! …`: termin ≠ 100%, jumlah inverter/modul tidak cocok kapasitas, `{kota}` tersisa, harga inverter/baterai kosong, payback di luar 2–15 tahun, layout tidak ditemukan). **Baca dan selesaikan semua peringatan** sebelum melapor.
 
 Lalu **lihat** PNG halaman yang berisi data proyek (cover, ringkasan, profil beban, spesifikasi, penghematan, harga, BOQ, Terima Kasih) dengan Read. Periksa:

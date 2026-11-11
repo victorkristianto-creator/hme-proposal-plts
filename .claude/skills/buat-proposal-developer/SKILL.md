@@ -73,6 +73,8 @@ py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/assemble.py proposal-gene
 py proposal-generator/build.py projects/<id>
 ```
 
+**Ukuran file.** Klien membuka PDF di Chrome/Edge (Windows 10+), jadi `build.py` langsung membuat versi ringan: halaman datasheet ditempel sebagai JPEG 150 dpi, semua gambar dibatasi 140 dpi, font di-subset. Foto/layout mentah dari user (PNG/JPG besar, tangkapan 3D) tidak perlu dikompres sendiri: salin ke `projects/<id>/img/`, generator memperkecilnya. Target ≤ 3–4 MB untuk ± 15–20 halaman; lebih besar → cari gambar atau datasheet yang berat. `--full` (datasheet vektor, gambar asli) hanya bila user minta untuk cetak. Sebut ukuran PDF di laporan.
+
 Baca dan selesaikan semua peringatan (`! …`). `check_pdf.py` hanya mendeteksi teks yang masuk footer, jadi **lihat** tiap halaman dengan Read, render dengan dpi cukup (85+):
 - urutan: Cover · Profil Perusahaan · Ringkasan Penawaran · Spesifikasi · Harga · Lingkup · BOQ · Garansi dan Jadwal · Datasheet · Terima Kasih;
 - gambar dashboard di Spesifikasi tidak menyentuh footer; kalau mepet, pendekkan `bos_specs` dan `system.monitoring` jadi satu baris;

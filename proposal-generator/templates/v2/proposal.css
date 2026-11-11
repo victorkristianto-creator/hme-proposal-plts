@@ -357,3 +357,16 @@ table.data td.cost { color: var(--accent-ink); font-weight: 700; }
 
 /* garansi: the explanatory small text is its own line under the value, not a ragged tail that wraps under the number */
 .garansi .sheet .v small { display: block; margin: .9mm 0 0; line-height: 1.4; font-size: 8.2pt; }
+table.boq tr.sum td { border-bottom: none; padding-top: 1.2mm; }
+
+/* multi-option offer: option tag after the page heading, comparison table */
+h2.head .opt-tag { display: inline-block; vertical-align: middle; margin-left: 2.5mm; padding: 1mm 2.6mm; border-radius: 1.6mm; background: #FFF1D9; color: var(--accent-ink); font-size: 10.5pt; letter-spacing: 0; font-weight: 700; }
+table.cmp { width: 100%; margin-top: 6mm; font-size: 9.2pt; }
+table.cmp th { font-size: 10pt; }
+table.cmp th small, table.cmp td small { display: block; font-weight: 400; font-size: 7.8pt; color: var(--muted, #667); margin-top: .4mm; }
+table.cmp td { padding: 1.9mm 2mm; }
+table.cmp tr.sep td { border-top: .4mm solid var(--navy-deep); }
+.cover .specs .cap.multi dd { font-size: 24pt; white-space: nowrap; }
+.cover .specs .cap.multi dd small { font-size: 11pt; }
+.cover .specs .cap.multi dd .slash { font-size: 24pt; font-weight: 400; color: var(--amber); margin: 0 1.6mm; }
+.cover .client-block .attn { font-size: 10pt; font-weight: 600; color: var(--navy-deep); margin-top: 1mm; }
