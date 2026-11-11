@@ -236,6 +236,7 @@ def load_analysis(p, y1_energy):
         bill_saving=used_month * tariff,
         day_work=profile[workdays[0]] if workdays else None,
         day_off=profile[off_day] if off_day else None, off_day=off_day,
+        day_sat=profile["Sat"] if "Sat" in workdays else None,
     )
 
 
@@ -882,6 +883,58 @@ def chart_day_v2(fin, w=680, h=270):
     return "\n".join(out)
 
 
+OPT_PV_STYLE = [("#FDB813", ""), ("#F59A1B", "6 4"), ("#A45300", "")]  # solar curve of option A, B, C
+
+
+def chart_load_options(opts, w=680, h=300):
+    """Multi-option offer: the site's hourly load (working day as area, Saturday and day off as lines) under the
+    clear-day solar curve of every option, so the client sees how much of the day each option covers."""
+    ld = opts[0]["fin"]["load"]
+    per = 6
+    n = 24 * per
+    work = _smooth_steps([l for l, _ in ld["day_work"]], per)
+    sat = _smooth_steps([l for l, _ in ld["day_sat"]], per) if ld.get("day_sat") else None
+    off = _smooth_steps([l for l, _ in ld["day_off"]], per) if ld.get("day_off") else None
+    pvs = [[pv_kw(k / per, clear_day_kwh(o["fin"]["y1_energy"]), o["fin"].get("kva")) for k in range(n)] for o in opts]
+    pl, pr, pt, pb = 46, 18, 22, 28
+    hi = max(max(work), max(max(p) for p in pvs)) * 1.18
+    step = nice_step(hi, 4)
+
+    def X(k):
+        return pl + k / (n - 1) * (w - pl - pr)
+
+    def Y(v):
+        return pt + (hi - v) / hi * (h - pt - pb)
+
+    def line(vals):
+        return " ".join(f"{X(k):.1f},{Y(v):.1f}" for k, v in enumerate(vals))
+
+    out = [f'<svg viewBox="0 0 {w} {h}" class="chart" role="img" aria-label="Profil beban harian dan produksi surya tiap opsi">']
+    v = 0
+    while v <= hi + 1e-9:
+        out.append(f'<line x1="{pl}" x2="{w - pr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}" class="{"zero" if v == 0 else "grid"}"/>')
+        out.append(f'<text x="{pl - 7}" y="{Y(v) + 3.5:.1f}" text-anchor="end" class="ax">{fnum(v)}</text>')
+        v += step
+    out.append(f'<text x="{pl - 7}" y="{pt - 9}" text-anchor="end" class="ax">kW</text>')
+    for hh in range(0, 25, 3):
+        k = min(hh * per, n - 1)
+        out.append(f'<text x="{X(k):.1f}" y="{h - 8}" text-anchor="middle" class="ax">{hh:02d}.00</text>')
+    out.append(f'<polygon points="{X(0):.1f},{Y(0):.1f} {line(work)} {X(n - 1):.1f},{Y(0):.1f}" fill="#104674" fill-opacity=".13"/>')
+    out.append(f'<polyline points="{line(work)}" fill="none" stroke="#0A3055" stroke-width="1.6"/>')
+    if sat:
+        out.append(f'<polyline points="{line(sat)}" fill="none" stroke="#0A3055" stroke-width="1.3" stroke-dasharray="5 3"/>')
+    if off:
+        out.append(f'<polyline points="{line(off)}" fill="none" stroke="#4A6176" stroke-width="1.1" stroke-dasharray="1.5 2.5"/>')
+    for i, (o, pv) in enumerate(zip(opts, pvs)):
+        col, dash = OPT_PV_STYLE[i % len(OPT_PV_STYLE)]
+        out.append(f'<polyline points="{line(pv)}" fill="none" stroke="{col}" stroke-width="2.4"'
+                   + (f' stroke-dasharray="{dash}"' if dash else "") + "/>")
+    kw_ = int(16.5 * per)
+    out.append(f'<text x="{X(kw_):.1f}" y="{Y(work[kw_]) - 7:.1f}" text-anchor="middle" class="lbl load-l">Beban hari kerja</text>')
+    out.append("</svg>")
+    return "\n".join(out)
+
+
 def _donut(share, center_sub, rows, aria, w=330, h=158):
     """Half-width donut panel: amber slice = solar's share, navy = what still comes from PLN; legend on the right."""
     share = min(max(share, 0.001), 0.999)  # a 0% or 100% arc has no drawable sweep
@@ -1355,6 +1408,8 @@ def build_pages_options(opts, pdir):
     """One proposal, several options: cover and comparison once, then summary, system, price and BOQ per option,
     then warranty, the datasheets of all options (each file once) and the closing page."""
     pages = [("cover", {}), ("opsi", {})]
+    if opts[0]["fin"].get("load"):
+        pages.append(("profil", {}))
     for i, o in enumerate(opts):
         pages += [("ringkasan", dict(opt=i)), ("sistem", dict(opt=i)), ("harga", dict(opt=i))]
         boq = o["p"].get("id", {}).get("boq") or o["p"]["boq"]
@@ -1753,7 +1808,7 @@ def render(p, fin, pdir, fmt, out_dir=None, opts=None, light=True):
         if opts:  # per-option pages rebind p / fin / chart_cash from here (see the top of the page loop)
             for o in opts:
                 o["chart_cash"] = chart_cashline(o["fin"], upper=esc_upper(o["p"], o["fin"]))
-            ctx.update(opts=opts)
+            ctx.update(opts=opts, chart_loadopts=chart_load_options(opts) if opts[0]["fin"].get("load") else None)
     else:  # archived templates (print, slides, ...) still want their own charts
         ctx.update(
             chart_cum=chart_cumulative(fin, h=FORMATS[fmt]["cum_h"]),

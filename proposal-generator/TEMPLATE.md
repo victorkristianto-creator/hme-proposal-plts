@@ -178,7 +178,7 @@ dan memperingatkan bila BOQ masih memuat modul atau inverter.
 
 `options: [{label, system?, price?, boq?, images?, financial?, datasheets?, id?}, ...]` di project.json. Tiap opsi = proyek dasar
 digabung dengan isi opsinya (dict digabung, list diganti); isi `system`/`price`/`boq` tingkat atas dengan opsi pertama agar assemble lolos.
-Halaman: Cover (rentang kapasitas, hemat, balik modal) · Perbandingan Opsi (`id.options_lead`, `id.options_notes`) ·
+Halaman: Cover (rentang kapasitas, hemat, balik modal) · Perbandingan Opsi (`id.options_lead`, `id.options_notes`) · Profil Beban dan Produksi Surya (grafik beban hari kerja/Sabtu/libur + kurva surya tiap opsi, bila ada `load`) ·
 per opsi: Ringkasan Eksekutif, Spesifikasi, Penawaran Harga, Daftar Material (berlabel "Opsi A/B") · Garansi dan Jadwal ·
 datasheet semua opsi (tiap file sekali) · Terima Kasih. `load.saturday_hours: [7, 12]` = jam kerja Sabtu yang lebih pendek.
 `price.preliminary: true` = harga disebut "preliminary" (cover, perbandingan, ringkasan, halaman harga) tanpa masuk mode penawaran awal.

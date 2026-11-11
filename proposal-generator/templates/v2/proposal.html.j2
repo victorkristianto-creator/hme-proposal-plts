@@ -24,7 +24,7 @@
 {%- set titles = {
   'tagihan': 'Profil Beban dan Energi', 'ringkasan': 'Ringkasan Eksekutif', 'bos': 'Ringkasan Penawaran', 'tentang': 'Profil Perusahaan', 'sistem': 'Spesifikasi Sistem', 'energi': 'Analisis Profil Energi',
   'penghematan': 'Analisis Penghematan', 'proyeksi': 'Proyeksi Arus Kas' if pb else 'Proyeksi Penghematan', 'harga': 'Penawaran Harga', 'lingkup': 'Lingkup Pekerjaan',
-  'boq': 'Daftar Material', 'opsi': 'Perbandingan Opsi', 'garansi': 'Garansi dan Jadwal', 'datasheet': 'Lampiran Datasheet',
+  'boq': 'Daftar Material', 'opsi': 'Perbandingan Opsi', 'profil': 'Profil Beban dan Produksi Surya', 'garansi': 'Garansi dan Jadwal', 'datasheet': 'Lampiran Datasheet',
 } -%}
 {%- macro tick() -%}<svg class="tick" viewBox="0 0 16 16" aria-label="ya"><path d="M3.5 8.4l3 3 6-6.8"/></svg>{%- endmacro -%}
 {%- macro hexclip(id, cx, cy, w, r=4) -%}<clipPath id="{{ id }}"><path d="{{ hexp(cx, cy, w, r) }}"/></clipPath>{%- endmacro -%}
@@ -88,7 +88,8 @@
     <div class="cap multi"><dt>{{ opts|length }} opsi kapasitas</dt><dd>{% for o in opts %}{{ o.p.system.capacity_kwp|kwp }}{% if not loop.last %}<span class="slash">/</span>{% endif %}{% endfor %} <small>kWp</small></dd></div>
     <div><dt>Modul surya</dt><dd>{% for o in opts %}{{ o.p.system.panel.qty|num }}{% if not loop.last %} / {% endif %}{% endfor %} × {{ s.panel.brand }} {{ s.panel.wp }} Wp</dd></div>
     <div><dt>Inverter</dt><dd>{{ s.inverter.brand }} {% for o in opts %}{{ o.p.system.inverter.kva|kwp }}{% if not loop.last %} / {% endif %}{% endfor %} kVA</dd></div>
-    {% if s.battery %}<div><dt>Baterai</dt><dd>{{ s.battery }}</dd></div>{% endif %}
+    {%- set bl = opts|map(attribute='p.system.battery')|select|map('replace', '1 × ', '')|unique|list %}
+    {% if bl %}<div><dt>Baterai</dt><dd>{{ bl|join(' / ') }}</dd></div>{% endif %}
   </dl>
   {% else %}
   <dl class="specs">
@@ -190,13 +191,13 @@
 {% elif kind == 'opsi' %}
     <h2 class="display head">Perbandingan Opsi</h2>
     <p class="lead">{{ p.client.name }} saat ini memakai sekitar <b>{{ L.monthly_kwh|num }}&nbsp;kWh</b> listrik PLN per bulan, dengan tagihan sekitar <b>Rp&nbsp;{{ L.monthly_bill|short }}</b>{% if f.tariff_note %} ({{ f.tariff_note }}){% endif %}. {{ ID.options_lead or '' }} Kami menyiapkan {{ opts|length }} opsi PLTS {{ s.type }} {{ s.mounting|lower }}; pilih salah satu. Rincian tiap opsi ada di halaman berikutnya.</p>
-    <table class="data cmp">
+    <table class="data cmp{{ ' n3' if opts|length > 2 }}">
       <colgroup><col style="width:58mm">{% for o in opts %}<col>{% endfor %}</colgroup>
       <tr><th></th>{% for o in opts %}<th class="num">Opsi {{ o.letter }}<small>{{ o.label }}</small></th>{% endfor %}</tr>
       <tr><td>Kapasitas</td>{% for o in opts %}<td class="num"><b>{{ o.p.system.capacity_kwp|kwp }} kWp</b></td>{% endfor %}</tr>
       <tr><td>Modul surya</td>{% for o in opts %}<td class="num">{{ o.p.system.panel.qty|num }} × {{ o.p.system.panel.wp }} Wp</td>{% endfor %}</tr>
-      <tr><td>Inverter</td>{% for o in opts %}<td class="num">{{ o.p.system.inverter.qty }} × {{ o.p.system.inverter.brand }} {{ o.p.system.inverter.model }}</td>{% endfor %}</tr>
-      {% if s.battery %}<tr><td>Baterai</td>{% for o in opts %}<td class="num">{{ o.p.system.battery or '-' }}</td>{% endfor %}</tr>{% endif %}
+      <tr><td>Inverter</td>{% for o in opts %}<td class="num">{% if o.p.system.inverter.qty > 1 %}{{ o.p.system.inverter.qty }} × {% endif %}{{ o.p.system.inverter.brand }} {{ o.p.system.inverter.model }}</td>{% endfor %}</tr>
+      {% if s.battery %}<tr><td>Baterai</td>{% for o in opts %}<td class="num">{{ (o.p.system.battery or '-')|replace('1 × ', '') }}</td>{% endfor %}</tr>{% endif %}
       <tr><td>Produksi listrik surya</td>{% for o in opts %}<td class="num">± {{ (o.fin.y1_energy/12)|num }} kWh/bulan</td>{% endfor %}</tr>
       <tr><td>Kebutuhan listrik yang dipasok PLTS</td>{% for o in opts %}<td class="num">± {{ (o.fin.load.solar_share*100)|num }}%</td>{% endfor %}</tr>
       <tr class="sep"><td>Harga{{ ' preliminary' if ppre }} sebelum PPN</td>{% for o in opts %}<td class="num">Rp&nbsp;{{ o.fin.capex|num }}</td>{% endfor %}</tr>
@@ -212,6 +213,30 @@
     <ol class="implic">{% for x in ID.options_notes %}<li>{{ x }}</li>{% endfor %}</ol>
     {% endif %}
     <p class="note">Penghematan dihitung dari energi surya yang terpakai di lokasi, tanpa kredit ekspor, dengan profil beban {% if L.saturday_hours %}Senin – Jumat pukul {{ '%02d.00' % L.work_hours[0] }}–{{ '%02d.00' % L.work_hours[1] }}, Sabtu {{ '%02d.00' % L.saturday_hours[0] }}–{{ '%02d.00' % L.saturday_hours[1] }}{% else %}{{ days_id }} pukul {{ '%02d.00' % L.work_hours[0] }}–{{ '%02d.00' % L.work_hours[1] }}{% endif %} dan beban di luar jam kerja ± {{ L.base_pct|num }}% beban jam kerja. Asumsi lengkap ada di Ringkasan Eksekutif tiap opsi.{% if ppre %} Harga masih preliminary; harga final setelah survei lokasi dan desain detail.{% endif %}</p>
+
+{# ---------------------------------------------------------------- profil (multi-option: load profile vs. solar of each option) #}
+{% elif kind == 'profil' %}
+    <h2 class="display head">Profil Beban dan Produksi Surya</h2>
+    <p class="lead">Beban {{ p.client.short_name }} naik saat kantor buka dan turun ke beban dasar di luar jam kerja, sehingga sebagian besar listrik dipakai bersamaan dengan jam produksi surya. Grafik di bawah membandingkan beban harian dengan produksi surya tiap opsi pada hari cerah.</p>
+    <div class="block">
+      <h3>Beban per Jam dan Produksi Surya (Hari Cerah)</h3>
+      {{ chart_loadopts|safe }}
+      <div class="legend-row">
+        <span><i style="background:#104674;opacity:.4"></i>Beban hari kerja ({{ '%02d.00' % L.work_hours[0] }}–{{ '%02d.00' % L.work_hours[1] }})</span>
+        {% if L.day_sat %}<span><i class="dash"></i>Sabtu{% if L.saturday_hours %} ({{ '%02d.00' % L.saturday_hours[0] }}–{{ '%02d.00' % L.saturday_hours[1] }}){% endif %}</span>{% endif %}
+        {% if L.day_off %}<span><i class="dot"></i>Hari libur</span>{% endif %}
+        {% for o in opts %}<span><i style="background:{{ ['#FDB813','#F59A1B','#A45300'][loop.index0 % 3] }}"></i>Surya opsi {{ o.letter }} · {{ o.p.system.capacity_kwp|kwp }} kWp</span>{% endfor %}
+      </div>
+      <p class="note">Beban dibagi dari total kWh rekening ({{ L.monthly_kwh|num }} kWh/bulan) ke jam kerja; di luar jam kerja ± {{ L.base_pct|num }}% beban jam kerja. Kurva surya = hari cerah; penghematan dihitung dari campuran hari cerah, berawan, dan hujan. Kelebihan surya siang mengisi baterai untuk sore hari. Bentuk beban sebenarnya kami pastikan dengan data AMR PLN atau logger saat survei.</p>
+    </div>
+    <table class="data cmp{{ ' n3' if opts|length > 2 }}">
+      <colgroup><col style="width:58mm">{% for o in opts %}<col>{% endfor %}</colgroup>
+      <tr><th></th>{% for o in opts %}<th class="num">Opsi {{ o.letter }}<small>{{ o.p.system.capacity_kwp|kwp }} kWp</small></th>{% endfor %}</tr>
+      <tr><td>Beban rata-rata jam kerja</td>{% for o in opts %}<td class="num">± {{ L.load_kw|num(1) }} kW</td>{% endfor %}</tr>
+      <tr><td>Puncak daya surya (hari cerah)</td>{% for o in opts %}<td class="num">± {{ o.fin.load.pv_peak_kw|num(1) }} kW</td>{% endfor %}</tr>
+      <tr><td>Produksi surya terpakai di lokasi</td>{% for o in opts %}<td class="num">± {{ (o.fin.load.scr*100)|num }}%</td>{% endfor %}</tr>
+      <tr><td>Kebutuhan listrik yang dipasok PLTS</td>{% for o in opts %}<td class="num"><b>± {{ (o.fin.load.solar_share*100)|num }}%</b></td>{% endfor %}</tr>
+    </table>
 
 {% elif kind == 'ringkasan' and pre %}
     <h2 class="display head">Ringkasan Penawaran Awal</h2>

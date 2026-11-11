@@ -370,3 +370,11 @@ table.cmp tr.sep td { border-top: .4mm solid var(--navy-deep); }
 .cover .specs .cap.multi dd small { font-size: 11pt; }
 .cover .specs .cap.multi dd .slash { font-size: 24pt; font-weight: 400; color: var(--amber); margin: 0 1.6mm; }
 .cover .client-block .attn { font-size: 10pt; font-weight: 600; color: var(--navy-deep); margin-top: 1mm; }
+
+.legend-row { display: flex; flex-wrap: wrap; gap: 1.2mm 5mm; font-size: 7.8pt; color: var(--muted); margin-top: 1.5mm; }
+.legend-row i { display: inline-block; width: 5mm; height: 1.4mm; border-radius: .7mm; margin-right: 1.5mm; vertical-align: middle; }
+.legend-row i.dash { background: repeating-linear-gradient(90deg, #0A3055 0 1.6mm, transparent 1.6mm 2.6mm); height: .5mm; }
+.legend-row i.dot { background: repeating-linear-gradient(90deg, #4A6176 0 .5mm, transparent .5mm 1.3mm); height: .5mm; }
+table.cmp.n3 { font-size: 8.5pt; margin-top: 4mm; }
+table.cmp.n3 td { padding: 1.45mm 1.6mm; }
+table.cmp.n3 col:first-child { width: 46mm !important; }
