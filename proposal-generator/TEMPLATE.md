@@ -128,7 +128,7 @@ sistem hybrid isi `system.battery` (teks), `system.battery_kwh`, dan `system.bat
 Asumsi biaya rumah (default `assemble.py` untuk proyek baru bila input tidak menyebutnya): `om_pct_of_capex` 0,5 dan
 `battery_replacement_years` [15] (± 6.000 siklus ≈ 16 tahun pada 1 siklus/hari; O&M rumah lebih ringan dari pabrik). Segmen lain tetap memakai
 default `_base` (O&M 1%, baterai tahun 10 dan 20). Isi `financial.om_pct_of_capex` / `battery_replacement_years` di inputs.json untuk menimpa.
-Contoh: `projects/contoh-rumah`.
+Agent: `/buat-proposal-residensial` (mode lengkap = default). Contoh: `projects/contoh-rumah`.
 
 ## Penawaran Awal (preliminary)
 
@@ -138,7 +138,7 @@ Halaman: Cover · (Profil Perusahaan, kecuali Residential) · Ringkasan Penawara
 `id.prelim_notes` menambah kalimat di catatan bawah (mis. "Harga franco Surabaya, belum termasuk biaya pengiriman ke lokasi.").
 `price.breakdown: [[label, rp, catatan], ...]` merinci harga sebelum PPN (jumlahnya harus = `price.total`, dicek `build.py`), mis. material + ongkos kirim.
 `id.price_scope` mengganti "material dan instalasi" di kalimat cover. Termin `id.payment_terms` tampil di Ringkasan Penawaran Awal.
-Agent: `/buat-proposal-residensial`. Contoh: `projects/contoh-rumah-awal`.
+Agent: `/buat-proposal-residensial` (mode penawaran awal, bila diminta). Contoh: `projects/contoh-rumah-awal`.
 
 ## Sebagian Material Disuplai Klien (tanpa balik modal)
 

@@ -29,7 +29,7 @@ Penawaran lama ke developer yang sama ada di `contoh proposal yang sudah berjala
 py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/read_boq.py "<BOQ.xlsx>"
 ```
 
-`read_boq.py` hanya membaca sheet BOQ; periksa juga sheet lain untuk gambar dan catatan (`openpyxl`: `ws._images`, atau buka xlsx sebagai zip).
+**Desain/layout atap sering ada di sheet lain di Excel BOQ yang sama** (mis. sheet "Design"). `read_boq.py` mencantumkan semua `sheets` dan `images`; jalankan dengan `--images proposal-generator/projects/<id>/img` untuk menyimpan gambarnya, lihat dengan Read, lalu pakai sebagai `images.layout` (+ `images.layout_caption`, mis. "Desain awal: 31 modul di dua sisi atap."). Rapikan dulu: buang tepi putih, lalu beri latar putih sampai rasio 1,74 : 1 (halaman memotong ke rasio ini; jangan dipotong, nanti atap/modul terpotong). Jangan pakai foto contoh bila desain dari Excel ada. Periksa juga sheet lain untuk catatan.
 
 Isi `system` seperti `/buat-proposal-cni`, ditambah:
 - `panel`: qty, brand, wp dari baris "Modul Solar". `model` boleh kosong bila BOQ hanya menulis merek dan Wp; jangan menebak model.

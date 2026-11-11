@@ -1,6 +1,10 @@
 """Read an HME BOQ Excel and print its contents as JSON.
 
-Usage: py -I read_boq.py <boq.xlsx>
+Usage: py -I read_boq.py <boq.xlsx> [--images <dir>]
+
+Also lists every sheet and the pictures embedded in the workbook ("images":
+sheet + file). The roof design/layout is often a picture on a sheet next to
+the BOQ (e.g. "Design"); --images <dir> saves those pictures into <dir>.
 
 The BOQ files differ per project (English or Indonesian headers, an optional
 "Supply By" column, the BOQ sheet not always first, a summary table on the
@@ -10,6 +14,10 @@ onto project.json is done by the /buat-proposal-cni skill.
 import json
 import re
 import sys
+
+import posixpath
+import zipfile
+from pathlib import Path
 
 import openpyxl
 
@@ -40,6 +48,27 @@ def find_header(rows):
                     cols[HEAD[lab]] = j
             return i, cols
     return None, None
+
+
+def images(path):
+    """[(sheet name, media path inside the xlsx)] for every embedded picture."""
+    z = zipfile.ZipFile(path)
+    names = set(z.namelist())
+    rel = lambda base, t: posixpath.normpath(posixpath.join(posixpath.dirname(base), t))
+    rels = lambda part: re.findall(r'<Relationship [^>]*?Id="([^"]+)"[^>]*?Target="([^"]+)"',
+                                   z.read(posixpath.join(posixpath.dirname(part), "_rels", posixpath.basename(part) + ".rels")).decode())         if posixpath.join(posixpath.dirname(part), "_rels", posixpath.basename(part) + ".rels") in names else []
+    wb = z.read("xl/workbook.xml").decode()
+    rid = dict(rels("xl/workbook.xml"))
+    out = []
+    for name, r in re.findall(r'<sheet [^>]*?name="([^"]+)"[^>]*?r:id="([^"]+)"', wb):
+        sheet = rel("xl/workbook.xml", rid.get(r, ""))
+        for _, t in rels(sheet):
+            if "drawing" in t:
+                d = rel(sheet, t)
+                out += [(name, rel(d, m)) for _, m in rels(d) if "/media/" in rel(d, m)]
+    seen = {m for _, m in out}
+    out += [("", n) for n in sorted(names) if n.startswith("xl/media/") and n not in seen]
+    return out
 
 
 def read(path):
@@ -108,9 +137,21 @@ def read(path):
             price_unit=num(get(r, "price_unit")), total=num(get(r, "total")),
         ))
     out["sections"] = [s for s in out["sections"] if s["items"]]
+    out["sheets"] = wb.sheetnames
+    out["images"] = [dict(sheet=sh, file=m) for sh, m in images(path)]
     return out
 
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
-    print(json.dumps(read(sys.argv[1]), ensure_ascii=False, indent=1))
+    res = read(sys.argv[1])
+    if "--images" in sys.argv:
+        dest = Path(sys.argv[sys.argv.index("--images") + 1])
+        dest.mkdir(parents=True, exist_ok=True)
+        z = zipfile.ZipFile(sys.argv[1])
+        for im in res["images"]:
+            stem = re.sub(r"[^a-z0-9]+", "-", im["sheet"].lower()).strip("-") or "image"
+            f = dest / f"{stem}-{posixpath.basename(im['file'])}"
+            f.write_bytes(z.read(im["file"]))
+            im["saved"] = str(f)
+    print(json.dumps(res, ensure_ascii=False, indent=1))

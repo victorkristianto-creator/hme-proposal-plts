@@ -18,7 +18,7 @@ Tujuan: PDF siap kirim dalam satu kali jalan. Kerjakan sendiri semua yang bisa d
 | Rincian rekening PLN (1–12 bulan) | foto/PDF yang user lampirkan. Sangat dianjurkan. |
 | Nama klien, lokasi (kota, provinsi), segmen | pesan user, judul BOQ, baris "Delivery" di BOQ, nama sesuai NPWP di rekening |
 | Nomor penawaran | catatan BOQ ("Nomor proposal 138") → `138/Q.PLTS/HME/<bulan romawi>/<tahun>` |
-| Gambar layout atap | file gambar yang user beri (opsional) |
+| Gambar layout atap | sheet lain di Excel BOQ (mis. "Design", lihat `images` dari `read_boq.py`), atau file gambar yang user beri |
 
 Tanggal = hari ini (format Indonesia, mis. "22 Oktober 2026"). Revisi "00". Penyusun = nama user (dari git config `user.name` atau tanyakan sekali, sekalian dengan pertanyaan lain).
 
@@ -27,6 +27,8 @@ Tanggal = hari ini (format Indonesia, mis. "22 Oktober 2026"). Revisi "00". Peny
 ```
 py -I -X utf8 .claude/skills/buat-proposal-cni/scripts/read_boq.py "<BOQ.xlsx>"
 ```
+
+**Desain/layout atap sering ada di sheet lain di Excel BOQ yang sama** (mis. sheet "Design"). `read_boq.py` mencantumkan semua `sheets` dan `images`; jalankan dengan `--images proposal-generator/projects/<id>/img` untuk menyimpan gambarnya, lihat dengan Read, lalu pakai sebagai `images.layout` (+ `images.layout_caption`, mis. "Desain awal: 31 modul di dua sisi atap."). Rapikan dulu: buang tepi putih, lalu beri latar putih sampai rasio 1,74 : 1 (halaman memotong ke rasio ini; jangan dipotong, nanti atap/modul terpotong). Jangan pakai foto contoh bila desain dari Excel ada.
 
 Isi `system`:
 - `capacity_kwp` = `wp`/1000 (atau dari judul "387 kWp / 300 kVA"); `capacity_kva` = `kva`.
