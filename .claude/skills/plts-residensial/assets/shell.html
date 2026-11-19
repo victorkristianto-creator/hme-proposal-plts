@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>@@TITLE@@</title>
+<style>
+:root{--bg:#0f172a;--panel:#111827f2;--line:#334155;--txt:#e5e7eb;--mut:#94a3b8;--acc:#f59e0b;--ok:#22c55e;--bad:#ef4444;--btn:#1f2937}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font:13px/1.4 system-ui,Segoe UI,Roboto,sans-serif;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#ui{position:fixed;top:10px;left:10px;width:360px;max-height:calc(100% - 20px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;backdrop-filter:blur(6px);scrollbar-width:thin}
+h1{font-size:15px;margin:0 0 2px;padding-right:30px}
+.sub{color:var(--mut);font-size:11.5px;margin-bottom:8px}
+.sec{margin:12px 0 6px;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+button,.btn{background:var(--btn);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 9px;cursor:pointer;font:inherit;font-size:12.5px;line-height:1.2;white-space:nowrap}
+button:hover{border-color:#64748b}
+button.on{background:var(--acc);color:#111;border-color:var(--acc);font-weight:700}
+button.pri{background:#2563eb;border-color:#2563eb}
+button:disabled{opacity:.45;cursor:default}
+button.grow{flex:1}
+select,input[type=number],input[type=text]{background:#0b1220;color:var(--txt);border:1px solid var(--line);border-radius:7px;padding:6px 7px;font:inherit;font-size:12.5px;min-width:0}
+input[type=number]{width:72px}
+input[type=range]{flex:1;accent-color:var(--acc)}
+label.chk{display:flex;gap:5px;align-items:center;cursor:pointer;font-size:12.5px}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-bottom:6px}
+.tabs button{flex:0 0 auto}
+.tabs button.add{color:var(--acc)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:4px 3px;border-bottom:1px solid #1f2937;vertical-align:top;text-align:left}
+th{color:var(--mut);font-weight:500}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.big{font-size:20px;font-weight:800;color:var(--acc)}
+.big small{font-size:12px;color:var(--mut);font-weight:500}
+.dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.note{font-size:11px;color:var(--mut);margin-top:6px}
+.warn{color:#fca5a5}
+.grid2{display:grid;grid-template-columns:auto 1fr;gap:5px 8px;align-items:center}
+.lbl{position:fixed;pointer-events:none;font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:6px;background:#000a;white-space:nowrap;transform:translate(-50%,-50%);z-index:1}
+#tool{position:fixed;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+#tool button{width:44px;height:44px;border-radius:22px;font-size:18px;padding:0;background:var(--panel)}
+#tool button.on{background:var(--acc)}
+#status{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:#000c;color:#fff;font-size:12px;padding:6px 12px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .3s;z-index:3;max-width:90vw;text-align:center}
+#status.show{opacity:1}
+#drop{position:fixed;inset:0;display:none;place-items:center;background:#0f172acc;border:3px dashed var(--acc);font-size:18px;z-index:5}
+#drop.show{display:grid}
+#load{position:fixed;inset:0;display:grid;place-items:center;color:var(--mut);font-size:14px;pointer-events:none;text-align:center;padding:20px}
+#prog{height:4px;background:#1f2937;border-radius:2px;overflow:hidden;margin-top:4px;display:none}
+#prog div{height:100%;width:0;background:var(--acc)}
+.legend{display:flex;height:8px;border-radius:4px;background:linear-gradient(90deg,#16a34a,#facc15,#dc2626);margin-top:4px}
+.legend+div{display:flex;justify-content:space-between;font-size:10px;color:var(--mut)}
+#toggle{display:none}
+.hide{display:none!important}
+details summary{cursor:pointer;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+@media (max-width:760px){
+  #ui{top:auto;bottom:0;left:0;right:0;width:auto;max-height:58%;border-radius:14px 14px 0 0;padding:8px 10px calc(10px + env(safe-area-inset-bottom))}
+  #ui.min{max-height:none}
+  #ui.min .hide-min{display:none}
+  #toggle{display:block;position:absolute;right:4px;top:2px;width:44px;height:40px;background:none;border:0;color:var(--mut);font-size:18px}
+  h1{font-size:14px;cursor:pointer}
+  .sub{display:none}
+  #tool{top:calc(8px + env(safe-area-inset-top))}
+  #status{bottom:auto;top:calc(10px + env(safe-area-inset-top))}
+  button{padding:9px 10px}
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="load">Memuat…</div>
+<div id="drop">Lepaskan file .glb di sini</div>
+<div id="status"></div>
+<div id="tool">
+  <button id="tEdit" title="Mode edit PV (E)">✎</button>
+  <button id="tFit" title="Pas ke rumah">⤢</button>
+  <button id="tTop" title="Tampak atas">⊤</button>
+</div>
+<div id="ui">
+  <button id="toggle" aria-label="Lipat panel">▾</button>
+  <h1 id="title"></h1>
+  <div class="sub" id="subtitle"></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="big" id="kwp"></div>
+  <div class="hide-min">
+    <div class="sec">Modul PV</div>
+    <div class="row">
+      <select id="modSel" style="flex:1"></select>
+      <button id="orient" title="Portrait / landscape (R)">Portrait</button>
+    </div>
+    <div class="row" id="modDims">
+      <span>P</span><input type="number" id="mL" step="1"> <span>L</span><input type="number" id="mW" step="1"><span>mm</span>
+      <input type="number" id="mWp" step="5" style="width:64px"><span>Wp</span>
+    </div>
+    <div class="row">
+      <span>Celah</span><input type="number" id="gap" step="5" style="width:56px"><span>mm</span>
+      <label class="chk" title="Menempel ke baris/kolom modul lain bila dalam 30 cm"><input type="checkbox" id="snap" checked>snap magnet</label>
+    </div>
+
+    <div class="sec">Penempatan <span id="editHint"></span></div>
+    <div class="row">
+      <button id="bEdit" class="grow">✎ Mode edit: mati</button>
+      <button id="bUndo" title="Ctrl+Z">↶ Undo</button>
+      <button id="bRedo" title="Ctrl+Y">↷</button>
+    </div>
+    <div class="row">
+      <button id="bRow" class="grow" title="Isi satu baris dari modul terpilih">⇔ Isi baris</button>
+      <button id="bFill" class="grow" title="Isi penuh bidang terpilih">▦ Isi bidang</button>
+      <button id="bDel" title="Hapus modul terpilih (Delete)">🗑</button>
+      <button id="bClear" title="Hapus semua modul di varian ini">Kosongkan</button>
+    </div>
+    <div class="note" id="howto">Mode edit: klik bidang atap untuk menaruh modul · seret modul untuk geser · klik kanan / Delete untuk hapus · R putar · tahan Alt = tanpa snap · Ctrl+Z undo. Di HP: ketuk untuk taruh, ketuk modul lalu 🗑.</div>
+
+    <div class="sec">Hasil</div>
+    <table id="tbl"></table>
+    <div id="warnBox" class="note warn"></div>
+
+    <div class="sec">Matahari & bayangan</div>
+    <div class="grid2">
+      <span>Tanggal</span><div class="row" style="margin:0"><input type="range" id="sDate" min="1" max="365" step="1"><span id="vDate" style="width:52px"></span></div>
+      <span>Jam</span><div class="row" style="margin:0"><input type="range" id="sTime" min="300" max="1140" step="5"><span id="vTime" style="width:52px"></span></div>
+    </div>
+    <div class="note" id="vSun"></div>
+    <div class="row" style="margin-top:6px">
+      <button data-day="172">21 Jun</button><button data-day="80">Ekuinoks</button><button data-day="355">21 Des</button>
+      <button id="bPlay">▶ 1 hari</button>
+    </div>
+    <div class="row">
+      <label class="chk"><input type="checkbox" id="cShadow" checked>bayangan</label>
+      <label class="chk"><input type="checkbox" id="cPath" checked>busur matahari</label>
+      <label class="chk"><input type="checkbox" id="cHeat">warna rugi bayangan</label>
+    </div>
+    <div class="row">
+      <button id="bShade" class="grow pri">☀ Hitung rugi bayangan tahunan</button>
+    </div>
+    <div id="prog"><div></div></div>
+    <div id="heatLegend" class="hide"><div class="legend"></div><div><span>0%</span><span>5%</span><span>≥10%</span></div></div>
+
+    <div class="sec">Simpan</div>
+    <div class="row">
+      <button id="bExport" class="grow">⭳ Ekspor layout</button>
+      <button id="bImport" class="grow">⭱ Impor</button>
+      <button id="bPng" class="grow">🖼 PNG</button>
+    </div>
+    <div class="note" id="saveNote">Tersimpan otomatis di browser ini.</div>
+    <input type="file" id="fImport" accept=".json,application/json" class="hide">
+
+    <details id="advanced">
+      <summary>Bidang atap & model</summary>
+      <table id="planeTbl"></table>
+      <div class="row" style="margin-top:6px">
+        <label class="chk"><input type="checkbox" id="cPlanes">tampilkan bidang</label>
+        <label class="chk"><input type="checkbox" id="cModel" checked>model</label>
+      </div>
+      <div class="row">
+        <button id="bNewPlane" class="grow" title="Klik titik-titik sudut bidang atap pada model">＋ Bidang dari klik</button>
+        <button id="bLoadGlb" class="grow">Buka .glb</button>
+      </div>
+      <div class="row hide" id="glbAdj">
+        <span>Utara model</span><input type="number" id="northRot" step="1" value="0" style="width:60px"><span>°</span>
+        <button id="bZup">Sumbu Z-atas</button>
+      </div>
+      <input type="file" id="fGlb" accept=".glb" class="hide">
+      <div class="note" id="accNote"></div>
+    </details>
+  </div>
+</div>
+
+<script id="site-data" type="application/json">@@SITE@@</script>
+<script id="glb-data" type="text/plain">@@GLB@@</script>
+<script>window.onerror=function(m,s,l){var e=document.getElementById('load');if(e){e.style.color='#f87171';e.textContent='Error: '+m+' (baris '+l+')';}};</script>
+<script>
+@@LIBS@@
+</script>
+<script>
+@@APP@@
+</script>
+</body>
+</html>
